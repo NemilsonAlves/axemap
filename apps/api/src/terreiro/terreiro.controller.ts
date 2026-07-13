@@ -41,6 +41,11 @@ export class TerreiroController {
     return this.terreiroService.buscarPorSlug(slug);
   }
 
+  @Get(':slug/perfil')
+  async getPerfil(@Param('slug') slug: string) {
+    return this.terreiroService.getPerfil(slug);
+  }
+
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
   async atualizar(@Param('id') id: string, @Body() dto: any, @CurrentUser() user: any) {

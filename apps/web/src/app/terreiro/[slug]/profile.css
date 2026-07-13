@@ -1,0 +1,693 @@
+/* ============================================
+   AxéMap — Perfil do Terreiro
+   Inspired by: Airbnb, Google Business, TripAdvisor
+   ============================================ */
+
+/* --- Hero Section --- */
+.hero-section {
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  align-items: flex-end;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #2c1810 100%);
+  border-radius: 0 0 24px 24px;
+  overflow: hidden;
+}
+
+.hero-section.has-photo {
+  min-height: 480px;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.4);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 40%, rgba(44,24,16,0.85) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 2rem;
+}
+
+.hero-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.hero-info {
+  flex: 1;
+}
+
+.hero-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-white);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.hero-location {
+  font-size: 1.1rem;
+  color: var(--color-gray-200);
+  margin-bottom: 0.5rem;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  color: var(--color-gray-300);
+  max-width: 600px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* --- Trust Score Badge (Hero) --- */
+.trust-score-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: help;
+}
+
+.trust-score-ring {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.trust-score-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-white);
+}
+
+.trust-score-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-gray-300);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Share Buttons --- */
+.share-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.share-label {
+  font-size: 0.75rem;
+  color: var(--color-gray-300);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.share-icons {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.share-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  color: var(--color-white);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.share-icon-btn:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* --- Sobre Section --- */
+.sobre-texto {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  white-space: pre-line;
+}
+
+.sobre-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--color-gray-100);
+  padding-top: 0.5rem;
+}
+
+/* --- Localização --- */
+.localizacao-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.localizacao-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* --- Horários --- */
+.horarios-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.25rem 1rem;
+}
+
+.horario-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.375rem 0;
+  border-bottom: 1px solid var(--color-gray-100);
+  font-size: 0.9rem;
+}
+
+.horario-row.fechado .horario-valor {
+  color: var(--color-gray-300);
+}
+
+.horario-dia {
+  font-weight: 500;
+}
+
+.horario-valor {
+  color: var(--color-text);
+}
+
+/* --- Galeria --- */
+.galeria-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.galeria-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  background: var(--color-gray-100);
+}
+
+.galeria-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.galeria-item:hover img {
+  transform: scale(1.05);
+}
+
+.galeria-mais {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  background: var(--color-gray-100);
+}
+
+/* --- Videos --- */
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.video-item {
+  text-decoration: none;
+  color: inherit;
+}
+
+.video-thumb {
+  aspect-ratio: 16/9;
+  background: var(--color-gray-200);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.375rem;
+}
+
+.video-play-icon {
+  font-size: 2rem;
+  color: var(--color-accent);
+  opacity: 0.8;
+}
+
+.video-titulo {
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: block;
+  text-align: center;
+}
+
+/* --- Modal (Galeria) --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.modal-close {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: none;
+  border: none;
+  color: var(--color-white);
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.modal-image {
+  max-width: 100%;
+  max-height: 85vh;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+/* --- Eventos --- */
+.eventos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.evento-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-gray-100);
+  border-radius: 10px;
+}
+
+.evento-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 0.5rem;
+  background: var(--color-white);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.evento-dia {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+.evento-mes {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.evento-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.evento-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.evento-desc {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  margin-top: 0.25rem;
+}
+
+/* --- Cursos e Ações Sociais --- */
+.cursos-lista, .acoes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.curso-card, .acao-card {
+  padding: 1rem;
+  background: var(--color-gray-100);
+  border-radius: 10px;
+}
+
+.curso-titulo, .acao-nome {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.curso-desc, .acao-desc {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  margin-bottom: 0.5rem;
+}
+
+.curso-meta, .acao-meta {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+/* --- Avaliações --- */
+.avaliacoes-header {
+  margin-bottom: 1rem;
+}
+
+.avaliacoes-media {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avaliacoes-nota {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-accent);
+}
+
+.avaliacoes-total {
+  font-size: 0.85rem;
+  color: var(--color-gray-300);
+}
+
+.avaliacoes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.avaliacao-card {
+  padding: 1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 10px;
+}
+
+.avaliacao-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.avaliacao-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avaliacao-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.avaliacao-data {
+  font-size: 0.8rem;
+  color: var(--color-gray-300);
+  white-space: nowrap;
+}
+
+.avaliacao-texto {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.avaliacao-resposta {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: var(--color-gray-100);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+/* --- Trust Score (Sidebar) --- */
+.ts-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ts-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ts-circle-inner {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ts-score {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.ts-level {
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* --- Profile Completeness (Sidebar) --- */
+.pc-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.pc-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--color-gray-200);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.pc-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.5s ease;
+}
+
+.pc-percent {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+.pc-subtitle {
+  font-size: 0.8rem;
+  color: var(--color-gray-300);
+  margin-bottom: 0.75rem;
+}
+
+.pc-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--color-gray-300);
+}
+
+.pc-item.done {
+  color: var(--color-text);
+}
+
+.pc-check {
+  font-size: 0.9rem;
+  width: 1rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.pc-item.done .pc-check {
+  color: #16a34a;
+}
+
+.pc-label {
+  flex: 1;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 968px) {
+  .hero-section {
+    min-height: auto;
+  }
+
+  .hero-section.has-photo {
+    min-height: 360px;
+  }
+
+  .hero-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .hero-buttons {
+    justify-content: flex-start;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .horarios-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .galeria-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .videos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-section {
+    border-radius: 0;
+  }
+
+  .hero-content {
+    padding: 1.25rem;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .hero-location {
+    font-size: 0.95rem;
+  }
+
+  .hero-desc {
+    font-size: 0.85rem;
+  }
+
+  .galeria-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .videos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .avaliacoes-media {
+    flex-wrap: wrap;
+  }
+}

@@ -11,9 +11,18 @@
   --color-bg: #FFF8F0;
   --color-text: #2C1810;
   --color-white: #FFFFFF;
+  --color-gray-50: #FAF7F4;
   --color-gray-100: #F5F0EB;
   --color-gray-200: #E8E0D6;
   --color-gray-300: #C4B5A5;
+  --color-gray-400: #A69480;
+  --color-gray-500: #8B7B6B;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 body {

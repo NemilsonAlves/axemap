@@ -108,6 +108,14 @@ model Terreiros {
   isVerified        Boolean        @default(false)
   verificationLevel VerificationLevel @default(BASICO)
   fotoUrl           String?
+  anoFundacao       Int?
+  linhagem          String?
+  instagram         String?
+  whatsapp          String?
+  facebook          String?
+  acessibilidade    Boolean        @default(false)
+  estacionamento    String?        @db.VarChar(20)
+  publicadoEm       DateTime?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   deletedAt         DateTime?
@@ -125,6 +133,8 @@ model Terreiros {
   conteudos         Conteudos[]
   acoesSociais      AcoesSociais[]
   documentosVerificacao DocumentosVerificacao[]
+  fotos              TerreiroFoto[]
+  videos             TerreiroVideo[]
 
   @@index([tradicao, cidade, estado])
   @@index([trustScore])
@@ -145,6 +155,7 @@ model Avaliacoes {
   usuario      Usuarios @relation(fields: [usuarioId], references: [id])
   terreiroId   String
   terreiro     Terreiros @relation(fields: [terreiroId], references: [id])
+  resposta     AvaliacaoResposta?
 
   @@unique([usuarioId, terreiroId])
   @@index([terreiroId, nota])
@@ -298,6 +309,50 @@ model DocumentosVerificacao {
   terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@map("documentos_verificacao")
+}
+
+model TerreiroFoto {
+  id           String   @id @default(uuid())
+  url          String
+  thumbUrl     String?
+  alt          String?
+  ordem        Int      @default(0)
+  categoria    String?
+  isPrincipal  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  terreiroId  String
+  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@index([terreiroId, ordem])
+  @@map("terreiro_fotos")
+}
+
+model TerreiroVideo {
+  id          String   @id @default(uuid())
+  url         String
+  titulo      String?
+  descricao   String?
+  ordem       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  terreiroId  String
+  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@index([terreiroId])
+  @@map("terreiro_videos")
+}
+
+model AvaliacaoResposta {
+  id          String   @id @default(uuid())
+  texto       String   @db.VarChar(3000)
+  createdAt   DateTime @default(now())
+
+  avaliacaoId String
+  avaliacao   Avaliacoes @relation(fields: [avaliacaoId], references: [id])
+
+  @@unique([avaliacaoId])
+  @@map("avaliacao_respostas")
 }
 
 model AuditLogs {
