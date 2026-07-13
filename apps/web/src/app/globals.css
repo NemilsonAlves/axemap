@@ -1,0 +1,77 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-primary: #4A3728;
+  --color-secondary: #D4895B;
+  --color-accent: #8B4513;
+  --color-bg: #FFF8F0;
+  --color-text: #2C1810;
+  --color-white: #FFFFFF;
+  --color-gray-100: #F5F0EB;
+  --color-gray-200: #E8E0D6;
+  --color-gray-300: #C4B5A5;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 1rem 2rem;
+}
+
+.nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-white);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: var(--color-gray-200);
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  color: var(--color-white);
+}
+
+.main {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+.footer {
+  background: var(--color-primary);
+  color: var(--color-gray-300);
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.875rem;
+}

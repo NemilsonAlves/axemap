@@ -1,0 +1,335 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis, vector]
+}
+
+enum UserRole {
+  VISITOR
+  PRACTITIONER
+  DIRIGENTE
+  OGA
+  EKEDI
+  FILHO_DE_SANTO
+  MEMBER
+  CO_ADMIN
+  CURATOR
+  MODERATOR
+  VERIFIER
+  SUPPORT
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum TerreiroStatus {
+  RASCUNHO
+  PENDENTE_REVISAO
+  EM_REVISAO
+  AGUARDANDO_DIRIGENTE
+  PUBLICADO
+  EM_EDICAO
+  RECUSADO
+  BLOQUEADO
+  ARQUIVADO
+  SUSPENSO
+  VERIFICADO
+}
+
+enum VerificationLevel {
+  BASICO
+  DOCUMENTAL
+  COMUNITARIO
+  AVANCADO
+  COMPLETO
+}
+
+enum EventType {
+  GIRA
+  TOQUE
+  FESTA_RELIGIOSA
+  PALESTRA
+  CURSO
+  DESENVOLVIMENTO_MEDIUNICO
+  ACAO_SOCIAL
+}
+
+model Usuarios {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  nome            String
+  senhaHash       String
+  role            UserRole  @default(VISITOR)
+  avatarUrl       String?
+  isVerified      Boolean   @default(false)
+  trustScore      Float     @default(0)
+  refreshToken    String?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  terreirosCriados   Terreiros[]   @relation("terreiro_criado_por")
+  dirigenteDe        Terreiros[]   @relation("terreiro_dirigente")
+  avaliacoes         Avaliacoes[]
+  favoritos          Favoritos[]
+  eventosCriados     Eventos[]     @relation("evento_criado_por")
+  membroDe           MembrosTerreiro[]
+  matriculas         MatriculasCurso[]
+  conteudosCriados   Conteudos[]   @relation("conteudo_criado_por")
+  auditLogs          AuditLogs[]
+  notificacoes       Notificacoes[]
+
+  @@map("usuarios")
+}
+
+model Terreiros {
+  id                String         @id @default(uuid())
+  nome              String
+  slug              String         @unique
+  tradicao          String
+  status            TerreiroStatus @default(RASCUNHO)
+  trustScore        Float          @default(0)
+  descricaoCurta    String?        @db.VarChar(500)
+  descricaoLonga    String?        @db.Text
+  cidade            String
+  estado            String         @db.VarChar(2)
+  latitude          Float
+  longitude         Float
+  geoPoint          Unsupported("geography(Point, 4326)")?
+  telefone          String?
+  email             String?
+  website           String?
+  horarioFuncionamento String?
+  isPublished       Boolean        @default(false)
+  isVerified        Boolean        @default(false)
+  verificationLevel VerificationLevel @default(BASICO)
+  fotoUrl           String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime?
+
+  criadoPorId       String
+  criadoPor         Usuarios       @relation("terreiro_criado_por", fields: [criadoPorId], references: [id])
+  dirigenteId       String?
+  dirigente         Usuarios?      @relation("terreiro_dirigente", fields: [dirigenteId], references: [id])
+  eventos           Eventos[]
+  avaliacoes        Avaliacoes[]
+  favoritos         Favoritos[]
+  membros           MembrosTerreiro[]
+  cursos            Cursos[]
+  produtos          ProdutosMarketplace[]
+  conteudos         Conteudos[]
+  acoesSociais      AcoesSociais[]
+  documentosVerificacao DocumentosVerificacao[]
+
+  @@index([tradicao, cidade, estado])
+  @@index([trustScore])
+  @@index([slug])
+  @@map("terreiros")
+}
+
+model Avaliacoes {
+  id          String   @id @default(uuid())
+  nota        Int
+  texto       String?  @db.VarChar(2000)
+  pesoAvaliador Float  @default(1.0)
+  utilCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime?
+
+  usuarioId    String
+  usuario      Usuarios @relation(fields: [usuarioId], references: [id])
+  terreiroId   String
+  terreiro     Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@unique([usuarioId, terreiroId])
+  @@index([terreiroId, nota])
+  @@map("avaliacoes")
+}
+
+model Eventos {
+  id          String    @id @default(uuid())
+  titulo      String
+  descricao   String?   @db.Text
+  tipo        EventType
+  dataInicio  DateTime
+  dataFim     DateTime?
+  capacidade  Int?
+  isPublico   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  terreiroId    String
+  terreiro      Terreiros @relation(fields: [terreiroId], references: [id])
+  criadoPorId   String
+  criadoPor     Usuarios  @relation("evento_criado_por", fields: [criadoPorId], references: [id])
+
+  @@index([dataInicio, terreiroId])
+  @@map("eventos")
+}
+
+model Favoritos {
+  usuarioId  String
+  usuario    Usuarios @relation(fields: [usuarioId], references: [id])
+  terreiroId String
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+  createdAt  DateTime  @default(now())
+
+  @@id([usuarioId, terreiroId])
+  @@map("favoritos")
+}
+
+model MembrosTerreiro {
+  id         String   @id @default(uuid())
+  cargo      String?
+  desde      DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  usuarioId   String
+  usuario     Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId  String
+  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@unique([usuarioId, terreiroId])
+  @@map("membros_terreiro")
+}
+
+model Cursos {
+  id           String   @id @default(uuid())
+  titulo       String
+  descricao    String?  @db.Text
+  modalidade   String?
+  cargaHoraria Int?
+  vagas        Int?
+  dataInicio   DateTime?
+  dataFim      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  terreiroId  String
+  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+  matriculas  MatriculasCurso[]
+
+  @@map("cursos")
+}
+
+model MatriculasCurso {
+  id        String   @id @default(uuid())
+  status    String   @default("PENDENTE")
+  createdAt DateTime @default(now())
+
+  usuarioId  String
+  usuario    Usuarios @relation(fields: [usuarioId], references: [id])
+  cursoId    String
+  curso      Cursos   @relation(fields: [cursoId], references: [id])
+
+  @@unique([usuarioId, cursoId])
+  @@map("matriculas_curso")
+}
+
+model ProdutosMarketplace {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?  @db.Text
+  preco       Float
+  categoria   String?
+  estoque     Int      @default(0)
+  imagens     String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  terreiroId  String
+  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@map("produtos_marketplace")
+}
+
+model Conteudos {
+  id          String   @id @default(uuid())
+  titulo      String
+  tipo        String
+  conteudo    String?  @db.Text
+  url         String?
+  publicado   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  criadoPorId  String
+  criadoPor    Usuarios  @relation("conteudo_criado_por", fields: [criadoPorId], references: [id])
+  terreiroId   String?
+  terreiro     Terreiros? @relation(fields: [terreiroId], references: [id])
+
+  @@map("conteudos")
+}
+
+model AcoesSociais {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?  @db.Text
+  tipo        String?
+  data        DateTime?
+  alcance     Int?
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime?
+
+  terreiroId  String
+  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@map("acoes_sociais")
+}
+
+model DocumentosVerificacao {
+  id          String   @id @default(uuid())
+  tipo        String
+  arquivoUrl  String
+  status      String   @default("PENDENTE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  terreiroId  String
+  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@map("documentos_verificacao")
+}
+
+model AuditLogs {
+  id           String   @id @default(uuid())
+  acao         String
+  entidadeTipo String
+  entidadeId   String
+  antes        Json?
+  depois       Json?
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  usuarioId   String?
+  usuario     Usuarios? @relation(fields: [usuarioId], references: [id])
+
+  @@index([entidadeTipo, entidadeId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Notificacoes {
+  id        String   @id @default(uuid())
+  tipo      String
+  titulo    String
+  mensagem  String?
+  lida      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  usuarioId  String
+  usuario    Usuarios @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId, lida])
+  @@map("notificacoes")
+}
