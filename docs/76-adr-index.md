@@ -21,10 +21,12 @@
 | ADR-015 | Event-Driven Architecture | ✅ Aceito | 2026-07-13 |
 | ADR-016 | Domain-Driven Design | ✅ Aceito | 2026-07-13 |
 | ADR-017 | Clean Architecture | ✅ Aceito | 2026-07-13 |
-| ADR-018 | Leaflet + OpenStreetMap | ✅ Aceito | 2026-07-13 |
+| ADR-018 | Leaflet + OpenStreetMap | ⚠️ Depreciado | 2026-07-13 |
 | ADR-019 | Cloudflare R2 para Storage | ✅ Aceito | 2026-07-13 |
 | ADR-020 | PostGIS para Dados Geoespaciais | ✅ Aceito | 2026-07-13 |
 | ADR-021 | Graph Abstraction Layer (GAL) | ✅ Aceito | 2026-07-13 |
+| ADR-022 | Map Provider Abstraction | ✅ Aceito | 2026-07-13 |
+| ADR-023 | Data Trust Metadata | ✅ Aceito | 2026-07-13 |
 
 ## Status dos ADRs
 

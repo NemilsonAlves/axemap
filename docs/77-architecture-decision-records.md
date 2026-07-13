@@ -550,3 +550,64 @@ Migração para Neo4j será trocar a implementação concreta.
 
 ## Riscos
 - Abstração pode vazar detalhes de implementação → mitigação: testes de integração
+
+---
+
+# ADR-022 — Map Provider Abstraction
+
+## Contexto
+O AxéMap utiliza mapas para localizar terreiros. Diferentes provedores (Leaflet, MapLibre, Google Maps) têm APIs distintas. Acoplar a aplicação a um provedor específico dificulta a migração futura.
+
+## Problema
+Como implementar mapas sem depender de um provedor específico?
+
+## Objetivo
+Trocar o provedor de mapas apenas por configuração, sem alterar código de negócio.
+
+## Alternativas Avaliadas
+- **Leaflet direto:** Simples, mas acoplamento
+- **MapLibre direto:** Moderno, mas menos maduro que Leaflet
+- **Map Provider Abstraction:** (escolhido) Interface genérica, implementações plugáveis
+
+## Motivos da Decisão
+1. Provedor de mapa é detalhe de infraestrutura, não de domínio
+2. MapLibre GL JS é a implementação preferencial futura
+3. Leaflet é aceitável no MVP se simplificar
+4. Google Maps pode ser necessário apenas em cenários específicos
+
+## Trade-offs
+- Abstração adiciona uma camada extra
+- Leaflet e MapLibre têm APIs diferentes — a abstração precisa ser genérica o suficiente
+
+## Impactos Futuros
+Trocar de Leaflet para MapLibre será apenas trocar o componente importado.
+
+## Riscos
+- Abstração muito genérica perde poder da API específica → mitigação: interface enxuta com escape hatch (`getNativeMap()`)
+
+---
+
+# ADR-023 — Data Trust Metadata
+
+## Contexto
+Os dados geográficos vêm de múltiplas fontes (cadastro oficial, colaborativo, importação, OSM, IA). Cada fonte tem nível de confiança diferente. O Trust Score depende da procedência.
+
+## Problema
+Como rastrear a origem e confiabilidade de cada dado?
+
+## Alternativas Avaliadas
+- **Sem metadados:** Perde rastreabilidade
+- **Metadados em tabela separada:** (escolhido) `data_trust_metadata` vinculado a cada registro
+- **Metadados no próprio registro:** Polui a tabela principal
+
+## Motivos da Decisão
+1. Cada dado precisa de origem, responsável, método de validação e nível de confiança
+2. Metadados alimentam diretamente o Trust Score
+3. Histórico de alterações preservado
+
+## Trade-offs
+- Tabela adicional = mais joins
+- Complexidade em manter metadados para cada campo
+
+## Impactos Futuros
+Base de conhecimento auditável e confiável — ativo estratégico da plataforma.
