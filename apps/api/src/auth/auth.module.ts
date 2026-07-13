@@ -15,8 +15,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       useFactory: (config: ConfigService) => ({
         secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: config.get<string>('JWT_EXPIRES_IN') || '15m',
-        } as any, // TODO: fix type once @nestjs/jwt aligns with newer types
+          expiresIn: config.get<string>('JWT_EXPIRES_IN') || ('15m' as any),
+        } as any,
       }),
     }),
   ],
