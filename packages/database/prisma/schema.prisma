@@ -78,6 +78,7 @@ model Usuarios {
   favoritos          Favoritos[]
   eventosCriados     Eventos[]     @relation("evento_criado_por")
   membroDe           MembrosTerreiro[]
+  convitesEnviados   MembrosTerreiro[]  @relation("membro_convidado_por")
   matriculas         MatriculasCurso[]
   conteudosCriados   Conteudos[]   @relation("conteudo_criado_por")
   auditLogs          AuditLogs[]
@@ -85,6 +86,10 @@ model Usuarios {
   missoes            UserMission[]
   conquistas         UserAchievement[]
   acoesEvolucao      EvolutionAction[]
+  seguidores         SeguidoresTerreiro[]
+  presencas          PresencaEvento[]
+  indicacoesFeitas   Indicacoes[]     @relation("indicacoes_feitas")
+  indicacoesRecebidas Indicacoes[]    @relation("indicacoes_recebidas")
 
   @@map("usuarios")
 }
@@ -118,6 +123,7 @@ model Terreiros {
   facebook          String?
   acessibilidade    Boolean        @default(false)
   estacionamento    String?        @db.VarChar(20)
+  codigoIndicacao   String?        @unique
   publicadoEm       DateTime?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
@@ -143,6 +149,9 @@ model Terreiros {
   axScoreHistory     AxScoreHistory[]
   acoesEvolucao      EvolutionAction[]
   metasEvolucao      EvolutionGoal[]
+  seguidores         SeguidoresTerreiro[]
+  indicacoesEnviadas  Indicacoes[]     @relation("indicacoes_terreiro")
+  acessosQR          AcessoQRCode[]
 
   @@index([tradicao, cidade, estado])
   @@index([trustScore])
@@ -188,6 +197,8 @@ model Eventos {
   criadoPorId   String
   criadoPor     Usuarios  @relation("evento_criado_por", fields: [criadoPorId], references: [id])
 
+  presencas         PresencaEvento[]
+
   @@index([dataInicio, terreiroId])
   @@map("eventos")
 }
@@ -205,14 +216,17 @@ model Favoritos {
 
 model MembrosTerreiro {
   id         String   @id @default(uuid())
-  cargo      String?
+  papel      String   @default("COLABORADOR")
+  conviteStatus String @default("ACEITO")
   desde      DateTime @default(now())
   createdAt  DateTime @default(now())
 
-  usuarioId   String
-  usuario     Usuarios  @relation(fields: [usuarioId], references: [id])
-  terreiroId  String
-  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+  usuarioId      String
+  usuario        Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId     String
+  terreiro       Terreiros @relation(fields: [terreiroId], references: [id])
+  convidadoPorId String?
+  convidadoPor   Usuarios? @relation("membro_convidado_por", fields: [convidadoPorId], references: [id])
 
   @@unique([usuarioId, terreiroId])
   @@map("membros_terreiro")
@@ -380,6 +394,65 @@ model AuditLogs {
   @@index([entidadeTipo, entidadeId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model SeguidoresTerreiro {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  usuarioId  String
+  usuario    Usuarios @relation(fields: [usuarioId], references: [id])
+  terreiroId String
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@unique([usuarioId, terreiroId])
+  @@map("seguidores_terreiro")
+}
+
+model PresencaEvento {
+  id        String   @id @default(uuid())
+  status    String   @default("CONFIRMADO")
+  createdAt DateTime @default(now())
+
+  usuarioId String
+  usuario   Usuarios @relation(fields: [usuarioId], references: [id])
+  eventoId  String
+  evento    Eventos  @relation(fields: [eventoId], references: [id])
+
+  @@unique([usuarioId, eventoId])
+  @@map("presenca_eventos")
+}
+
+model Indicacoes {
+  id        String    @id @default(uuid())
+  status    String    @default("PENDENTE")
+  convertidoEm DateTime?
+  createdAt DateTime  @default(now())
+
+  indicadorId  String
+  indicador    Usuarios  @relation("indicacoes_feitas", fields: [indicadorId], references: [id])
+  indicadoId   String
+  indicado     Usuarios  @relation("indicacoes_recebidas", fields: [indicadoId], references: [id])
+  terreiroId   String?
+  terreiro     Terreiros? @relation("indicacoes_terreiro", fields: [terreiroId], references: [id])
+
+  @@unique([indicadorId, indicadoId])
+  @@index([indicadorId])
+  @@index([terreiroId])
+  @@map("indicacoes")
+}
+
+model AcessoQRCode {
+  id        String   @id @default(uuid())
+  userAgent String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  terreiroId String
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@index([terreiroId, createdAt])
+  @@map("acessos_qrcode")
 }
 
 model Mission {

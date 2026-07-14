@@ -12,6 +12,7 @@ import { AcoesSociaisSection } from '@/components/terreiro/acoes-sociais-section
 import { AvaliacoesSection } from '@/components/terreiro/avaliacoes-section';
 import { TrustScoreSection } from '@/components/terreiro/trust-score-section';
 import { ProfileCompleteness } from '@/components/terreiro/profile-completeness';
+import { QRCodeSection } from '@/components/terreiro/qr-code-section';
 import './profile.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -113,6 +114,11 @@ export default async function TerreiroPage({ params }: { params: Promise<{ slug:
           <aside className="profile-sidebar">
             <TrustScoreSection trustScoreInfo={terreiro.trustScoreInfo} />
             <ProfileCompleteness completeness={terreiro.completeness} />
+            <QRCodeSection
+              url={`https://axemap.com.br/t/${slug}`}
+              slug={slug}
+              nome={terreiro.nome}
+            />
           </aside>
         </div>
       </div>
