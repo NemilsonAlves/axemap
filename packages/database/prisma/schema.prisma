@@ -82,6 +82,9 @@ model Usuarios {
   conteudosCriados   Conteudos[]   @relation("conteudo_criado_por")
   auditLogs          AuditLogs[]
   notificacoes       Notificacoes[]
+  missoes            UserMission[]
+  conquistas         UserAchievement[]
+  acoesEvolucao      EvolutionAction[]
 
   @@map("usuarios")
 }
@@ -135,6 +138,11 @@ model Terreiros {
   documentosVerificacao DocumentosVerificacao[]
   fotos              TerreiroFoto[]
   videos             TerreiroVideo[]
+  missoesUsuario     UserMission[]
+  conquistasUsuario  UserAchievement[]
+  axScoreHistory     AxScoreHistory[]
+  acoesEvolucao      EvolutionAction[]
+  metasEvolucao      EvolutionGoal[]
 
   @@index([tradicao, cidade, estado])
   @@index([trustScore])
@@ -372,6 +380,123 @@ model AuditLogs {
   @@index([entidadeTipo, entidadeId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model Mission {
+  id            String   @id @default(uuid())
+  key           String   @unique
+  titulo        String
+  descricao     String   @db.Text
+  categoria     String?
+  requisitos    Json?
+  rewardAxScore Int      @default(5)
+  rewardTrustScore Float  @default(0)
+  ordem         Int      @default(0)
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  usuarios      UserMission[]
+
+  @@map("missoes")
+}
+
+model UserMission {
+  id          String    @id @default(uuid())
+  progresso   Int       @default(0)
+  completo    Boolean   @default(false)
+  completadoEm DateTime?
+  createdAt   DateTime  @default(now())
+
+  usuarioId    String
+  usuario      Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId   String
+  terreiro     Terreiros @relation(fields: [terreiroId], references: [id])
+  missionId    String
+  mission      Mission   @relation(fields: [missionId], references: [id])
+
+  @@unique([usuarioId, terreiroId, missionId])
+  @@map("usuario_missoes")
+}
+
+model Achievement {
+  id            String   @id @default(uuid())
+  key           String   @unique
+  titulo        String
+  descricao     String   @db.Text
+  icone         String?
+  categoria     String?
+  requisitos    Json?
+  rewardAxScore Int      @default(10)
+  ordem         Int      @default(0)
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  usuarios      UserAchievement[]
+
+  @@map("conquistas")
+}
+
+model UserAchievement {
+  id        String   @id @default(uuid())
+  earnedAt  DateTime @default(now())
+
+  usuarioId      String
+  usuario        Usuarios     @relation(fields: [usuarioId], references: [id])
+  terreiroId     String
+  terreiro       Terreiros    @relation(fields: [terreiroId], references: [id])
+  achievementId  String
+  achievement    Achievement  @relation(fields: [achievementId], references: [id])
+
+  @@unique([usuarioId, terreiroId, achievementId])
+  @@map("usuario_conquistas")
+}
+
+model AxScoreHistory {
+  id        String   @id @default(uuid())
+  score     Int
+  delta     Int
+  razao     String
+  createdAt DateTime @default(now())
+
+  terreiroId String
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@index([terreiroId, createdAt])
+  @@map("axscore_history")
+}
+
+model EvolutionAction {
+  id             String   @id @default(uuid())
+  actionType     String
+  descricao      String   @db.VarChar(500)
+  axScoreDelta   Int      @default(0)
+  trustScoreDelta Float   @default(0)
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  usuarioId  String
+  usuario    Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId String
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@index([terreiroId, createdAt])
+  @@map("acoes_evolucao")
+}
+
+model EvolutionGoal {
+  id          String   @id @default(uuid())
+  titulo      String
+  descricao   String?  @db.Text
+  targetDate  DateTime?
+  completado  Boolean  @default(false)
+  completadoEm DateTime?
+  createdAt   DateTime @default(now())
+
+  terreiroId String
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@index([terreiroId])
+  @@map("metas_evolucao")
 }
 
 model Notificacoes {

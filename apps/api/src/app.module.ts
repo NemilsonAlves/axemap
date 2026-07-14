@@ -6,6 +6,7 @@ import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { TerreiroModule } from './terreiro/terreiro.module';
 import { GeoModule } from './geo/geo.module';
+import { EvolutionModule } from './evolution/evolution.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GeoModule } from './geo/geo.module';
     AuthModule,
     TerreiroModule,
     GeoModule,
+    EvolutionModule,
   ],
 })
 export class AppModule {}
