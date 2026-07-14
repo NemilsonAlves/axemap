@@ -90,6 +90,8 @@ model Usuarios {
   presencas          PresencaEvento[]
   indicacoesFeitas   Indicacoes[]     @relation("indicacoes_feitas")
   indicacoesRecebidas Indicacoes[]    @relation("indicacoes_recebidas")
+  reivindicacoes     ClaimRequest[]
+  reivindicacoesRevisadas ClaimRequest[] @relation("reivindicacao_revisada")
 
   @@map("usuarios")
 }
@@ -152,6 +154,7 @@ model Terreiros {
   seguidores         SeguidoresTerreiro[]
   indicacoesEnviadas  Indicacoes[]     @relation("indicacoes_terreiro")
   acessosQR          AcessoQRCode[]
+  pedidosReivindicacao ClaimRequest[]
 
   @@index([tradicao, cidade, estado])
   @@index([trustScore])
@@ -453,6 +456,26 @@ model AcessoQRCode {
 
   @@index([terreiroId, createdAt])
   @@map("acessos_qrcode")
+}
+
+model ClaimRequest {
+  id          String   @id @default(uuid())
+  status      String   @default("PENDENTE")
+  documentoUrl String?
+  mensagem    String?
+  revisadoEm  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  usuarioId  String
+  usuario    Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId String
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+  revisadoPorId String?
+  revisadoPor   Usuarios? @relation("reivindicacao_revisada", fields: [revisadoPorId], references: [id])
+
+  @@unique([usuarioId, terreiroId])
+  @@map("pedidos_reivindicacao")
 }
 
 model Mission {

@@ -8,6 +8,7 @@ import { TerreiroModule } from './terreiro/terreiro.module';
 import { GeoModule } from './geo/geo.module';
 import { EvolutionModule } from './evolution/evolution.module';
 import { GrowthModule } from './growth/growth.module';
+import { OnboardingModule } from './onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { GrowthModule } from './growth/growth.module';
     GeoModule,
     EvolutionModule,
     GrowthModule,
+    OnboardingModule,
   ],
 })
 export class AppModule {}

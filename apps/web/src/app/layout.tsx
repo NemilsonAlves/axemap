@@ -22,8 +22,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="nav-links">
                 <a href="/busca">Buscar</a>
                 <a href="/mapa">Mapa</a>
+                <a href="/onboarding" className="nav-cta">Cadastrar Terreiro</a>
                 <a href="/auth/login">Entrar</a>
-                <a href="/terreiro/demo" className="nav-premium">Perfil</a>
               </div>
             </nav>
           </header>

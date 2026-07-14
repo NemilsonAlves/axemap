@@ -13,6 +13,7 @@ import { AvaliacoesSection } from '@/components/terreiro/avaliacoes-section';
 import { TrustScoreSection } from '@/components/terreiro/trust-score-section';
 import { ProfileCompleteness } from '@/components/terreiro/profile-completeness';
 import { QRCodeSection } from '@/components/terreiro/qr-code-section';
+import { ClaimButton } from '@/components/terreiro/claim-button';
 import './profile.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -96,6 +97,9 @@ export default async function TerreiroPage({ params }: { params: Promise<{ slug:
       />
       <div className="profile-page">
         <HeroSection terreiro={terreiro} />
+        <div style={{ padding: '0.75rem 2rem' }}>
+          <ClaimButton terreiroId={terreiro.id} hasDirigente={!!terreiro.dirigente} />
+        </div>
         <div className="profile-grid">
           <div className="profile-main">
             <SobreSection terreiro={terreiro} />
