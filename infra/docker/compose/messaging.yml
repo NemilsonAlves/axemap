@@ -1,0 +1,32 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: axemap-rabbitmq
+    profiles: [messaging]
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: axemap
+      RABBITMQ_DEFAULT_PASS: axemap_rabbitmq_dev
+      RABBITMQ_DEFAULT_VHOST: axemap
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - axemap
+
+volumes:
+  rabbitmq_data:
+    name: axemap_rabbitmq_data
+
+networks:
+  axemap:
+    external: true
+    name: axemap_dev

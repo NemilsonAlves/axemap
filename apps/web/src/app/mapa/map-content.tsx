@@ -12,29 +12,44 @@ export default function MapContent() {
   const recife: MapGeoPoint = { lat: -8.0476, lng: -34.877 };
 
   useEffect(() => {
-    async function loadTerreiros() {
+    async function loadMarkers() {
       try {
-        const res = await fetch('/api/v1/terreiros?limit=100');
-        const json = await res.json();
+        const [terreirosRes, campanhasRes] = await Promise.all([
+          fetch('/api/v1/terreiros?limit=100'),
+          fetch('/api/v1/campanhas/mapa'),
+        ]);
+        const [terreirosJson, campanhasJson] = await Promise.all([
+          terreirosRes.json(),
+          campanhasRes.json(),
+        ]);
 
-        const mapMarkers: MapMarker[] = (json.data || []).map((t: any) => ({
-          id: t.id,
+        const terreiroMarkers: MapMarker[] = (terreirosJson.data || []).map((t: any) => ({
+          id: `t-${t.id}`,
           position: { lat: t.latitude, lng: t.longitude },
           title: t.nome,
-          slug: t.slug,
+          slug: `/terreiro/${t.slug}`,
           trustScore: t.trustScore,
           description: `${t.tradicao} — ${t.cidade}, ${t.estado}`,
         }));
 
-        setMarkers(mapMarkers);
+        const campanhaMarkers: MapMarker[] = (campanhasJson.data || []).map((c: any) => ({
+          id: `c-${c.id}`,
+          position: { lat: c.latitude, lng: c.longitude },
+          title: c.titulo,
+          slug: `/campanhas/${c.slug}`,
+          description: `${c.categoria} — ${c.cidade ?? ''} ${c.estado ?? ''}`,
+          color: '#0d9488',
+        }));
+
+        setMarkers([...terreiroMarkers, ...campanhaMarkers]);
       } catch (err) {
-        setError('Erro ao carregar terreiros no mapa');
+        setError('Erro ao carregar dados no mapa');
       } finally {
         setLoading(false);
       }
     }
 
-    loadTerreiros();
+    loadMarkers();
   }, []);
 
   function handleMapClick(position: MapGeoPoint) {

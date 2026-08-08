@@ -1,0 +1,118 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: axemap-prometheus
+    profiles: [observability]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    restart: unless-stopped
+    networks:
+      - axemap
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: axemap-grafana
+    profiles: [observability]
+    ports:
+      - "3002:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: axemap_grafana
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../../monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ../../monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - axemap
+
+  loki:
+    image: grafana/loki:latest
+    container_name: axemap-loki
+    profiles: [observability]
+    ports:
+      - "3100:3100"
+    volumes:
+      - ../../monitoring/loki/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+    command:
+      - "-config.file=/etc/loki/loki.yml"
+    restart: unless-stopped
+    networks:
+      - axemap
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: axemap-promtail
+    profiles: [observability]
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ../../monitoring/loki/promtail.yml:/etc/promtail/promtail.yml:ro
+    command:
+      - "-config.file=/etc/promtail/promtail.yml"
+    restart: unless-stopped
+    depends_on:
+      - loki
+    networks:
+      - axemap
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: axemap-otel
+    profiles: [observability]
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ../../monitoring/otel/otel-collector.yml:/etc/otelcol-contrib/config.yaml:ro
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    networks:
+      - axemap
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: axemap-tempo
+    profiles: [observability]
+    ports:
+      - "3200:3200"
+      - "4317"
+      - "4318"
+    volumes:
+      - ../../monitoring/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo_data:/tmp/tempo
+    command:
+      - "-config.file=/etc/tempo/tempo.yml"
+    restart: unless-stopped
+    networks:
+      - axemap
+
+volumes:
+  prometheus_data:
+    name: axemap_prometheus_data
+  grafana_data:
+    name: axemap_grafana_data
+  loki_data:
+    name: axemap_loki_data
+  tempo_data:
+    name: axemap_tempo_data
+
+networks:
+  axemap:
+    external: true
+    name: axemap_dev

@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  extensions = [postgis, vector]
+  extensions = [postgis]
 }
 
 enum UserRole {
@@ -58,103 +58,170 @@ enum EventType {
   ACAO_SOCIAL
 }
 
-model Usuarios {
-  id              String    @id @default(uuid())
-  email           String    @unique
-  nome            String
-  senhaHash       String
-  role            UserRole  @default(VISITOR)
-  avatarUrl       String?
-  isVerified      Boolean   @default(false)
-  trustScore      Float     @default(0)
-  refreshToken    String?
-  deletedAt       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+enum CampaignStatus {
+  RASCUNHO
+  PENDENTE_ANALISE
+  EM_ANALISE_IA
+  AGUARDANDO_DOCUMENTOS
+  EM_REVISAO_HUMANA
+  APROVADA
+  PUBLICADA
+  ENCERRADA
+  PRESTACAO_CONTAS
+  RECUSADA
+  BLOQUEADA
+  ARQUIVADA
+}
 
-  terreirosCriados   Terreiros[]   @relation("terreiro_criado_por")
-  dirigenteDe        Terreiros[]   @relation("terreiro_dirigente")
-  avaliacoes         Avaliacoes[]
-  favoritos          Favoritos[]
-  eventosCriados     Eventos[]     @relation("evento_criado_por")
-  membroDe           MembrosTerreiro[]
-  convitesEnviados   MembrosTerreiro[]  @relation("membro_convidado_por")
-  matriculas         MatriculasCurso[]
-  conteudosCriados   Conteudos[]   @relation("conteudo_criado_por")
-  auditLogs          AuditLogs[]
-  notificacoes       Notificacoes[]
-  missoes            UserMission[]
-  conquistas         UserAchievement[]
-  acoesEvolucao      EvolutionAction[]
-  seguidores         SeguidoresTerreiro[]
-  presencas          PresencaEvento[]
-  indicacoesFeitas   Indicacoes[]     @relation("indicacoes_feitas")
-  indicacoesRecebidas Indicacoes[]    @relation("indicacoes_recebidas")
-  reivindicacoes     ClaimRequest[]
-  reivindicacoesRevisadas ClaimRequest[] @relation("reivindicacao_revisada")
+enum CampaignCategory {
+  SOCIAL
+  CULTURAL
+  EDUCACIONAL
+  AMBIENTAL
+  EMERGENCIAL
+  INFRAESTRUTURA
+  PATRIMONIO_HISTORICO
+  PESQUISA
+  JUVENTUDE
+  INCLUSAO
+  EVENTOS
+}
+
+enum CampaignFundingModel {
+  META_FIXA
+  RECORRENTE
+  EMERGENCIAL
+}
+
+enum CampaignVerificationLevel {
+  NAO_VERIFICADA
+  VERIFICADA
+  OFICIAL
+}
+
+model Usuarios {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  nome         String
+  senhaHash    String    @map("senha_hash")
+  role         UserRole  @default(VISITOR)
+  avatarUrl    String?   @map("avatar_url")
+  isVerified   Boolean   @default(false) @map("is_verified")
+  trustScore   Float     @default(0) @map("trust_score")
+  refreshToken String?   @map("refresh_token")
+  deletedAt    DateTime? @map("deleted_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  terreirosCriados        Terreiros[]           @relation("terreiro_criado_por")
+  dirigenteDe             Terreiros[]           @relation("terreiro_dirigente")
+  avaliacoes              Avaliacoes[]
+  favoritos               Favoritos[]
+  eventosCriados          Eventos[]             @relation("evento_criado_por")
+  membroDe                MembrosTerreiro[]
+  convitesEnviados        MembrosTerreiro[]     @relation("membro_convidado_por")
+  matriculas              MatriculasCurso[]
+  conteudosCriados        Conteudos[]           @relation("conteudo_criado_por")
+  auditLogs               AuditLogs[]
+  notificacoes            Notificacoes[]
+  missoes                 UserMission[]
+  conquistas              UserAchievement[]
+  acoesEvolucao           EvolutionAction[]
+  seguidores              SeguidoresTerreiro[]
+  presencas               PresencaEvento[]
+  indicacoesFeitas        Indicacoes[]          @relation("indicacoes_feitas")
+  indicacoesRecebidas     Indicacoes[]          @relation("indicacoes_recebidas")
+  reivindicacoes          ClaimRequest[]
+  reivindicacoesRevisadas ClaimRequest[]        @relation("reivindicacao_revisada")
+  denunciasFeitas         Denuncias[]           @relation("denuncia_criada_por")
+  denunciasRevisadas      Denuncias[]           @relation("denuncia_revisada_por")
+  eventosAnalytics        AnalyticsEvent[]
+  feedbacks               Feedback[]
+  flagOverrides           FeatureFlagOverride[]
+  campanhasCriadas        Campanhas[]           @relation("campanha_criada_por")
+  campanhasRevisadas      Campanhas[]           @relation("campanha_revisada_por")
+  campanhasApoiadas       CampanhaApoio[]
+  campanhasComentadas     CampanhaComentario[]
+  instituicoesCriadas     Instituicoes[]        @relation("instituicao_criada_por")
+  campanhaAtualizacaos    CampanhaAtualizacao[]
+  mediacoesIniciadas      Mediacoes[]           @relation("mediacao_reclamante")
+  mediacoesModeradas      Mediacoes[]           @relation("mediacao_moderador")
+  certificadosConcedidos  Certificado[]         @relation("certificado_concedido_por")
+  certificadosRevogados   Certificado[]         @relation("certificado_revogado_por")
+  evidenciasCriadas       Evidencia[]           @relation("evidencia_criada_por")
+  evidenciasValidadas     Evidencia[]           @relation("evidencia_validada_por")
+  fraudesCriadas          AntifraudeRegistro[]  @relation("fraude_criada_por")
+  fraudesRevisadas        AntifraudeRegistro[]  @relation("fraude_revista_por")
+  mediacaoMensagems       MediacaoMensagem[]
 
   @@map("usuarios")
 }
 
 model Terreiros {
-  id                String         @id @default(uuid())
-  nome              String
-  slug              String         @unique
-  tradicao          String
-  status            TerreiroStatus @default(RASCUNHO)
-  trustScore        Float          @default(0)
-  descricaoCurta    String?        @db.VarChar(500)
-  descricaoLonga    String?        @db.Text
-  cidade            String
-  estado            String         @db.VarChar(2)
-  latitude          Float
-  longitude         Float
-  geoPoint          Unsupported("geography(Point, 4326)")?
-  telefone          String?
-  email             String?
-  website           String?
-  horarioFuncionamento String?
-  isPublished       Boolean        @default(false)
-  isVerified        Boolean        @default(false)
-  verificationLevel VerificationLevel @default(BASICO)
-  fotoUrl           String?
-  anoFundacao       Int?
-  linhagem          String?
-  instagram         String?
-  whatsapp          String?
-  facebook          String?
-  acessibilidade    Boolean        @default(false)
-  estacionamento    String?        @db.VarChar(20)
-  codigoIndicacao   String?        @unique
-  publicadoEm       DateTime?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  deletedAt         DateTime?
+  id                   String                                 @id @default(uuid())
+  nome                 String
+  slug                 String                                 @unique
+  tradicao             String
+  status               TerreiroStatus                         @default(RASCUNHO)
+  trustScore           Float                                  @default(0) @map("trust_score")
+  descricaoCurta       String?                                @map("descricao_curta") @db.VarChar(500)
+  descricaoLonga       String?                                @map("descricao_longa") @db.Text
+  cidade               String
+  estado               String                                 @db.VarChar(2)
+  latitude             Float
+  longitude            Float
+  geoPoint             Unsupported("geography(Point, 4326)")? @map("geo_point")
+  telefone             String?
+  email                String?
+  website              String?
+  horarioFuncionamento String?                                @map("horario_funcionamento")
+  isPublished          Boolean                                @default(false) @map("is_published")
+  isVerified           Boolean                                @default(false) @map("is_verified")
+  verificationLevel    VerificationLevel                      @default(BASICO) @map("verification_level")
+  fotoUrl              String?                                @map("foto_url")
+  anoFundacao          Int?                                   @map("ano_fundacao")
+  linhagem             String?
+  instagram            String?
+  whatsapp             String?
+  facebook             String?
+  acessibilidade       Boolean                                @default(false)
+  estacionamento       String?                                @db.VarChar(20)
+  codigoIndicacao      String?                                @unique @map("codigo_indicacao")
+  publicadoEm          DateTime?                              @map("publicado_em")
+  createdAt            DateTime                               @default(now()) @map("created_at")
+  updatedAt            DateTime                               @updatedAt @map("updated_at")
+  deletedAt            DateTime?                              @map("deleted_at")
 
-  criadoPorId       String
-  criadoPor         Usuarios       @relation("terreiro_criado_por", fields: [criadoPorId], references: [id])
-  dirigenteId       String?
-  dirigente         Usuarios?      @relation("terreiro_dirigente", fields: [dirigenteId], references: [id])
-  eventos           Eventos[]
-  avaliacoes        Avaliacoes[]
-  favoritos         Favoritos[]
-  membros           MembrosTerreiro[]
-  cursos            Cursos[]
-  produtos          ProdutosMarketplace[]
-  conteudos         Conteudos[]
-  acoesSociais      AcoesSociais[]
+  criadoPorId           String                  @map("criado_por_id")
+  criadoPor             Usuarios                @relation("terreiro_criado_por", fields: [criadoPorId], references: [id])
+  dirigenteId           String?                 @map("dirigente_id")
+  dirigente             Usuarios?               @relation("terreiro_dirigente", fields: [dirigenteId], references: [id])
+  eventos               Eventos[]
+  avaliacoes            Avaliacoes[]
+  favoritos             Favoritos[]
+  membros               MembrosTerreiro[]
+  cursos                Cursos[]
+  produtos              ProdutosMarketplace[]
+  conteudos             Conteudos[]
+  acoesSociais          AcoesSociais[]
   documentosVerificacao DocumentosVerificacao[]
-  fotos              TerreiroFoto[]
-  videos             TerreiroVideo[]
-  missoesUsuario     UserMission[]
-  conquistasUsuario  UserAchievement[]
-  axScoreHistory     AxScoreHistory[]
-  acoesEvolucao      EvolutionAction[]
-  metasEvolucao      EvolutionGoal[]
-  seguidores         SeguidoresTerreiro[]
-  indicacoesEnviadas  Indicacoes[]     @relation("indicacoes_terreiro")
-  acessosQR          AcessoQRCode[]
-  pedidosReivindicacao ClaimRequest[]
+  fotos                 TerreiroFoto[]
+  videos                TerreiroVideo[]
+  missoesUsuario        UserMission[]
+  conquistasUsuario     UserAchievement[]
+  axScoreHistory        AxScoreHistory[]
+  acoesEvolucao         EvolutionAction[]
+  metasEvolucao         EvolutionGoal[]
+  seguidores            SeguidoresTerreiro[]
+  indicacoesEnviadas    Indicacoes[]            @relation("indicacoes_terreiro")
+  acessosQR             AcessoQRCode[]
+  pedidosReivindicacao  ClaimRequest[]
+  denuncias             Denuncias[]
+  campanhas             Campanhas[]
+  certificados          Certificado[]
+  mediacoes             Mediacoes[]
+  evidencias            Evidencia[]
+  complianceChecks      ComplianceChecklist[]
 
   @@index([tradicao, cidade, estado])
   @@index([trustScore])
@@ -163,19 +230,19 @@ model Terreiros {
 }
 
 model Avaliacoes {
-  id          String   @id @default(uuid())
-  nota        Int
-  texto       String?  @db.VarChar(2000)
-  pesoAvaliador Float  @default(1.0)
-  utilCount   Int      @default(0)
-  createdAt   DateTime @default(now())
-  deletedAt   DateTime?
+  id            String    @id @default(uuid())
+  nota          Int
+  texto         String?   @db.VarChar(2000)
+  pesoAvaliador Float     @default(1.0) @map("peso_avaliador")
+  utilCount     Int       @default(0) @map("util_count")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  deletedAt     DateTime? @map("deleted_at")
 
-  usuarioId    String
-  usuario      Usuarios @relation(fields: [usuarioId], references: [id])
-  terreiroId   String
-  terreiro     Terreiros @relation(fields: [terreiroId], references: [id])
-  resposta     AvaliacaoResposta?
+  usuarioId  String             @map("usuario_id")
+  usuario    Usuarios           @relation(fields: [usuarioId], references: [id])
+  terreiroId String             @map("terreiro_id")
+  terreiro   Terreiros          @relation(fields: [terreiroId], references: [id])
+  resposta   AvaliacaoResposta?
 
   @@unique([usuarioId, terreiroId])
   @@index([terreiroId, nota])
@@ -183,52 +250,52 @@ model Avaliacoes {
 }
 
 model Eventos {
-  id          String    @id @default(uuid())
-  titulo      String
-  descricao   String?   @db.Text
-  tipo        EventType
-  dataInicio  DateTime
-  dataFim     DateTime?
-  capacidade  Int?
-  isPublico   Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+  id         String    @id @default(uuid())
+  titulo     String
+  descricao  String?   @db.Text
+  tipo       EventType
+  dataInicio DateTime  @map("data_inicio")
+  dataFim    DateTime? @map("data_fim")
+  capacidade Int?
+  isPublico  Boolean   @default(true) @map("is_publico")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
 
-  terreiroId    String
-  terreiro      Terreiros @relation(fields: [terreiroId], references: [id])
-  criadoPorId   String
-  criadoPor     Usuarios  @relation("evento_criado_por", fields: [criadoPorId], references: [id])
+  terreiroId  String    @map("terreiro_id")
+  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+  criadoPorId String    @map("criado_por_id")
+  criadoPor   Usuarios  @relation("evento_criado_por", fields: [criadoPorId], references: [id])
 
-  presencas         PresencaEvento[]
+  presencas PresencaEvento[]
 
   @@index([dataInicio, terreiroId])
   @@map("eventos")
 }
 
 model Favoritos {
-  usuarioId  String
-  usuario    Usuarios @relation(fields: [usuarioId], references: [id])
-  terreiroId String
+  usuarioId  String    @map("usuario_id")
+  usuario    Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId String    @map("terreiro_id")
   terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
-  createdAt  DateTime  @default(now())
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   @@id([usuarioId, terreiroId])
   @@map("favoritos")
 }
 
 model MembrosTerreiro {
-  id         String   @id @default(uuid())
-  papel      String   @default("COLABORADOR")
-  conviteStatus String @default("ACEITO")
-  desde      DateTime @default(now())
-  createdAt  DateTime @default(now())
+  id            String   @id @default(uuid())
+  papel         String   @default("COLABORADOR")
+  conviteStatus String   @default("ACEITO") @map("convite_status")
+  desde         DateTime @default(now())
+  createdAt     DateTime @default(now()) @map("created_at")
 
-  usuarioId      String
+  usuarioId      String    @map("usuario_id")
   usuario        Usuarios  @relation(fields: [usuarioId], references: [id])
-  terreiroId     String
+  terreiroId     String    @map("terreiro_id")
   terreiro       Terreiros @relation(fields: [terreiroId], references: [id])
-  convidadoPorId String?
+  convidadoPorId String?   @map("convidado_por_id")
   convidadoPor   Usuarios? @relation("membro_convidado_por", fields: [convidadoPorId], references: [id])
 
   @@unique([usuarioId, terreiroId])
@@ -236,21 +303,21 @@ model MembrosTerreiro {
 }
 
 model Cursos {
-  id           String   @id @default(uuid())
+  id           String    @id @default(uuid())
   titulo       String
-  descricao    String?  @db.Text
+  descricao    String?   @db.Text
   modalidade   String?
-  cargaHoraria Int?
+  cargaHoraria Int?      @map("carga_horaria")
   vagas        Int?
-  dataInicio   DateTime?
-  dataFim      DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  deletedAt    DateTime?
+  dataInicio   DateTime? @map("data_inicio")
+  dataFim      DateTime? @map("data_fim")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
 
-  terreiroId  String
-  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
-  matriculas  MatriculasCurso[]
+  terreiroId String            @map("terreiro_id")
+  terreiro   Terreiros         @relation(fields: [terreiroId], references: [id])
+  matriculas MatriculasCurso[]
 
   @@map("cursos")
 }
@@ -258,122 +325,144 @@ model Cursos {
 model MatriculasCurso {
   id        String   @id @default(uuid())
   status    String   @default("PENDENTE")
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
-  usuarioId  String
-  usuario    Usuarios @relation(fields: [usuarioId], references: [id])
-  cursoId    String
-  curso      Cursos   @relation(fields: [cursoId], references: [id])
+  usuarioId String   @map("usuario_id")
+  usuario   Usuarios @relation(fields: [usuarioId], references: [id])
+  cursoId   String   @map("curso_id")
+  curso     Cursos   @relation(fields: [cursoId], references: [id])
 
   @@unique([usuarioId, cursoId])
   @@map("matriculas_curso")
 }
 
 model ProdutosMarketplace {
-  id          String   @id @default(uuid())
-  nome        String
-  descricao   String?  @db.Text
-  preco       Float
-  categoria   String?
-  estoque     Int      @default(0)
-  imagens     String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  id        String    @id @default(uuid())
+  nome      String
+  descricao String?   @db.Text
+  preco     Float
+  categoria String?
+  estoque   Int       @default(0)
+  imagens   String[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
-  terreiroId  String
-  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+  terreiroId String    @map("terreiro_id")
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@map("produtos_marketplace")
 }
 
 model Conteudos {
-  id          String   @id @default(uuid())
-  titulo      String
-  tipo        String
-  conteudo    String?  @db.Text
-  url         String?
-  publicado   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  id        String    @id @default(uuid())
+  titulo    String
+  tipo      String
+  conteudo  String?   @db.Text
+  url       String?
+  publicado Boolean   @default(false)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
-  criadoPorId  String
-  criadoPor    Usuarios  @relation("conteudo_criado_por", fields: [criadoPorId], references: [id])
-  terreiroId   String?
-  terreiro     Terreiros? @relation(fields: [terreiroId], references: [id])
+  criadoPorId String     @map("criado_por_id")
+  criadoPor   Usuarios   @relation("conteudo_criado_por", fields: [criadoPorId], references: [id])
+  terreiroId  String?    @map("terreiro_id")
+  terreiro    Terreiros? @relation(fields: [terreiroId], references: [id])
 
   @@map("conteudos")
 }
 
 model AcoesSociais {
-  id          String   @id @default(uuid())
-  nome        String
-  descricao   String?  @db.Text
-  tipo        String?
-  data        DateTime?
-  alcance     Int?
-  createdAt   DateTime @default(now())
-  deletedAt   DateTime?
+  id        String    @id @default(uuid())
+  nome      String
+  descricao String?   @db.Text
+  tipo      String?
+  data      DateTime?
+  alcance   Int?
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
 
-  terreiroId  String
-  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+  terreiroId String    @map("terreiro_id")
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@map("acoes_sociais")
 }
 
-model DocumentosVerificacao {
-  id          String   @id @default(uuid())
-  tipo        String
-  arquivoUrl  String
-  status      String   @default("PENDENTE")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Denuncias {
+  id          String    @id @default(uuid())
+  motivo      String
+  descricao   String?   @db.Text
+  tipo        String    @default("TERREIRO")
+  entidadeId  String    @map("entidade_id")
+  status      String    @default("PENDENTE")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  resolvidoEm DateTime? @map("resolvido_em")
 
-  terreiroId  String
-  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+  criadoPorId   String     @map("criado_por_id")
+  criadoPor     Usuarios   @relation("denuncia_criada_por", fields: [criadoPorId], references: [id])
+  revisadoPorId String?    @map("revisado_por_id")
+  revisadoPor   Usuarios?  @relation("denuncia_revisada_por", fields: [revisadoPorId], references: [id])
+  terreiroId    String?    @map("terreiro_id")
+  terreiro      Terreiros? @relation(fields: [terreiroId], references: [id])
+
+  @@index([status, createdAt])
+  @@map("denuncias")
+}
+
+model DocumentosVerificacao {
+  id         String   @id @default(uuid())
+  tipo       String
+  arquivoUrl String   @map("arquivo_url")
+  status     String   @default("PENDENTE")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  terreiroId String    @map("terreiro_id")
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@map("documentos_verificacao")
 }
 
 model TerreiroFoto {
-  id           String   @id @default(uuid())
-  url          String
-  thumbUrl     String?
-  alt          String?
-  ordem        Int      @default(0)
-  categoria    String?
-  isPrincipal  Boolean  @default(false)
-  createdAt    DateTime @default(now())
+  id          String   @id @default(uuid())
+  url         String
+  thumbUrl    String?  @map("thumb_url")
+  alt         String?
+  ordem       Int      @default(0)
+  categoria   String?
+  isPrincipal Boolean  @default(false) @map("is_principal")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  terreiroId  String
-  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+  terreiroId String    @map("terreiro_id")
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@index([terreiroId, ordem])
   @@map("terreiro_fotos")
 }
 
 model TerreiroVideo {
-  id          String   @id @default(uuid())
-  url         String
-  titulo      String?
-  descricao   String?
-  ordem       Int      @default(0)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  url       String
+  titulo    String?
+  descricao String?
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
 
-  terreiroId  String
-  terreiro    Terreiros @relation(fields: [terreiroId], references: [id])
+  terreiroId String    @map("terreiro_id")
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@index([terreiroId])
   @@map("terreiro_videos")
 }
 
 model AvaliacaoResposta {
-  id          String   @id @default(uuid())
-  texto       String   @db.VarChar(3000)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  texto     String   @db.VarChar(3000)
+  createdAt DateTime @default(now()) @map("created_at")
 
-  avaliacaoId String
+  avaliacaoId String     @map("avaliacao_id")
   avaliacao   Avaliacoes @relation(fields: [avaliacaoId], references: [id])
 
   @@unique([avaliacaoId])
@@ -383,16 +472,16 @@ model AvaliacaoResposta {
 model AuditLogs {
   id           String   @id @default(uuid())
   acao         String
-  entidadeTipo String
-  entidadeId   String
+  entidadeTipo String   @map("entidade_tipo")
+  entidadeId   String   @map("entidade_id")
   antes        Json?
   depois       Json?
   ip           String?
-  userAgent    String?
-  createdAt    DateTime @default(now())
+  userAgent    String?  @map("user_agent")
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  usuarioId   String?
-  usuario     Usuarios? @relation(fields: [usuarioId], references: [id])
+  usuarioId String?
+  usuario   Usuarios? @relation(fields: [usuarioId], references: [id])
 
   @@index([entidadeTipo, entidadeId])
   @@index([createdAt])
@@ -401,11 +490,11 @@ model AuditLogs {
 
 model SeguidoresTerreiro {
   id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
-  usuarioId  String
-  usuario    Usuarios @relation(fields: [usuarioId], references: [id])
-  terreiroId String
+  usuarioId  String    @map("usuario_id")
+  usuario    Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId String    @map("terreiro_id")
   terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@unique([usuarioId, terreiroId])
@@ -415,11 +504,11 @@ model SeguidoresTerreiro {
 model PresencaEvento {
   id        String   @id @default(uuid())
   status    String   @default("CONFIRMADO")
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
-  usuarioId String
+  usuarioId String   @map("usuario_id")
   usuario   Usuarios @relation(fields: [usuarioId], references: [id])
-  eventoId  String
+  eventoId  String   @map("evento_id")
   evento    Eventos  @relation(fields: [eventoId], references: [id])
 
   @@unique([usuarioId, eventoId])
@@ -427,17 +516,17 @@ model PresencaEvento {
 }
 
 model Indicacoes {
-  id        String    @id @default(uuid())
-  status    String    @default("PENDENTE")
-  convertidoEm DateTime?
-  createdAt DateTime  @default(now())
+  id           String    @id @default(uuid())
+  status       String    @default("PENDENTE")
+  convertidoEm DateTime? @map("convertido_em")
+  createdAt    DateTime  @default(now()) @map("created_at")
 
-  indicadorId  String
-  indicador    Usuarios  @relation("indicacoes_feitas", fields: [indicadorId], references: [id])
-  indicadoId   String
-  indicado     Usuarios  @relation("indicacoes_recebidas", fields: [indicadoId], references: [id])
-  terreiroId   String?
-  terreiro     Terreiros? @relation("indicacoes_terreiro", fields: [terreiroId], references: [id])
+  indicadorId String     @map("indicador_id")
+  indicador   Usuarios   @relation("indicacoes_feitas", fields: [indicadorId], references: [id])
+  indicadoId  String     @map("indicado_id")
+  indicado    Usuarios   @relation("indicacoes_recebidas", fields: [indicadoId], references: [id])
+  terreiroId  String?    @map("terreiro_id")
+  terreiro    Terreiros? @relation("indicacoes_terreiro", fields: [terreiroId], references: [id])
 
   @@unique([indicadorId, indicadoId])
   @@index([indicadorId])
@@ -447,11 +536,11 @@ model Indicacoes {
 
 model AcessoQRCode {
   id        String   @id @default(uuid())
-  userAgent String?
+  userAgent String?  @map("user_agent")
   ip        String?
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
-  terreiroId String
+  terreiroId String    @map("terreiro_id")
   terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@index([terreiroId, createdAt])
@@ -459,19 +548,19 @@ model AcessoQRCode {
 }
 
 model ClaimRequest {
-  id          String   @id @default(uuid())
-  status      String   @default("PENDENTE")
-  documentoUrl String?
-  mensagem    String?
-  revisadoEm  DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String    @id @default(uuid())
+  status       String    @default("PENDENTE")
+  documentoUrl String?   @map("documento_url")
+  mensagem     String?
+  revisadoEm   DateTime? @map("revisado_em")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  usuarioId  String
-  usuario    Usuarios  @relation(fields: [usuarioId], references: [id])
-  terreiroId String
-  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
-  revisadoPorId String?
+  usuarioId     String    @map("usuario_id")
+  usuario       Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId    String    @map("terreiro_id")
+  terreiro      Terreiros @relation(fields: [terreiroId], references: [id])
+  revisadoPorId String?   @map("revisado_por_id")
   revisadoPor   Usuarios? @relation("reivindicacao_revisada", fields: [revisadoPorId], references: [id])
 
   @@unique([usuarioId, terreiroId])
@@ -479,36 +568,36 @@ model ClaimRequest {
 }
 
 model Mission {
-  id            String   @id @default(uuid())
-  key           String   @unique
-  titulo        String
-  descricao     String   @db.Text
-  categoria     String?
-  requisitos    Json?
-  rewardAxScore Int      @default(5)
-  rewardTrustScore Float  @default(0)
-  ordem         Int      @default(0)
-  ativo         Boolean  @default(true)
-  createdAt     DateTime @default(now())
+  id               String   @id @default(uuid())
+  key              String   @unique
+  titulo           String
+  descricao        String   @db.Text
+  categoria        String?
+  requisitos       Json?
+  rewardAxScore    Int      @default(5) @map("reward_ax_score")
+  rewardTrustScore Float    @default(0) @map("reward_trust_score")
+  ordem            Int      @default(0)
+  ativo            Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at")
 
-  usuarios      UserMission[]
+  usuarios UserMission[]
 
   @@map("missoes")
 }
 
 model UserMission {
-  id          String    @id @default(uuid())
-  progresso   Int       @default(0)
-  completo    Boolean   @default(false)
-  completadoEm DateTime?
-  createdAt   DateTime  @default(now())
+  id           String    @id @default(uuid())
+  progresso    Int       @default(0)
+  completo     Boolean   @default(false)
+  completadoEm DateTime? @map("completado_em")
+  createdAt    DateTime  @default(now()) @map("created_at")
 
-  usuarioId    String
-  usuario      Usuarios  @relation(fields: [usuarioId], references: [id])
-  terreiroId   String
-  terreiro     Terreiros @relation(fields: [terreiroId], references: [id])
-  missionId    String
-  mission      Mission   @relation(fields: [missionId], references: [id])
+  usuarioId  String    @map("usuario_id")
+  usuario    Usuarios  @relation(fields: [usuarioId], references: [id])
+  terreiroId String    @map("terreiro_id")
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+  missionId  String    @map("mission_id")
+  mission    Mission   @relation(fields: [missionId], references: [id])
 
   @@unique([usuarioId, terreiroId, missionId])
   @@map("usuario_missoes")
@@ -522,26 +611,26 @@ model Achievement {
   icone         String?
   categoria     String?
   requisitos    Json?
-  rewardAxScore Int      @default(10)
+  rewardAxScore Int      @default(10) @map("reward_ax_score")
   ordem         Int      @default(0)
   ativo         Boolean  @default(true)
-  createdAt     DateTime @default(now())
+  createdAt     DateTime @default(now()) @map("created_at")
 
-  usuarios      UserAchievement[]
+  usuarios UserAchievement[]
 
   @@map("conquistas")
 }
 
 model UserAchievement {
-  id        String   @id @default(uuid())
-  earnedAt  DateTime @default(now())
+  id       String   @id @default(uuid())
+  earnedAt DateTime @default(now()) @map("earned_at")
 
-  usuarioId      String
-  usuario        Usuarios     @relation(fields: [usuarioId], references: [id])
-  terreiroId     String
-  terreiro       Terreiros    @relation(fields: [terreiroId], references: [id])
-  achievementId  String
-  achievement    Achievement  @relation(fields: [achievementId], references: [id])
+  usuarioId     String      @map("usuario_id")
+  usuario       Usuarios    @relation(fields: [usuarioId], references: [id])
+  terreiroId    String      @map("terreiro_id")
+  terreiro      Terreiros   @relation(fields: [terreiroId], references: [id])
+  achievementId String      @map("achievement_id")
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
 
   @@unique([usuarioId, terreiroId, achievementId])
   @@map("usuario_conquistas")
@@ -552,9 +641,9 @@ model AxScoreHistory {
   score     Int
   delta     Int
   razao     String
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
-  terreiroId String
+  terreiroId String    @map("terreiro_id")
   terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@index([terreiroId, createdAt])
@@ -562,17 +651,17 @@ model AxScoreHistory {
 }
 
 model EvolutionAction {
-  id             String   @id @default(uuid())
-  actionType     String
-  descricao      String   @db.VarChar(500)
-  axScoreDelta   Int      @default(0)
-  trustScoreDelta Float   @default(0)
-  metadata       Json?
-  createdAt      DateTime @default(now())
+  id              String   @id @default(uuid())
+  actionType      String   @map("action_type")
+  descricao       String   @db.VarChar(500)
+  axScoreDelta    Int      @default(0) @map("ax_score_delta")
+  trustScoreDelta Float    @default(0) @map("trust_score_delta")
+  metadata        Json?
+  createdAt       DateTime @default(now()) @map("created_at")
 
-  usuarioId  String
+  usuarioId  String    @map("usuario_id")
   usuario    Usuarios  @relation(fields: [usuarioId], references: [id])
-  terreiroId String
+  terreiroId String    @map("terreiro_id")
   terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@index([terreiroId, createdAt])
@@ -580,19 +669,88 @@ model EvolutionAction {
 }
 
 model EvolutionGoal {
-  id          String   @id @default(uuid())
-  titulo      String
-  descricao   String?  @db.Text
-  targetDate  DateTime?
-  completado  Boolean  @default(false)
-  completadoEm DateTime?
-  createdAt   DateTime @default(now())
+  id           String    @id @default(uuid())
+  titulo       String
+  descricao    String?   @db.Text
+  targetDate   DateTime? @map("target_date")
+  completado   Boolean   @default(false)
+  completadoEm DateTime? @map("completado_em")
+  createdAt    DateTime  @default(now()) @map("created_at")
 
-  terreiroId String
+  terreiroId String    @map("terreiro_id")
   terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@index([terreiroId])
   @@map("metas_evolucao")
+}
+
+model AnalyticsEvent {
+  id          String    @id @default(uuid())
+  evento      String
+  timestamp   DateTime  @default(now())
+  usuarioId   String?   @map("usuario_id")
+  usuario     Usuarios? @relation(fields: [usuarioId], references: [id])
+  terreiroId  String?   @map("terreiro_id")
+  sessaoId    String?   @map("sessao_id")
+  origem      String?
+  dispositivo String?
+  versao      String?
+  metadata    Json?
+  cidade      String?
+  estado      String?
+
+  @@index([evento, timestamp])
+  @@index([usuarioId, timestamp])
+  @@index([timestamp])
+  @@index([evento])
+  @@map("eventos_analytics")
+}
+
+model FeatureFlag {
+  id        String   @id @default(uuid())
+  chave     String   @unique
+  titulo    String
+  descricao String?
+  ativo     Boolean  @default(false)
+  regras    Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  overrides FeatureFlagOverride[]
+
+  @@map("feature_flags")
+}
+
+model FeatureFlagOverride {
+  id        String   @id @default(uuid())
+  ativo     Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  flagId     String      @map("flag_id")
+  flag       FeatureFlag @relation(fields: [flagId], references: [id])
+  usuarioId  String?     @map("usuario_id")
+  usuario    Usuarios?   @relation(fields: [usuarioId], references: [id])
+  terreiroId String?     @map("terreiro_id")
+  cidade     String?
+  estado     String?
+
+  @@index([flagId])
+  @@map("feature_flag_overrides")
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  tipo      String   @default("SUGESTAO")
+  mensagem  String   @db.Text
+  pagina    String?
+  contato   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  usuarioId String?
+  usuario   Usuarios? @relation(fields: [usuarioId], references: [id])
+
+  @@index([tipo])
+  @@map("feedbacks")
 }
 
 model Notificacoes {
@@ -601,11 +759,350 @@ model Notificacoes {
   titulo    String
   mensagem  String?
   lida      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
-  usuarioId  String
-  usuario    Usuarios @relation(fields: [usuarioId], references: [id])
+  usuarioId String   @map("usuario_id")
+  usuario   Usuarios @relation(fields: [usuarioId], references: [id])
 
   @@index([usuarioId, lida])
   @@map("notificacoes")
+}
+
+model Instituicoes {
+  id         String    @id @default(uuid())
+  nome       String
+  slug       String    @unique
+  tipo       String    @default("INSTITUICAO")
+  cnpj       String?
+  descricao  String?   @db.Text
+  cidade     String?
+  estado     String?   @db.VarChar(2)
+  website    String?
+  isVerified Boolean   @default(false) @map("is_verified")
+  trustScore Float     @default(0) @map("trust_score")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  criadoPorId String      @map("criado_por_id")
+  criadoPor   Usuarios    @relation("instituicao_criada_por", fields: [criadoPorId], references: [id])
+  campanhas   Campanhas[]
+
+  @@index([slug])
+  @@map("instituicoes")
+}
+
+model Campanhas {
+  id                   String                    @id @default(uuid())
+  titulo               String
+  slug                 String                    @unique
+  descricao            String                    @db.Text
+  historia             String?                   @db.Text
+  objetivo             String?                   @db.Text
+  categoria            CampaignCategory          @map("categoria")
+  modeloArrecad        CampaignFundingModel      @map("modelo_arrecad")
+  status               CampaignStatus            @default(RASCUNHO)
+  nivelVerificacao     CampaignVerificationLevel @default(NAO_VERIFICADA) @map("nivel_verificacao")
+  metaFinanceira       Float                     @map("meta_financeira")
+  arrecadado           Float                     @default(0)
+  apoiadoresCount      Int                       @default(0) @map("apoiadores_count")
+  trustScore           Float                     @default(0) @map("trust_score")
+  imagemUrl            String?                   @map("imagem_url")
+  imagens              String[]                  @default([])
+  videos               String[]                  @default([])
+  cidade               String?
+  estado               String?                   @db.VarChar(2)
+  latitude             Float?
+  longitude            Float?
+  dataInicio           DateTime                  @map("data_inicio")
+  dataFim              DateTime?                 @map("data_fim")
+  responsavelNome      String?                   @map("responsavel_nome")
+  responsavelDocumento String?                   @map("responsavel_documento")
+  dadosPagamento       Json?                     @map("dados_pagamento")
+  planoUso             String?                   @map("plano_uso") @db.Text
+  cronograma           Json?
+  riscoIa              Float?                    @map("risco_ia")
+  scoreIa              Float?                    @map("score_ia")
+  detalhesIa           Json?                     @map("detalhes_ia")
+  analisadoIaEm        DateTime?                 @map("analisado_ia_em")
+  publicadoEm          DateTime?                 @map("publicado_em")
+  encerradoEm          DateTime?                 @map("encerrado_em")
+  aprovadoEm           DateTime?                 @map("aprovado_em")
+  createdAt            DateTime                  @default(now()) @map("created_at")
+  updatedAt            DateTime                  @updatedAt @map("updated_at")
+  deletedAt            DateTime?                 @map("deleted_at")
+
+  criadoPorId   String        @map("criado_por_id")
+  criadoPor     Usuarios      @relation("campanha_criada_por", fields: [criadoPorId], references: [id])
+  revisadoPorId String?       @map("revisado_por_id")
+  revisadoPor   Usuarios?     @relation("campanha_revisada_por", fields: [revisadoPorId], references: [id])
+  terreiroId    String?       @map("terreiro_id")
+  terreiro      Terreiros?    @relation(fields: [terreiroId], references: [id])
+  instituicaoId String?       @map("instituicao_id")
+  instituicao   Instituicoes? @relation(fields: [instituicaoId], references: [id])
+
+  apoios           CampanhaApoio[]
+  atualizacoes     CampanhaAtualizacao[]
+  prestacoesContas CampanhaPrestacaoConta[]
+  comentarios      CampanhaComentario[]
+  documentos       DocumentosCampanha[]
+
+  @@index([status, createdAt])
+  @@index([categoria, status])
+  @@index([slug])
+  @@map("campanhas")
+}
+
+model CampanhaApoio {
+  id               String    @id @default(uuid())
+  valor            Float
+  status           String    @default("PENDENTE")
+  metodo           String?
+  recorrencia      String?
+  anonimo          Boolean   @default(false)
+  mensagem         String?   @db.VarChar(500)
+  referendaGateway String?   @map("referencia_gateway")
+  pagoEm           DateTime? @map("pago_em")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  campanhaId String    @map("campanha_id")
+  campanha   Campanhas @relation(fields: [campanhaId], references: [id])
+  usuarioId  String?   @map("usuario_id")
+  usuario    Usuarios? @relation(fields: [usuarioId], references: [id])
+
+  @@index([campanhaId, status])
+  @@map("campanhas_apoios")
+}
+
+model CampanhaAtualizacao {
+  id        String    @id @default(uuid())
+  titulo    String?
+  texto     String    @db.Text
+  tipo      String    @default("ATUALIZACAO")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  campanhaId String    @map("campanha_id")
+  campanha   Campanhas @relation(fields: [campanhaId], references: [id])
+  autorId    String?   @map("autor_id")
+  autor      Usuarios? @relation(fields: [autorId], references: [id])
+
+  @@index([campanhaId, createdAt])
+  @@map("campanhas_atualizacoes")
+}
+
+model CampanhaPrestacaoConta {
+  id             String    @id @default(uuid())
+  titulo         String
+  descricao      String    @db.Text
+  valorAplicado  Float?    @map("valor_aplicado")
+  comprovanteUrl String?   @map("comprovante_url")
+  notaUrl        String?   @map("nota_url")
+  ano            String?
+  data           DateTime  @default(now())
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  campanhaId String    @map("campanha_id")
+  campanha   Campanhas @relation(fields: [campanhaId], references: [id])
+
+  @@index([campanhaId, data])
+  @@map("campanhas_prestacao_contas")
+}
+
+model CampanhaComentario {
+  id        String    @id @default(uuid())
+  texto     String    @db.VarChar(1000)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  campanhaId String    @map("campanha_id")
+  campanha   Campanhas @relation(fields: [campanhaId], references: [id])
+  usuarioId  String    @map("usuario_id")
+  usuario    Usuarios  @relation(fields: [usuarioId], references: [id])
+
+  @@index([campanhaId, createdAt])
+  @@map("campanhas_comentarios")
+}
+
+model DocumentosCampanha {
+  id         String   @id @default(uuid())
+  tipo       String
+  rotulo     String?
+  arquivoUrl String   @map("arquivo_url")
+  status     String   @default("PENDENTE")
+  observacao String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  campanhaId String    @map("campanha_id")
+  campanha   Campanhas @relation(fields: [campanhaId], references: [id])
+
+  @@index([campanhaId, status])
+  @@map("campanhas_documentos")
+}
+
+// ============================================================
+// TRUST ECOSYSTEM — PROMPT 06
+// Certificações • Mediação • Compliance • Antifraude · Evidências · Governança
+// ============================================================
+
+model Certificado {
+  id          String    @id @default(uuid())
+  codigo      String    @unique
+  tipo        String
+  titulo      String
+  descricao   String?   @db.Text
+  icone       String?
+  status      String    @default("CONCEDIDO") // ATIVO / EXPIRADO / REVOGADO
+  concedidoEm DateTime  @default(now()) @map("concedido_em")
+  expiraEm    DateTime? @map("expira_em")
+  revogadoEm  DateTime? @map("revogado_em")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  terreiroId     String    @map("terreiro_id")
+  terreiro       Terreiros @relation(fields: [terreiroId], references: [id])
+  concedidoPorId String?   @map("concedido_por_id")
+  concedidoPor   Usuarios? @relation("certificado_concedido_por", fields: [concedidoPorId], references: [id])
+  revogadoPorId  String?   @map("revogado_por_id")
+  revogadoPor    Usuarios? @relation("certificado_revogado_por", fields: [revogadoPorId], references: [id])
+
+  @@index([terreiroId, status])
+  @@index([tipo])
+  @@map("certificacoes")
+}
+
+model Mediacoes {
+  id          String    @id @default(uuid())
+  status      String    @default("REGISTRADA") // REGISTRADA / EM_MEDIACAO / AGUARDANDO_RESPOSTA / ENCERRADA / PUBLICADA / ARQUIVADA
+  prioridade  String    @default("NORMAL") // BAIXA / NORMAL / ALTA
+  origem      String    @default("USUARIO") // USUARIO / DENUNCIA / AUTOMATICA / MODERACAO
+  assunto     String
+  descricao   String    @db.Text
+  resolucao   String?   @db.Text
+  publicar    Boolean   @default(false) // somente se interesse público e após revisão
+  iniciadoEm  DateTime  @default(now()) @map("iniciado_em")
+  encerradoEm DateTime? @map("encerrado_em")
+  publicadoEm DateTime? @map("publicado_em")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  reclamanteId String             @map("reclamante_id")
+  reclamante   Usuarios           @relation("mediacao_reclamante", fields: [reclamanteId], references: [id])
+  moderadorId  String?            @map("moderador_id")
+  moderador    Usuarios?          @relation("mediacao_moderador", fields: [moderadorId], references: [id])
+  terreiroId   String             @map("terreiro_id")
+  terreiro     Terreiros          @relation(fields: [terreiroId], references: [id])
+  mensagens    MediacaoMensagem[]
+
+  @@index([status, createdAt])
+  @@map("mediacoes")
+}
+
+model MediacaoMensagem {
+  id        String   @id @default(uuid())
+  texto     String   @db.Text
+  autorTipo String   @default("USUARIO") // USUARIO / TERREIRO / MODERADOR / SISTEMA
+  createdAt DateTime @default(now()) @map("created_at")
+
+  mediacaoId String    @map("mediacao_id")
+  mediacao   Mediacoes @relation(fields: [mediacaoId], references: [id])
+  autorId    String?   @map("autor_id")
+  autor      Usuarios? @relation(fields: [autorId], references: [id])
+
+  @@index([mediacaoId, createdAt])
+  @@map("mediacao_mensagens")
+}
+
+model ComplianceChecklist {
+  id        String   @id @default(uuid())
+  periodo   String
+  status    String   @default("EM_ANDAMENTO") // EM_ANDAMENTO / CONFORME / PENDENCIAS
+  score     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  terreiroId String           @map("terreiro_id")
+  terreiro   Terreiros        @relation(fields: [terreiroId], references: [id])
+  itens      ComplianceItem[]
+
+  @@unique([terreiroId, periodo])
+  @@map("compliance_checklists")
+}
+
+model ComplianceItem {
+  id         String   @id @default(uuid())
+  chave      String // LGPD / SEGURANCA / DOCUMENTACAO / PRESTACAO_CONTAS / POLITICAS / CONSENTIMENTOS / AUDITORIA / TREINAMENTOS
+  titulo     String
+  categoria  String
+  conforme   Boolean  @default(false)
+  observacao String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  checklistId String              @map("checklist_id")
+  checklist   ComplianceChecklist @relation(fields: [checklistId], references: [id])
+
+  @@index([checklistId])
+  @@map("compliance_itens")
+}
+
+model AntifraudeRegistro {
+  id                       String    @id @default(uuid())
+  tipo                     String // PERFIL_FALSO / BOT / AVALIACOES_COORDENADAS / SPAM / DUPLICIDADE / MANIPULACAO_TRUST_SCORE / DOCUMENTO_INVALIDO / CAMPANHA_FRAUDULENTA / ATAQUE_ORGANIZADO
+  risco                    String    @default("BAIXO") // BAIXO / MEDIO / ALTO / CRITICO
+  status                   String    @default("ABERTO") // ABERTO / EM_REVISAO / REVISTO / DESCARTADO / BLOQUEADO
+  detalhes                 Json?
+  decisaoHumana            String?   @map("decisao_humana")
+  revisaoHumanaObrigatoria Boolean   @default(false) @map("revisao_humana_obrigatoria")
+  entidadeTipo             String?   @map("entidade_tipo")
+  entidadeId               String?   @map("entidade_id")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  revisadoEm               DateTime? @map("revisado_em")
+
+  criadoPorId  String?   @map("criado_por_id")
+  criadoPor    Usuarios? @relation("fraude_criada_por", fields: [criadoPorId], references: [id])
+  revistoPorId String?   @map("revisto_por_id")
+  revistoPor   Usuarios? @relation("fraude_revista_por", fields: [revistoPorId], references: [id])
+
+  @@index([risco, status])
+  @@map("antifraude_registros")
+}
+
+model Evidencia {
+  id             String    @id @default(uuid())
+  tipo           String // DOCUMENTO / FOTO / RELATO / VINCULO / REGISTRO
+  referenciaTipo String    @map("referencia_tipo") // AVALIACAO / DENUNCIA / CAMPANHA / PRESENCA / MATRICULA / COMPRA / MEDIACAO / CERTIFICADO
+  referenciaId   String?   @map("referencia_id")
+  url            String?
+  descricao      String?   @db.Text
+  validada       Boolean   @default(false)
+  validadoEm     DateTime? @map("validado_em")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  terreiroId    String?    @map("terreiro_id")
+  terreiro      Terreiros? @relation(fields: [terreiroId], references: [id])
+  criadoPorId   String?    @map("criado_por_id")
+  criadoPor     Usuarios?  @relation("evidencia_criada_por", fields: [criadoPorId], references: [id])
+  validadoPorId String?    @map("validado_por_id")
+  validadoPor   Usuarios?  @relation("evidencia_validada_por", fields: [validadoPorId], references: [id])
+
+  @@index([referenciaTipo, referenciaId])
+  @@map("evidencias")
+}
+
+model GovernancaMembro {
+  id        String   @id @default(uuid())
+  nome      String
+  papel     String
+  biografia String?
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("governanca_membros")
 }

@@ -1,15 +1,18 @@
 import type { TrustScoreInfo } from '@/types/terreiro';
 
-const nivelColors: Record<string, { bg: string; text: string; label: string }> = {
-  INITIATE: { bg: '#e2e8f0', text: '#475569', label: 'Iniciante' },
-  EMERGING: { bg: '#fef3c7', text: '#92400e', label: 'Emergente' },
-  ESTABLISHED: { bg: '#dbeafe', text: '#1e40af', label: 'Estabelecido' },
-  AUTHORITY: { bg: '#d1fae5', text: '#065f46', label: 'Autoridade' },
-  LEGENDARY: { bg: '#fef08a', text: '#713f12', label: 'Lendário' },
+/* Níveis do Trust Score mapeados aos tokens semânticos do Design System.
+   Mantém contraste AA por usar os tokens de texto ± um fundo 12% do mesmo tom. */
+const nivelColors: Record<string, { color: string; label: string }> = {
+  INITIATE: { color: 'var(--muted-foreground)', label: 'Iniciante' },
+  EMERGING: { color: 'var(--ochre)', label: 'Emergente' },
+  ESTABLISHED: { color: 'var(--info)', label: 'Estabelecido' },
+  AUTHORITY: { color: 'var(--success)', label: 'Autoridade' },
+  LEGENDARY: { color: 'var(--copper)', label: 'Lendário' },
 };
 
 export function TrustScoreSection({ trustScoreInfo }: { trustScoreInfo: TrustScoreInfo }) {
   const colors = nivelColors[trustScoreInfo.nivel] || nivelColors.INITIATE;
+  const levelBg = `color-mix(in srgb, ${colors.color} 14%, transparent)`;
 
   return (
     <div className="section-card">
@@ -18,17 +21,17 @@ export function TrustScoreSection({ trustScoreInfo }: { trustScoreInfo: TrustSco
         <div
           className="ts-circle"
           style={{
-            background: `conic-gradient(${colors.text} ${trustScoreInfo.score}%, var(--color-gray-200) ${trustScoreInfo.score}%)`,
+            background: `conic-gradient(${colors.color} ${trustScoreInfo.score}%, var(--color-gray-200) ${trustScoreInfo.score}%)`,
           }}
         >
-          <div className="ts-circle-inner" style={{ background: 'var(--color-white)' }}>
+          <div className="ts-circle-inner" style={{ background: 'var(--color-surface-1)' }}>
             <span className="ts-score">{trustScoreInfo.score}</span>
           </div>
         </div>
-        <div className="ts-level" style={{ color: colors.text, background: colors.bg }}>
+        <div className="ts-level" style={{ color: colors.color, background: levelBg }}>
           {colors.label}
         </div>
-        <p className="ts-meta" style={{ fontSize: '0.8rem', color: 'var(--color-gray-300)', marginTop: '0.5rem' }}>
+        <p className="ts-meta" style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.5rem' }}>
           Nível: {trustScoreInfo.nivel}
         </p>
       </div>

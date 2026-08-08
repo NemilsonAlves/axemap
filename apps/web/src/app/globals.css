@@ -1,86 +1,617 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ════════════════════════════════════════════════════════════════════
+   AXÉ MAP — DESIGN SYSTEM
+   Foundation • Tokens • Visual Language
+   Filosofia: a tecnologia a serviço da tradição.
+   Linguagem: barro, madeira, cobre, bronze, fibras naturais, grafismos
+   contemporâneos — calor ancestral com precisão de produto moderno.
+   ════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --color-primary: #4A3728;
-  --color-secondary: #D4895B;
-  --color-accent: #8B4513;
-  --color-bg: #FFF8F0;
-  --color-text: #2C1810;
-  --color-white: #FFFFFF;
-  --color-gray-50: #FAF7F4;
-  --color-gray-100: #F5F0EB;
-  --color-gray-200: #E8E0D6;
-  --color-gray-300: #C4B5A5;
-  --color-gray-400: #A69480;
-  --color-gray-500: #8B7B6B;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  /* ── Light Theme ────────────────────────────────────────────── */
+  --background: 34 42% 97%;
+  --foreground: 20 40% 8%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 20 40% 8%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 40% 8%;
+
+  --primary: 18 66% 47%;
+  --primary-foreground: 32 60% 98%;
+
+  --secondary: 30 32% 93%;
+  --secondary-foreground: 20 40% 14%;
+
+  --muted: 32 30% 92%;
+  --muted-foreground: 28 14% 42%;
+
+  --accent: 24 40% 90%;
+  --accent-foreground: 18 50% 16%;
+
+  --destructive: 8 62% 45%;
+  --destructive-foreground: 30 60% 98%;
+
+  --border: 30 30% 88%;
+  --input: 30 30% 84%;
+  --ring: 18 70% 48%;
+
+  /* Semânticas */
+  --success: 150 46% 38%;
+  --success-foreground: 150 40% 97%;
+  --warning: 38 90% 40%;
+  --warning-foreground: 40 60% 98%;
+  --danger: 8 62% 46%;
+  --danger-foreground: 30 60% 98%;
+  --info: 214 72% 46%;
+  --info-foreground: 214 70% 98%;
+
+  /* Marca */
+  --copper: 18 66% 47%;
+  --copper-strong: 16 68% 38%;
+  --copper-soft: 20 70% 88%;
+  --bronze: 30 40% 48%;
+  --clay: 12 55% 50%;
+  --soil: 22 40% 14%;
+  --soil-soft: 24 24% 28%;
+  --ivory: 35 55% 94%;
+  --oat: 32 35% 93%;
+  --fern: 150 42% 36%;
+  --ochre: 36 85% 44%;
+  --sand: 32 18% 66%;
+
+  /* Turquesa (Impacto) */
+  --turquoise: 176 78% 34%;
+  --turquoise-strong: 177 82% 28%;
+  --turquoise-soft: 172 55% 88%;
+
+  /* Superfícies sobrepostas */
+  --surface-1: 0 0% 100%;
+  --surface-2: 32 35% 96%;
+  --surface-3: 28 30% 90%;
+  --overlay: 24 35% 8%;
+
+  /* Sombras (cálidas) */
+  --shadow-xs: 0 1px 2px hsl(24 30% 30% / 0.04), 0 1px 1px hsl(24 30% 30% / 0.03);
+  --shadow-sm: 0 1px 2px hsl(24 30% 30% / 0.05), 0 2px 6px hsl(24 30% 30% / 0.05);
+  --shadow-md: 0 2px 4px hsl(24 30% 30% / 0.06), 0 8px 20px hsl(24 30% 30% / 0.08);
+  --shadow-lg: 0 4px 8px hsl(24 30% 30% / 0.07), 0 16px 40px hsl(24 30% 30% / 0.12);
+  --shadow-xl: 0 8px 16px hsl(24 30% 30% / 0.1), 0 28px 64px hsl(24 30% 30% / 0.18);
+  --shadow-copper: 0 6px 24px hsl(18 70% 40% / 0.28);
 }
 
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: var(--color-bg);
-  color: var(--color-text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.dark {
+  /* ── Dark Theme ─────────────────────────────────────────────── */
+  --background: 24 28% 6%;
+  --foreground: 35 40% 92%;
+
+  --card: 22 22% 9%;
+  --card-foreground: 35 40% 92%;
+
+  --popover: 22 22% 10%;
+  --popover-foreground: 35 40% 92%;
+
+  --primary: 18 78% 58%;
+  --primary-foreground: 20 50% 10%;
+
+  --secondary: 24 18% 15%;
+  --secondary-foreground: 35 40% 92%;
+
+  --muted: 24 18% 14%;
+  --muted-foreground: 28 14% 60%;
+
+  --accent: 22 20% 17%;
+  --accent-foreground: 30 50% 86%;
+
+  --destructive: 8 66% 56%;
+  --destructive-foreground: 30 60% 98%;
+
+  --border: 24 15% 18%;
+  --input: 24 15% 20%;
+  --ring: 18 78% 58%;
+
+  --success: 150 48% 50%;
+  --success-foreground: 150 40% 10%;
+  --warning: 38 92% 56%;
+  --warning-foreground: 40 50% 10%;
+  --danger: 8 66% 58%;
+  --danger-foreground: 30 60% 10%;
+  --info: 214 78% 64%;
+  --info-foreground: 214 60% 10%;
+
+  --copper: 18 78% 60%;
+  --copper-strong: 18 80% 66%;
+  --copper-soft: 18 42% 22%;
+  --bronze: 30 42% 62%;
+  --clay: 12 60% 60%;
+  --soil: 24 40% 12%;
+  --soil-soft: 24 20% 22%;
+  --ivory: 35 40% 88%;
+  --oat: 30 25% 16%;
+  --fern: 150 46% 54%;
+  --ochre: 38 88% 60%;
+  --sand: 30 15% 50%;
+
+  --turquoise: 176 80% 58%;
+  --turquoise-strong: 178 86% 64%;
+  --turquoise-soft: 174 45% 20%;
+
+  --surface-1: 22 22% 10%;
+  --surface-2: 24 20% 12%;
+  --surface-3: 24 18% 16%;
+  --overlay: 24 35% 4%;
+
+  --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.4), 0 1px 1px hsl(0 0% 0% / 0.3);
+  --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.4), 0 2px 8px hsl(0 0% 0% / 0.4);
+  --shadow-md: 0 2px 4px hsl(0 0% 0% / 0.4), 0 10px 24px hsl(0 0% 0% / 0.45);
+  --shadow-lg: 0 4px 8px hsl(0 0% 0% / 0.45), 0 18px 44px hsl(0 0% 0% / 0.5);
+  --shadow-xl: 0 8px 16px hsl(0 0% 0% / 0.5), 0 30px 72px hsl(0 0% 0% / 0.6);
+  --shadow-copper: 0 6px 28px hsl(18 78% 50% / 0.35);
 }
 
-.header {
-  background: var(--color-primary);
-  color: var(--color-white);
-  padding: 1rem 2rem;
+/* ────────────────────────────────────────────────────────────────
+   Neutral Palette — neutrals quentes (barro/areia) do DS.
+   Bridge legado: --color-gray-* / --color-white / --color-text
+   para que páginas (profile.css, admin.css, busca) usem a mesma
+   paleta quente do Design System em vez do cinza frio default.
+   ──────────────────────────────────────────────────────────────── */
+:root,
+.light {
+  --color-white: hsl(0 0% 100%);
+  --color-black: hsl(24 35% 4%);
+  --color-text: hsl(var(--foreground));
+
+  --color-gray-50: hsl(32 28% 98%);
+  --color-gray-100: hsl(32 22% 95%);
+  --color-gray-200: hsl(30 18% 86%);
+  --color-gray-300: hsl(28 14% 72%);
+  --color-gray-400: hsl(28 12% 58%);
+  --color-gray-500: hsl(28 12% 46%);
+  --color-gray-600: hsl(27 12% 36%);
+  --color-gray-700: hsl(26 12% 27%);
+  --color-gray-800: hsl(25 12% 19%);
+  --color-gray-900: hsl(24 12% 12%);
 }
 
-.nav {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.dark {
+  --color-white: hsl(0 0% 100%);
+  --color-black: hsl(0 0% 0%);
+  --color-text: hsl(var(--foreground));
+
+  --color-gray-50: hsl(24 14% 5%);
+  --color-gray-100: hsl(24 14% 9%);
+  --color-gray-200: hsl(24 16% 14%);
+  --color-gray-300: hsl(25 14% 26%);
+  --color-gray-400: hsl(26 13% 38%);
+  --color-gray-500: hsl(27 13% 52%);
+  --color-gray-600: hsl(28 13% 66%);
+  --color-gray-700: hsl(28 14% 74%);
+  --color-gray-800: hsl(29 14% 82%);
+  --color-gray-900: hsl(31 15% 88%);
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--color-white);
-  text-decoration: none;
+@theme inline {
+  /* ── Color tokens (mapeados para as variáveis com alpha) ────── */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-danger: hsl(var(--danger));
+  --color-danger-foreground: hsl(var(--danger-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+
+  --color-copper: hsl(var(--copper));
+  --color-copper-strong: hsl(var(--copper-strong));
+  --color-copper-soft: hsl(var(--copper-soft));
+  --color-bronze: hsl(var(--bronze));
+  --color-clay: hsl(var(--clay));
+  --color-soil: hsl(var(--soil));
+  --color-soil-soft: hsl(var(--soil-soft));
+  --color-ivory: hsl(var(--ivory));
+  --color-oat: hsl(var(--oat));
+  --color-fern: hsl(var(--fern));
+  --color-ochre: hsl(var(--ochre));
+  --color-sand: hsl(var(--sand));
+
+  --color-turquoise: hsl(var(--turquoise));
+  --color-turquoise-strong: hsl(var(--turquoise-strong));
+  --color-turquoise-soft: hsl(var(--turquoise-soft));
+
+  --color-surface-1: hsl(var(--surface-1));
+  --color-surface-2: hsl(var(--surface-2));
+  --color-surface-3: hsl(var(--surface-3));
+  --color-overlay: hsl(var(--overlay));
+
+  /* ── Tipografia ─────────────────────────────────────────────── */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --text-display: clamp(2.5rem, 1.5rem + 4vw, 4.75rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.035em;
+
+  --text-hero: clamp(2rem, 1.25rem + 3vw, 3.5rem);
+  --text-hero--line-height: 1.06;
+  --text-hero--letter-spacing: -0.03em;
+
+  --text-heading: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+  --text-heading--line-height: 1.14;
+  --text-heading--letter-spacing: -0.025em;
+
+  --text-title: clamp(1.1875rem, 1.05rem + 0.55vw, 1.5rem);
+  --text-title--line-height: 1.22;
+  --text-title--letter-spacing: -0.018em;
+
+  --text-subtitle: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --text-subtitle--line-height: 1.5;
+  --text-subtitle--letter-spacing: -0.012em;
+
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.6;
+
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.45;
+
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.06em;
+  --text-label--font-weight: 600;
+
+  --text-button: 0.875rem;
+  --text-button--line-height: 1;
+  --text-button--font-weight: 600;
+
+  --text-code: 0.8125rem;
+  --text-code--line-height: 1.5;
+
+  /* ── Raio ───────────────────────────────────────────────────── */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+
+  /* ── Sombra ─────────────────────────────────────────────────── */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-copper: var(--shadow-copper);
+
+  /* ── Bordas ─────────────────────────────────────────────────── */
+  --border-width-xs: 1px;
+  --border-width-sm: 1.5px;
+  --border-width-md: 2px;
+  --border-width-lg: 3px;
+
+  /* ── Opacidade ──────────────────────────────────────────────── */
+  --opacity-faint: 0.055;
+  --opacity-subtle: 0.18;
+  --opacity-mid: 0.5;
+  --opacity-disabled: 0.45;
+  --opacity-scrim: 0.55;
+  --opacity-solid: 1;
+
+  /* ── Motion ─────────────────────────────────────────────────── */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --duration-slower: 520ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0.05, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Elevação / z-index ─────────────────────────────────────── */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-dropdown: 1000;
+  --z-overlay: 1050;
+  --z-modal: 1100;
+  --z-popover: 1150;
+  --z-toast: 1200;
+  --z-tooltip: 1250;
+
+  /* ── Grid / layout ──────────────────────────────────────────── */
+  --container-page: 80rem;
+  --container-narrow: 64rem;
+  --grid-cols-desktop: 12;
+
+  /* ── Animações personalizadas ───────────────────────────────── */
+  --animate-accordion-down: accordion-down var(--duration-base) var(--ease-out);
+  --animate-accordion-up: accordion-up var(--duration-base) var(--ease-out);
 }
 
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
 }
 
-.nav-links a {
-  color: var(--color-gray-200);
-  text-decoration: none;
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
-.nav-links a:hover {
-  color: var(--color-white);
+@theme {
+  /* Nome amigável para o espaçamento base do sistema 8pt (4pt base) */
+  --spacing-0\.5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1\.5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-2\.5: 0.625rem;
+  --spacing-3: 0.75rem;
+  --spacing-3\.5: 0.875rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-32: 8rem;
+
+  /* ── Breakpoints ────────────────────────────────────────────── */
+  --breakpoint-xs: 30rem;
+  --breakpoint-3xl: 120rem;
+  --breakpoint-4xl: 160rem;
 }
 
-.main {
-  flex: 1;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  width: 100%;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: hsl(var(--copper) / 0.85);
+    color: hsl(var(--primary-foreground));
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  /* Foco acessível e visível em toda a UI */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Scrollbar discreta e elegante */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: var(--radius-full);
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.6);
+    background-clip: content-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-.footer {
-  background: var(--color-primary);
-  color: var(--color-gray-300);
-  text-align: center;
-  padding: 1rem;
-  font-size: 0.875rem;
+/* ── Utilidades de marca ─────────────────────────────────────────── */
+
+/* Gradiente assinatura: bronze → cobre → barro (identidade AxéMap) */
+.bg-brand-gradient {
+  background-image: linear-gradient(
+    135deg,
+    hsl(var(--bronze)) 0%,
+    hsl(var(--copper)) 50%,
+    hsl(var(--clay)) 100%
+  );
+}
+
+.text-brand-gradient {
+  background-image: linear-gradient(
+    120deg,
+    hsl(var(--copper-strong)) 0%,
+    hsl(var(--copper)) 40%,
+    hsl(var(--bronze)) 80%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Textura orgânica sutil (fibras naturais) */
+.bg-fiber {
+  background-image: radial-gradient(
+      hsl(var(--soil) / 0.035) 1px,
+      transparent 1px
+    ),
+    radial-gradient(hsl(var(--soil) / 0.03) 1px, transparent 1px);
+  background-size: 22px 22px, 34px 34px;
+  background-position: 0 0, 11px 17px;
+}
+
+/* Fundo de herói — campo escuro com brasa de cobre */
+.bg-hero {
+  background-color: hsl(22 45% 10%);
+  background-image:
+    radial-gradient(
+      1200px 600px at 80% -10%,
+      hsl(var(--copper) / 0.28),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 10% 110%,
+      hsl(var(--bronze) / 0.18),
+      transparent 55%
+    ),
+    radial-gradient(
+      400px 300px at 60% 20%,
+      hsl(var(--clay) / 0.12),
+      transparent 70%
+    );
+}
+
+.glass {
+  background: hsl(var(--card) / 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+.card-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    hsl(var(--card) / 0.6) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.9s var(--ease-out);
+  pointer-events: none;
+}
+.card-shine:hover::after {
+  transform: translateX(120%);
+}
+
+/* Compensa a largura da scrollbar para layouts centralizados */
+@utility container-page {
+  @apply mx-auto w-full px-4 sm:px-6 lg:px-8;
+  max-width: var(--container-page);
+}
+
+@utility container-narrow {
+  @apply mx-auto w-full px-4 sm:px-6;
+  max-width: var(--container-narrow);
+}
+
+/* ── Motion da Home ────────────────────────────────────────────── */
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes hero-float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(11px);
+  }
+}
+
+@keyframes hero-float-slower {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(-1.5deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.animate-hero-float {
+  animation: hero-float 7s ease-in-out infinite;
+}
+
+.animate-hero-float-slow {
+  animation: hero-float-slow 9s ease-in-out infinite;
+}
+
+.animate-hero-float-slower {
+  animation: hero-float-slower 8s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: pulse-ring 2.6s ease-out infinite;
 }

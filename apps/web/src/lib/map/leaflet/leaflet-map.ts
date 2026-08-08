@@ -1,11 +1,21 @@
-/// <reference types="leaflet" />
-
 import type { MapConfig, MapGeoPoint, MapBounds } from '../types';
 import type { MapProviderInstance } from '../map-provider.interface';
 
-export function createLeafletMap(container: HTMLElement, config: MapConfig): MapProviderInstance {
-  const L = (window as any).L;
-  if (!L) throw new Error('Leaflet not loaded');
+/**
+ * Registro por container: garante que um único mapa Leaflet é criado por nó DOM,
+ * mesmo quando o StrictMode (dev) monta/desmonta o efeito e dispara chamadas
+ * assíncronas concorrentes — evita o erro "Map container is already initialized".
+ */
+const containerMapRegistry = new WeakMap<HTMLElement, MapProviderInstance>();
+
+export async function createLeafletMap(container: HTMLElement, config: MapConfig): Promise<MapProviderInstance> {
+  const existing = containerMapRegistry.get(container);
+  if (existing) return existing;
+
+  const L = await import('leaflet');
+  await import('leaflet/dist/leaflet.css');
+
+  if (containerMapRegistry.get(container)) return containerMapRegistry.get(container)!;
 
   const map = L.map(container, {
     center: [config.center.lat, config.center.lng],
@@ -26,9 +36,20 @@ export function createLeafletMap(container: HTMLElement, config: MapConfig): Map
 
   const api: MapProviderInstance = {
     addMarker(marker) {
-      const leafletMarker = L.marker([marker.position.lat, marker.position.lng])
+      const href = marker.slug ? `<a href="${marker.slug}" target="_blank" style="display:inline-block;margin-top:6px;font-weight:600;">Ver detalhes &rarr;</a>` : '';
+      const desc = marker.description ? `<div style="margin-top:2px;color:#666">${marker.description}</div>` : '';
+      const popupHtml = `<b>${marker.title}</b>${desc}${href}`;
+
+      const icon = L.divIcon({
+        className: '',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
+        html: `<div style="width:20px;height:20px;border-radius:50%;background:${marker.color || 'var(--copper, #c2410c)'};border:2px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.35);box-sizing:border-box"></div>`,
+      });
+
+      const leafletMarker = L.marker([marker.position.lat, marker.position.lng], { icon })
         .addTo(map)
-        .bindPopup(`<b>${marker.title}</b>`);
+        .bindPopup(popupHtml);
       markers.set(marker.id, leafletMarker);
     },
 
@@ -77,6 +98,9 @@ export function createLeafletMap(container: HTMLElement, config: MapConfig): Map
     destroy() {
       map.remove();
       markers.clear();
+      if (containerMapRegistry.get(container) === api) {
+        containerMapRegistry.delete(container);
+      }
     },
 
     on(event, handler) {
@@ -87,6 +111,8 @@ export function createLeafletMap(container: HTMLElement, config: MapConfig): Map
       map.off(event, handler);
     },
   };
+
+  containerMapRegistry.set(container, api);
 
   return api;
 }

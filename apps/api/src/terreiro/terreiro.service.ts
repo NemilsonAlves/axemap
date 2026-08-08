@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { UserRole } from '@axemap/shared';
 
 const perfilInclude = {
   dirigente: { select: { id: true, nome: true, avatarUrl: true } },
@@ -34,6 +35,36 @@ const perfilInclude = {
   favoritos: {
     take: 1,
     select: { usuarioId: true },
+  },
+  produtos: {
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' as const },
+    take: 8,
+  },
+  conteudos: {
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' as const },
+    take: 12,
+  },
+  campanhas: {
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' as const },
+    take: 6,
+  },
+  documentosVerificacao: {
+    select: { id: true, tipo: true, status: true, arquivoUrl: true },
+  },
+  _count: {
+    select: {
+      seguidores: true,
+      membros: true,
+      eventos: { where: { deletedAt: null } },
+      cursos: { where: { deletedAt: null } },
+      acoesSociais: { where: { deletedAt: null } },
+      avaliacoes: { where: { deletedAt: null } },
+      produtos: { where: { deletedAt: null } },
+      conteudos: { where: { deletedAt: null } },
+    },
   },
 } as const;
 
@@ -110,6 +141,26 @@ export class TerreiroService {
     return { data, total, limit: filters.limit, offset: filters.offset };
   }
 
+  async listarMeus(usuarioId: string) {
+    const data = await this.prisma.terreiros.findMany({
+      where: { dirigenteId: usuarioId, deletedAt: null },
+      orderBy: { updatedAt: 'desc' },
+      include: {
+        _count: {
+          select: {
+            eventos: { where: { deletedAt: null } },
+            cursos: { where: { deletedAt: null } },
+            acoesSociais: { where: { deletedAt: null } },
+            avaliacoes: { where: { deletedAt: null } },
+            fotos: true,
+          },
+        },
+      },
+    });
+
+    return { data, total: data.length };
+  }
+
   async buscarPorSlug(slug: string) {
     const terreiro = await this.prisma.terreiros.findUnique({
       where: { slug },
@@ -139,6 +190,8 @@ export class TerreiroService {
   private formatPerfil(terreiro: any) {
     const avgs = this.calcularAvaliacoes(terreiro.avaliacoes);
     const completeness = this.calcularCompletude(terreiro);
+    const meses = this.mesesNaPlataforma(terreiro.createdAt);
+    const respostaMedia = this.calcularTempoResposta(terreiro.avaliacoes);
 
     return {
       ...terreiro,
@@ -148,6 +201,32 @@ export class TerreiroService {
         totalFavoritos: terreiro.favoritos?.length || 0,
         totalEventos: terreiro.eventos?.length || 0,
         totalFotos: terreiro.fotos?.length || 0,
+      },
+      hub: {
+        seguidores: terreiro._count?.seguidores ?? 0,
+        membros: terreiro._count?.membros ?? 0,
+        totalEventos: terreiro._count?.eventos ?? 0,
+        totalCursos: terreiro._count?.cursos ?? 0,
+        totalAcoes: terreiro._count?.acoesSociais ?? 0,
+        totalAvaliacoes: terreiro._count?.avaliacoes ?? 0,
+        totalProdutos: terreiro._count?.produtos ?? 0,
+        totalConteudos: terreiro._count?.conteudos ?? 0,
+        mesesNaPlataforma: meses,
+        tempoRespostaDias: respostaMedia,
+      },
+      lideranca: {
+        nome: terreiro.dirigente?.nome ?? terreiro.nome,
+        avatarUrl: terreiro.dirigente?.avatarUrl ?? null,
+        tempoAtuacaoAnos: this.tempoAtuacao(terreiro.anoFundacao, terreiro.createdAt),
+        membros: terreiro._count?.membros ?? 0,
+      },
+      governanca: {
+        verificado: terreiro.isVerified ?? false,
+        nivelVerificacao: terreiro.verificationLevel ?? null,
+        documentosValidos: (terreiro.documentosVerificacao ?? []).filter(
+          (d: any) => d.status === 'VALIDO' || d.status === 'APROVADO',
+        ).length,
+        documentos: terreiro.documentosVerificacao ?? [],
       },
       completeness: {
         score: completeness.score,
@@ -168,6 +247,31 @@ export class TerreiroService {
     }
     const soma = avaliacoes.reduce((acc: number, a: any) => acc + a.nota, 0);
     return { total: avaliacoes.length, media: Math.round((soma / avaliacoes.length) * 10) / 10 };
+  }
+
+  private mesesNaPlataforma(createdAt?: Date | string) {
+    if (!createdAt) return 0;
+    const d = new Date(createdAt);
+    if (isNaN(d.getTime())) return 0;
+    return Math.max(0, Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+  }
+
+  private tempoAtuacao(anoFundacao: number | null, createdAt?: Date | string) {
+    const base = typeof anoFundacao === 'number' && anoFundacao > 0 ? anoFundacao : createdAt ? new Date(createdAt).getFullYear() : new Date().getFullYear();
+    return Math.max(1, new Date().getFullYear() - base);
+  }
+
+  private calcularTempoResposta(avaliacoes: any[]) {
+    if (!avaliacoes || avaliacoes.length === 0) return null;
+    const comResposta = avaliacoes
+      .filter((a: any) => a.resposta?.createdAt)
+      .map((a: any) => {
+        const criada = new Date(a.createdAt).getTime();
+        const respondida = new Date(a.resposta.createdAt).getTime();
+        return Math.round((respondida - criada) / (1000 * 60 * 60 * 24));
+      });
+    if (comResposta.length === 0) return null;
+    return Math.round(comResposta.reduce((s, v) => s + v, 0) / comResposta.length);
   }
 
   private calcularCompletude(terreiro: any) {
@@ -205,14 +309,79 @@ export class TerreiroService {
     return { score, nivel, label };
   }
 
-  async atualizar(id: string, dto: any, usuarioId: string) {
+  async atualizar(id: string, dto: any, usuario: { id: string; role?: string }) {
     const terreiro = await this.prisma.terreiros.findUnique({ where: { id } });
     if (!terreiro) throw new NotFoundException('Terreiro não encontrado');
+
+    const isAdmin = usuario.role === UserRole.ADMIN || usuario.role === UserRole.SUPER_ADMIN;
+    if (terreiro.dirigenteId !== usuario.id && !isAdmin) {
+      throw new ForbiddenException('Apenas o dirigente do terreiro pode editar este perfil');
+    }
 
     return this.prisma.terreiros.update({
       where: { id },
       data: dto,
     });
+  }
+
+  private async verificarDirigente(usuarioId: string, terreiroId: string) {
+    const terreiro = await this.prisma.terreiros.findUnique({
+      where: { id: terreiroId },
+      select: { dirigenteId: true },
+    });
+    if (!terreiro) throw new NotFoundException('Terreiro não encontrado');
+    if (terreiro.dirigenteId !== usuarioId) {
+      throw new ForbiddenException('Apenas o dirigente do terreiro pode gerenciar este perfil');
+    }
+  }
+
+  async adicionarFoto(id: string, usuarioId: string, dto: { url: string; thumbUrl?: string; alt?: string; isPrincipal?: boolean }) {
+    if (!dto.url) throw new BadRequestException('url é obrigatória');
+    await this.verificarDirigente(usuarioId, id);
+
+    if (dto.isPrincipal) {
+      await this.prisma.terreiroFoto.updateMany({
+        where: { terreiroId: id },
+        data: { isPrincipal: false },
+      });
+    }
+
+    const foto = await this.prisma.terreiroFoto.create({
+      data: {
+        terreiroId: id,
+        url: dto.url,
+        thumbUrl: dto.thumbUrl ?? null,
+        alt: dto.alt ?? null,
+        isPrincipal: dto.isPrincipal ?? false,
+      },
+    });
+
+    const terreiro = await this.prisma.terreiros.findUnique({ where: { id }, select: { fotoUrl: true } });
+    if (dto.isPrincipal || !terreiro?.fotoUrl) {
+      await this.prisma.terreiros.update({ where: { id }, data: { fotoUrl: dto.url } });
+    }
+    return foto;
+  }
+
+  async removerFoto(id: string, usuarioId: string, fotoId: string) {
+    await this.verificarDirigente(usuarioId, id);
+    const foto = await this.prisma.terreiroFoto.findFirst({ where: { id: fotoId, terreiroId: id } });
+    if (!foto) throw new NotFoundException('Foto não encontrada');
+
+    await this.prisma.terreiroFoto.delete({ where: { id: fotoId } });
+    const restantes = await this.prisma.terreiroFoto.findMany({
+      where: { terreiroId: id },
+      orderBy: { ordem: 'asc' },
+    });
+
+    const terreiro = await this.prisma.terreiros.findUnique({ where: { id } });
+    if (terreiro?.fotoUrl === foto.url) {
+      await this.prisma.terreiros.update({
+        where: { id },
+        data: { fotoUrl: restantes[0]?.url ?? null },
+      });
+    }
+    return { removido: true };
   }
 
   async deletar(id: string, usuarioId: string) {

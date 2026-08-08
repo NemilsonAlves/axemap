@@ -1,9 +1,20 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { UserRole } from '@axemap/shared';
 
 @Injectable()
 export class GrowthService {
   constructor(private prisma: PrismaService) {}
+
+  async verificarDirigente(usuarioId: string, role: string | undefined, terreiroId: string) {
+    const terreiro = await this.prisma.terreiros.findUnique({ where: { id: terreiroId } });
+    if (!terreiro) throw new NotFoundException('Terreiro não encontrado');
+    const isAdmin = role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
+    if (terreiro.dirigenteId !== usuarioId && !isAdmin) {
+      throw new ForbiddenException('Apenas o dirigente do terreiro pode gerenciar membros e estatísticas');
+    }
+    return terreiro;
+  }
 
   async followTerreiro(usuarioId: string, terreiroId: string) {
     const existing = await this.prisma.seguidoresTerreiro.findUnique({
@@ -57,6 +68,28 @@ export class GrowthService {
     return { success: true };
   }
 
+  async listarFavoritos(usuarioId: string, limite = 50, offset = 0) {
+    const [data, total] = await Promise.all([
+      this.prisma.favoritos.findMany({
+        where: { usuarioId },
+        include: {
+          terreiro: {
+            select: {
+              id: true, nome: true, slug: true, tradicao: true, cidade: true, estado: true,
+              trustScore: true, isVerified: true, fotoUrl: true, descricaoCurta: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: Math.min(limite, 100),
+        skip: offset,
+      }),
+      this.prisma.favoritos.count({ where: { usuarioId } }),
+    ]);
+
+    return { data: data.map(f => f.terreiro), total };
+  }
+
   async getSeguidores(terreiroId: string, limit = 50, offset = 0) {
     const [data, total] = await Promise.all([
       this.prisma.seguidoresTerreiro.findMany({
@@ -72,7 +105,15 @@ export class GrowthService {
     return { data, total };
   }
 
-  async convidarMembro(convidadoPorId: string, terreiroId: string, email: string, papel = 'COLABORADOR') {
+  async convidarMembro(
+    convidadoPorId: string,
+    role: string | undefined,
+    terreiroId: string,
+    email: string,
+    papel = 'COLABORADOR',
+  ) {
+    await this.verificarDirigente(convidadoPorId, role, terreiroId);
+
     const usuario = await this.prisma.usuarios.findUnique({ where: { email } });
     if (!usuario) throw new NotFoundException('Usuário não encontrado');
 
@@ -118,24 +159,41 @@ export class GrowthService {
 
   async getMembros(terreiroId: string) {
     return this.prisma.membrosTerreiro.findMany({
-      where: { terreiroId, conviteStatus: 'ACEITO' },
+      where: { terreiroId },
       include: {
         usuario: { select: { id: true, nome: true, avatarUrl: true, email: true } },
         convidadoPor: { select: { id: true, nome: true } },
       },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  async updateMembroPapel(membroId: string, papel: string) {
+  async updateMembroPapel(usuarioId: string, role: string | undefined, membroId: string, papel: string) {
+    const membro = await this.prisma.membrosTerreiro.findUnique({ where: { id: membroId } });
+    if (!membro) throw new NotFoundException('Membro não encontrado');
+    await this.verificarDirigente(usuarioId, role, membro.terreiroId);
     return this.prisma.membrosTerreiro.update({
       where: { id: membroId },
       data: { papel },
     });
   }
 
-  async removerMembro(membroId: string) {
+  async removerMembro(usuarioId: string, role: string | undefined, membroId: string) {
+    const membro = await this.prisma.membrosTerreiro.findUnique({ where: { id: membroId } });
+    if (!membro) throw new NotFoundException('Membro não encontrado');
+    await this.verificarDirigente(usuarioId, role, membro.terreiroId);
     await this.prisma.membrosTerreiro.delete({ where: { id: membroId } });
     return { success: true };
+  }
+
+  async convitesParaUsuario(usuarioId: string) {
+    return this.prisma.membrosTerreiro.findMany({
+      where: { usuarioId, conviteStatus: 'PENDENTE' },
+      include: {
+        terreiro: { select: { id: true, nome: true, slug: true, cidade: true, estado: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async criarIndicacao(indicadorId: string, emailIndicado: string, terreiroId?: string) {
@@ -183,7 +241,9 @@ export class GrowthService {
     return { url, slug: terreiro.slug, totalAcessos, nome: terreiro.nome };
   }
 
-  async getGrowthAnalytics(terreiroId: string) {
+  async getGrowthAnalytics(usuarioId: string, role: string | undefined, terreiroId: string) {
+    await this.verificarDirigente(usuarioId, role, terreiroId);
+
     const [seguidores, favoritos, membros, indicacoes, acessosQR, presencas] = await Promise.all([
       this.prisma.seguidoresTerreiro.count({ where: { terreiroId } }),
       this.prisma.favoritos.count({ where: { terreiroId } }),

@@ -36,6 +36,12 @@ export class TerreiroController {
     });
   }
 
+  @Get('meus')
+  @UseGuards(AuthGuard('jwt'))
+  async meus(@CurrentUser() user: any) {
+    return this.terreiroService.listarMeus(user.id);
+  }
+
   @Get(':slug')
   async buscarPorSlug(@Param('slug') slug: string) {
     return this.terreiroService.buscarPorSlug(slug);
@@ -49,7 +55,19 @@ export class TerreiroController {
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
   async atualizar(@Param('id') id: string, @Body() dto: any, @CurrentUser() user: any) {
-    return this.terreiroService.atualizar(id, dto, user.id);
+    return this.terreiroService.atualizar(id, dto, user);
+  }
+
+  @Post(':id/fotos')
+  @UseGuards(AuthGuard('jwt'))
+  async adicionarFoto(@Param('id') id: string, @Body() dto: any, @CurrentUser() user: any) {
+    return this.terreiroService.adicionarFoto(id, user.id, dto);
+  }
+
+  @Delete(':id/fotos/:fotoId')
+  @UseGuards(AuthGuard('jwt'))
+  async removerFoto(@Param('id') id: string, @Param('fotoId') fotoId: string, @CurrentUser() user: any) {
+    return this.terreiroService.removerFoto(id, user.id, fotoId);
   }
 
   @Delete(':id')

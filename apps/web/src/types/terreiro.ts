@@ -89,6 +89,78 @@ export interface TrustScoreInfo {
   label: string;
 }
 
+export interface ProdutoMarketplace {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  preco: number;
+  categoria: string | null;
+  estoque: number;
+  imagens: string[];
+}
+
+export interface Conteudo {
+  id: string;
+  titulo: string;
+  tipo: string;
+  conteudo: string | null;
+  url: string | null;
+  publicado: boolean;
+  createdAt: string;
+}
+
+export interface Campanha {
+  id: string;
+  titulo: string;
+  slug: string;
+  descricao: string;
+  categoria: string;
+  modeloArrecad: string;
+  status: string;
+  nivelVerificacao: string;
+  metaFinanceira: number;
+  arrecadado: number;
+  apoiadoresCount: number;
+  trustScore: number | null;
+  imagemUrl: string | null;
+  cidade: string | null;
+  estado: string | null;
+}
+
+export interface DocumentoVerificacao {
+  id: string;
+  tipo: string;
+  status: string;
+  arquivoUrl: string;
+}
+
+export interface HubInfo {
+  seguidores: number;
+  membros: number;
+  totalEventos: number;
+  totalCursos: number;
+  totalAcoes: number;
+  totalAvaliacoes: number;
+  totalProdutos: number;
+  totalConteudos: number;
+  mesesNaPlataforma: number;
+  tempoRespostaDias: number | null;
+}
+
+export interface LiderancaInfo {
+  nome: string;
+  avatarUrl: string | null;
+  tempoAtuacaoAnos: number;
+  membros: number;
+}
+
+export interface GovernancaInfo {
+  verificado: boolean;
+  nivelVerificacao: string | null;
+  documentosValidos: number;
+  documentos: DocumentoVerificacao[];
+}
+
 export interface TerreiroPerfil {
   id: string;
   nome: string;
@@ -128,8 +200,15 @@ export interface TerreiroPerfil {
   acoesSociais: AcaoSocial[];
   fotos: TerreiroFoto[];
   videos: TerreiroVideo[];
+  produtos: ProdutoMarketplace[];
+  conteudos: Conteudo[];
+  campanhas: Campanha[];
+  documentosVerificacao: DocumentoVerificacao[];
 
   stats: ProfileStats;
+  hub: HubInfo;
+  lideranca: LiderancaInfo;
+  governanca: GovernancaInfo;
   completeness: ProfileCompleteness;
   trustScoreInfo: TrustScoreInfo;
   geoJSON: GeoJSON.Point | null;

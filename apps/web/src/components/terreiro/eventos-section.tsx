@@ -1,4 +1,5 @@
 import type { Evento } from '@/types/terreiro';
+import { PresencaButton } from './presenca-button';
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('pt-BR', {
@@ -36,6 +37,7 @@ export function EventosSection({ eventos }: { eventos: Evento[] }) {
               <span className="tag">{tipoLabels[evento.tipo] || evento.tipo}</span>
               {evento.descricao && <p className="evento-desc">{evento.descricao}</p>}
             </div>
+            <PresencaButton eventoId={evento.id} />
           </div>
         ))}
       </div>

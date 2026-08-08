@@ -38,6 +38,12 @@ export class GrowthController {
     return this.growthService.getSeguidores(id, limit ? parseInt(limit) : 50, offset ? parseInt(offset) : 0);
   }
 
+  @Get('favoritos')
+  @UseGuards(AuthGuard('jwt'))
+  async meusFavoritos(@CurrentUser() user: any, @Query('limit') limit?: string, @Query('offset') offset?: string) {
+    return this.growthService.listarFavoritos(user.id, limit ? parseInt(limit) : 50, offset ? parseInt(offset) : 0);
+  }
+
   @Post('eventos/:id/presenca')
   @UseGuards(AuthGuard('jwt'))
   async presenca(@Param('id') id: string, @CurrentUser() user: any, @Body('status') status?: string) {
@@ -56,7 +62,7 @@ export class GrowthController {
     @Param('id') id: string, @CurrentUser() user: any,
     @Body() body: { email: string; papel?: string },
   ) {
-    return this.growthService.convidarMembro(user.id, id, body.email, body.papel);
+    return this.growthService.convidarMembro(user.id, user.role, id, body.email, body.papel);
   }
 
   @Post('terreiros/:id/membros/aceitar')
@@ -73,20 +79,27 @@ export class GrowthController {
 
   @Get('terreiros/:id/membros')
   @UseGuards(AuthGuard('jwt'))
-  async listarMembros(@Param('id') id: string) {
+  async listarMembros(@Param('id') id: string, @CurrentUser() user: any) {
+    await this.growthService.verificarDirigente(user.id, user.role, id);
     return this.growthService.getMembros(id);
+  }
+
+  @Get('convites')
+  @UseGuards(AuthGuard('jwt'))
+  async meusConvites(@CurrentUser() user: any) {
+    return this.growthService.convitesParaUsuario(user.id);
   }
 
   @Patch('membros/:id')
   @UseGuards(AuthGuard('jwt'))
-  async atualizarPapel(@Param('id') id: string, @Body('papel') papel: string) {
-    return this.growthService.updateMembroPapel(id, papel);
+  async atualizarPapel(@Param('id') id: string, @Body('papel') papel: string, @CurrentUser() user: any) {
+    return this.growthService.updateMembroPapel(user.id, user.role, id, papel);
   }
 
   @Delete('membros/:id')
   @UseGuards(AuthGuard('jwt'))
-  async removerMembro(@Param('id') id: string) {
-    return this.growthService.removerMembro(id);
+  async removerMembro(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.growthService.removerMembro(user.id, user.role, id);
   }
 
   @Post('indicacoes')
@@ -106,7 +119,7 @@ export class GrowthController {
 
   @Get('terreiros/:id/analytics')
   @UseGuards(AuthGuard('jwt'))
-  async getAnalytics(@Param('id') id: string) {
-    return this.growthService.getGrowthAnalytics(id);
+  async getAnalytics(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.growthService.getGrowthAnalytics(user.id, user.role, id);
   }
 }

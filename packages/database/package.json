@@ -12,13 +12,15 @@
     "studio": "prisma studio",
     "build": "echo 'database build ok'",
     "lint": "echo 'database lint ok'",
-    "typecheck": "echo 'database typecheck ok'",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "echo 'database test ok'"
   },
   "dependencies": {
-    "@prisma/client": "^6.2.0"
+    "@prisma/client": "^6.2.0",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "prisma": "^6.2.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"

@@ -5,7 +5,10 @@
   "description": "Plataforma digital para religiões afro-brasileiras",
   "scripts": {
     "dev": "turbo dev",
+    "dev:start": "docker compose -f docker-compose.yml --profile core up -d && bash scripts/wait-for-services.sh && cd packages/database && npx prisma migrate dev && npx prisma db seed && cd ../.. && turbo dev",
     "build": "turbo build",
+    "smoke": "bash scripts/smoke.sh",
+    "fresh": "make fresh",
     "lint": "turbo lint",
     "lint:fix": "turbo lint -- --fix",
     "format": "prettier --write .",
@@ -13,7 +16,7 @@
     "test": "turbo test",
     "test:coverage": "turbo test:coverage",
     "test:e2e": "turbo test:e2e",
-    "typecheck": "turbo typecheck",
+    "typecheck": "turbo typecheck --concurrency=1",
     "prepare": "husky"
   },
   "devDependencies": {

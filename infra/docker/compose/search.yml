@@ -1,0 +1,30 @@
+services:
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: axemap-meilisearch
+    profiles: [search]
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: axemap_meili_dev_key
+      MEILI_ENV: development
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - axemap
+
+volumes:
+  meilisearch_data:
+    name: axemap_meilisearch_data
+
+networks:
+  axemap:
+    external: true
+    name: axemap_dev

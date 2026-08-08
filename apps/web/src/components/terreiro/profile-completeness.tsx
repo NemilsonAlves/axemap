@@ -16,10 +16,10 @@ export function ProfileCompleteness({ completeness }: { completeness: Completene
             style={{
               width: `${completeness.score}%`,
               background: completeness.score >= 80
-                ? 'var(--color-accent)'
+                ? 'var(--success)'
                 : completeness.score >= 50
-                ? '#f59e0b'
-                : '#ef4444',
+                ? 'var(--warning)'
+                : 'var(--danger)',
             }}
           />
         </div>

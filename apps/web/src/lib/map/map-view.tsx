@@ -29,32 +29,51 @@ export function MapView({
   const provider = useMapProvider();
 
   useEffect(() => {
-    if (!containerRef.current || !provider) return;
+    const container = containerRef.current;
+    if (!container || !provider) return;
 
-    const config: MapConfig = {
-      center,
-      zoom,
-      tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
-    };
+    let cancelled = false;
 
-    mapRef.current = provider.create(containerRef.current, config);
+    async function init() {
+      if (!provider || !container) return;
 
-    if (onClick) {
-      mapRef.current.on('click', (interaction: any) => {
-        if (interaction.position) onClick(interaction.position);
-      });
-    }
-
-    if (onBoundsChange) {
-      const handleBoundsChange = () => {
-        if (mapRef.current) onBoundsChange(mapRef.current.getBounds());
+      const config: MapConfig = {
+        center,
+        zoom,
+        tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
       };
-      mapRef.current.on('dragend', handleBoundsChange);
-      mapRef.current.on('zoomend', handleBoundsChange);
+
+      const instance = provider.create(container, config);
+      const resolved = instance instanceof Promise ? await instance : instance;
+      mapRef.current = resolved;
+
+      if (cancelled) {
+        // StrictMode (dev) monta/desmonta o efeito de forma concorrente. O mapa
+        // recém-criado é reutilizado pela re-execucao do efeito (registro do
+        // provider evita duplicar a instância), entao não destruímos aqui.
+        return;
+      }
+
+      if (onClick) {
+        resolved.on('click', (interaction: any) => {
+          if (interaction.position) onClick(interaction.position);
+        });
+      }
+
+      if (onBoundsChange) {
+        const handleBoundsChange = () => {
+          if (mapRef.current) onBoundsChange(mapRef.current.getBounds());
+        };
+        resolved.on('dragend', handleBoundsChange);
+        resolved.on('zoomend', handleBoundsChange);
+      }
     }
+
+    init();
 
     return () => {
+      cancelled = true;
       mapRef.current?.destroy();
       mapRef.current = null;
     };

@@ -11,8 +11,8 @@ export class GeoService {
       SELECT id, nome, slug, tradicao, trust_score, cidade, estado,
              latitude, longitude,
              ST_DistanceSphere(
-               ST_MakePoint(longitude, latitude)::geography,
-               ST_MakePoint(${lng}, ${lat})::geography
+               ST_MakePoint(longitude, latitude),
+               ST_MakePoint(${lng}, ${lat})
              ) as distancia
       FROM terreiros
       WHERE deleted_at IS NULL
@@ -45,19 +45,19 @@ export class GeoService {
       SELECT id, nome, slug, tradicao, trust_score, cidade, estado,
              latitude, longitude,
              ST_DistanceSphere(
-               ST_MakePoint(longitude, latitude)::geography,
-               ST_MakePoint(${lng}, ${lat})::geography
+               ST_MakePoint(longitude, latitude),
+               ST_MakePoint(${lng}, ${lat})
              ) as distancia
       FROM terreiros
       WHERE deleted_at IS NULL
         AND is_published = true
-      ORDER BY ST_MakePoint(longitude, latitude)::geography <-> ST_MakePoint(${lng}, ${lat})::geography
+      ORDER BY ST_MakePoint(longitude, latitude) <-> ST_MakePoint(${lng}, ${lat})
       LIMIT ${limite}
     `;
   }
 
   async contarPorCidade() {
-    return this.prisma.$queryRaw`
+    const rows = await this.prisma.$queryRaw<Array<{ cidade: string; estado: string; total: bigint; media_trust: number }>>`
       SELECT cidade, estado, COUNT(*) as total,
              ROUND(AVG(trust_score)::numeric, 1) as media_trust
       FROM terreiros
@@ -65,5 +65,6 @@ export class GeoService {
       GROUP BY cidade, estado
       ORDER BY total DESC
     `;
+    return rows.map(r => ({ cidade: r.cidade, estado: r.estado, total: Number(r.total), media_trust: Number(r.media_trust) }));
   }
 }

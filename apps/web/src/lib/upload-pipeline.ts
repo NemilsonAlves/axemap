@@ -120,9 +120,20 @@ async function uploadToR2(blob: Blob, fileName: string, onProgress: ProgressCall
   const formData = new FormData();
   formData.append('file', blob, fileName);
 
-  const response = await fetch('/api/upload', {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  let token: string | undefined;
+  try {
+    const stored = localStorage.getItem('axemap_auth');
+    if (stored) token = (JSON.parse(stored) as { accessToken?: string }).accessToken;
+  } catch {
+    token = undefined;
+  }
+
+  const response = await fetch(`${API_URL}/api/v1/upload`, {
     method: 'POST',
     body: formData,
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
 
   if (!response.ok) {

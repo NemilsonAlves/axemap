@@ -41,7 +41,7 @@ export function ClaimButton({ terreiroId, hasDirigente }: { terreiroId: string; 
       >
         {loading ? 'Enviando...' : claimed ? 'Solicitação enviada!' : 'Este terreiro é seu? Reivindique este perfil'}
       </button>
-      {error && <p style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '0.25rem' }}>{error}</p>}
+      {error && <p style={{ fontSize: '0.75rem', color: 'var(--danger)', marginTop: '0.25rem' }}>{error}</p>}
     </div>
   );
 }

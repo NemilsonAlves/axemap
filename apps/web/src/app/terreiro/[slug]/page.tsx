@@ -1,19 +1,29 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import type { TerreiroPerfil } from '@/types/terreiro';
 import { HeroSection } from '@/components/terreiro/hero-section';
-import { SobreSection } from '@/components/terreiro/sobre-section';
-import { LocalizacaoSection } from '@/components/terreiro/localizacao-section';
-import { FuncionamentoSection } from '@/components/terreiro/funcionamento-section';
-import { GaleriaSection } from '@/components/terreiro/galeria-section';
 import { EventosSection } from '@/components/terreiro/eventos-section';
 import { CursosSection } from '@/components/terreiro/cursos-section';
 import { AcoesSociaisSection } from '@/components/terreiro/acoes-sociais-section';
 import { AvaliacoesSection } from '@/components/terreiro/avaliacoes-section';
-import { TrustScoreSection } from '@/components/terreiro/trust-score-section';
+import { GaleriaSection } from '@/components/terreiro/galeria-section';
 import { ProfileCompleteness } from '@/components/terreiro/profile-completeness';
 import { QRCodeSection } from '@/components/terreiro/qr-code-section';
 import { ClaimButton } from '@/components/terreiro/claim-button';
+import { RecommendationCard } from '@/components/home/discovery-cards';
+import { HistoriaSection } from '@/components/hub/historia-section';
+import { LiderancaSection } from '@/components/hub/lideranca-section';
+import { TrustPanel } from '@/components/hub/trust-panel';
+import { CampanhasSection } from '@/components/hub/campanhas-section';
+import { MarketplaceSection } from '@/components/hub/marketplace-section';
+import { BibliotecaSection } from '@/components/hub/biblioteca-section';
+import { GovernancaSection } from '@/components/hub/governanca-section';
+import { ContatoSection } from '@/components/hub/contato-section';
+import { ComunidadeSection } from '@/components/hub/comunidade-section';
+import { HubSubnav } from '@/components/hub/hub-subnav';
+import { ComunidadeAI } from '@/components/hub/comunidade-ai';
+import { MapaComoChegar } from '@/components/hub/mapa-como-chegar';
 import './profile.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -27,6 +37,18 @@ async function getPerfil(slug: string): Promise<TerreiroPerfil | null> {
     return res.json();
   } catch {
     return null;
+  }
+}
+
+async function getRecomendacoes(terreiroId: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/recommendation/terreiro/${terreiroId}`, {
+      next: { revalidate: 600 },
+    });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
   }
 }
 
@@ -67,6 +89,8 @@ export default async function TerreiroPage({ params }: { params: Promise<{ slug:
 
   if (!terreiro) notFound();
 
+  const recomendacoes = await getRecomendacoes(terreiro.id);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Place',
@@ -97,26 +121,36 @@ export default async function TerreiroPage({ params }: { params: Promise<{ slug:
       />
       <div className="profile-page">
         <HeroSection terreiro={terreiro} />
-        <div style={{ padding: '0.75rem 2rem' }}>
+        <div style={{ padding: '0.75rem 1.5rem' }}>
           <ClaimButton terreiroId={terreiro.id} hasDirigente={!!terreiro.dirigente} />
         </div>
+
+        <HubSubnav terreiro={terreiro} />
+
         <div className="profile-grid">
           <div className="profile-main">
-            <SobreSection terreiro={terreiro} />
-            <LocalizacaoSection terreiro={terreiro} />
-            <FuncionamentoSection terreiro={terreiro} />
-            <GaleriaSection terreiro={terreiro} />
+            <HistoriaSection terreiro={terreiro} />
+            <LiderancaSection terreiro={terreiro} />
+            <TrustPanel terreiro={terreiro} />
             <EventosSection eventos={terreiro.eventos} />
             <CursosSection cursos={terreiro.cursos} />
             <AcoesSociaisSection acoes={terreiro.acoesSociais} />
+            <CampanhasSection terreiro={terreiro} />
+            <MarketplaceSection terreiro={terreiro} />
+            <BibliotecaSection terreiro={terreiro} />
+            <GaleriaSection terreiro={terreiro} />
+            <MapaComoChegar terreiro={terreiro} />
             <AvaliacoesSection
               avaliacoes={terreiro.avaliacoes}
               terreiroId={terreiro.id}
               stats={terreiro.stats}
             />
+            <ComunidadeSection terreiro={terreiro} />
+            <GovernancaSection terreiro={terreiro} />
+            <ComunidadeAI terreiro={terreiro} />
+            <ContatoSection terreiro={terreiro} />
           </div>
           <aside className="profile-sidebar">
-            <TrustScoreSection trustScoreInfo={terreiro.trustScoreInfo} />
             <ProfileCompleteness completeness={terreiro.completeness} />
             <QRCodeSection
               url={`https://axemap.com.br/t/${slug}`}
@@ -125,6 +159,25 @@ export default async function TerreiroPage({ params }: { params: Promise<{ slug:
             />
           </aside>
         </div>
+
+        {recomendacoes.length > 0 && (
+          <section className="px-4 py-8 max-w-6xl mx-auto">
+            <div className="flex items-end justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-foreground">Você também pode gostar</h2>
+                <p className="text-sm text-muted-foreground">Outros terreiros próximos ou da mesma tradição</p>
+              </div>
+              <Link href={`/tradicao/${terreiro.tradicao.toLowerCase().replace(/_/g, '-')}`} className="text-sm text-primary hover:underline shrink-0">
+                Ver todos &rarr;
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {recomendacoes.map((r: any) => (
+                <RecommendationCard key={r.terreiroId} item={r} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </>
   );

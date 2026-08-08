@@ -7,15 +7,27 @@ interface RequestOptions {
   token?: string;
 }
 
+function getStoredToken(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const stored = localStorage.getItem('axemap_auth');
+    if (stored) return (JSON.parse(stored) as { accessToken?: string }).accessToken;
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, headers = {}, token } = options;
+  const authToken = token ?? getStoredToken();
 
   const config: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
     },
     ...(body ? { body: JSON.stringify(body) } : {}),
   };

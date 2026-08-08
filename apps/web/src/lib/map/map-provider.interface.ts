@@ -1,10 +1,10 @@
-import type { MapConfig, MapGeoPoint, MapBounds } from './types';
+import type { MapConfig, MapGeoPoint, MapBounds, MapMarker } from './types';
 
-export type MapProviderFactory = (container: HTMLElement, config: MapConfig) => MapProviderInstance;
+export type MapProviderFactory = (container: HTMLElement, config: MapConfig) => MapProviderInstance | Promise<MapProviderInstance>;
 
 export interface MapProviderInstance {
-  addMarker(marker: { id: string; position: MapGeoPoint; title: string }): void;
-  addMarkers(markers: { id: string; position: MapGeoPoint; title: string }[]): void;
+  addMarker(marker: MapMarker): void;
+  addMarkers(markers: MapMarker[]): void;
   removeMarker(id: string): void;
   clearMarkers(): void;
   flyTo(position: MapGeoPoint, zoom?: number): void;

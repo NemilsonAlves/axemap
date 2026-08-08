@@ -1,6 +1,7 @@
 import type { TerreiroPerfil } from '@/types/terreiro';
 import { ShareButtons } from './share-buttons';
 import { FollowButton } from './follow-button';
+import { FavoriteButton } from './favorite-button';
 
 function TrustScoreBadge({ score, label }: { score: number; label: string }) {
   const hue = Math.min(score * 1.2, 120);
@@ -71,6 +72,7 @@ export function HeroSection({ terreiro }: { terreiro: TerreiroPerfil }) {
 
             <div className="hero-buttons">
               <FollowButton terreiroId={terreiro.id} />
+              <FavoriteButton terreiroId={terreiro.id} />
               {terreiro.whatsapp && (
                 <a
                   href={`https://wa.me/55${terreiro.whatsapp.replace(/\D/g, '')}`}

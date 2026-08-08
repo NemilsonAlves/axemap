@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { NotificacoesService } from '../notificacoes/notificacoes.service';
 
 @Injectable()
 export class OnboardingService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificacoes: NotificacoesService,
+  ) {}
 
   async getSteps() {
     return [
@@ -124,6 +128,12 @@ export class OnboardingService {
       data: { dirigenteId: request.usuarioId },
     });
 
+    await this.notificacoes.criar(request.usuarioId, {
+      tipo: 'REIVINDICACAO_APROVADA',
+      titulo: 'Reivindicação aprovada',
+      mensagem: 'Sua reivindicação de dirigente do terreiro foi aprovada.',
+    });
+
     return this.prisma.claimRequest.update({
       where: { id: requestId },
       data: { status: 'APROVADO', revisadoPorId: revisorId, revisadoEm: new Date() },
@@ -133,6 +143,12 @@ export class OnboardingService {
   async recusarReivindicacao(requestId: string, revisorId: string) {
     const request = await this.prisma.claimRequest.findUnique({ where: { id: requestId } });
     if (!request) throw new NotFoundException('Solicitação não encontrada');
+
+    await this.notificacoes.criar(request.usuarioId, {
+      tipo: 'REIVINDICACAO_RECUSADA',
+      titulo: 'Reivindicação recusada',
+      mensagem: 'Sua reivindicação de dirigente do terreiro foi recusada.',
+    });
 
     return this.prisma.claimRequest.update({
       where: { id: requestId },

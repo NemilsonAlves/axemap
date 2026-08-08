@@ -8,6 +8,19 @@ dist/
 !.env.example
 coverage/
 .turbo/
+# PostgreSQL portátil (Windows sem Docker)
+.pgportable/
+.pgdata/
+PGDATA~1/
 *.tsbuildinfo
 .DS_Store
 docker/data/
+backups/
+*.sql
+*.sql.gz
+!scripts/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

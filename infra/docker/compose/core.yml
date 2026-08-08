@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    container_name: axemap-postgres
+    profiles: [core]
+    environment:
+      POSTGRES_USER: axemap
+      POSTGRES_PASSWORD: axemap_dev
+      POSTGRES_DB: axemap_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U axemap -d axemap_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - axemap
+
+  redis:
+    image: redis:7-alpine
+    container_name: axemap-redis
+    profiles: [core]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - axemap
+
+volumes:
+  postgres_data:
+    name: axemap_postgres_data
+  redis_data:
+    name: axemap_redis_data
+
+networks:
+  axemap:
+    name: axemap_dev
+    driver: bridge

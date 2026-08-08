@@ -1,0 +1,9 @@
+include:
+  - infra/docker/compose/core.yml
+  - infra/docker/compose/admin.yml
+  - infra/docker/compose/observability.yml
+  - infra/docker/compose/storage.yml
+  - infra/docker/compose/messaging.yml
+  - infra/docker/compose/search.yml
+  - infra/docker/compose/analytics.yml
+  - infra/docker/compose/ai.yml
