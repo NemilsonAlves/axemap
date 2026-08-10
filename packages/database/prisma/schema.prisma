@@ -99,6 +99,59 @@ enum CampaignVerificationLevel {
   OFICIAL
 }
 
+// ============================================================
+// SAAS — Planos, Assinatura e Financeiro
+// ============================================================
+
+enum PlanoCiclo {
+  MENSAL
+  ANUAL
+}
+
+enum PlanoAssinaturaStatus {
+  PENDENTE
+  ATIVO
+  ATRASADO
+  EXPIRADO
+  CANCELADO
+}
+
+enum PlanoPagamentoMetodo {
+  PIX
+  CARTAO
+  BOLETO
+}
+
+enum PlanoPagamentoStatus {
+  PENDENTE
+  CONFIRMADO
+  FALHADO
+  REEMBOLSADO
+  CANCELADO
+}
+
+enum TransacaoTipo {
+  RECEITA
+  DESPESA
+}
+
+enum TransacaoOrigem {
+  PIX
+  DOACAO
+  MENSALIDADE
+  VENDA
+  TAXA_EVENTO
+  OUTRO
+}
+
+enum PixChaveTipo {
+  CPF
+  CNPJ
+  TELEFONE
+  EMAIL
+  ALEATORIA
+}
+
 model Usuarios {
   id           String    @id @default(uuid())
   email        String    @unique
@@ -153,6 +206,8 @@ model Usuarios {
   fraudesCriadas          AntifraudeRegistro[]  @relation("fraude_criada_por")
   fraudesRevisadas        AntifraudeRegistro[]  @relation("fraude_revista_por")
   mediacaoMensagems       MediacaoMensagem[]
+  pagamentosConfirmados   PlanoPagamento[]      @relation("plano_pagamento_confirmado")
+  transacoesRegistradas   TransacaoFinanceira[] @relation("transacao_registrada")
 
   @@map("usuarios")
 }
@@ -222,6 +277,9 @@ model Terreiros {
   mediacoes             Mediacoes[]
   evidencias            Evidencia[]
   complianceChecks      ComplianceChecklist[]
+  assinaturas           PlanoAssinatura[]
+  transacoesFinanceiras TransacaoFinanceira[]
+  pixConfig             PixConfiguracao?
 
   @@index([tradicao, cidade, estado])
   @@index([trustScore])
@@ -1105,4 +1163,109 @@ model GovernancaMembro {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("governanca_membros")
+}
+
+// ============================================================
+// SAAS — PLANOS, ASSINATURA E FINANCEIRO
+// ============================================================
+
+model PlanoSaaS {
+  id              String   @id @default(uuid())
+  slug            String   @unique
+  nome            String
+  descricao       String?  @db.Text
+  precoMensal     Float    @default(0) @map("preco_mensal")
+  precoAnual      Float?   @map("preco_anual")
+  destaque        Boolean  @default(false)
+  funcionalidades String[] @default([])
+  limites         Json?
+  ordem           Int      @default(0)
+  ativo           Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  assinaturas PlanoAssinatura[]
+
+  @@index([ativo, ordem])
+  @@map("planos_saas")
+}
+
+model PlanoAssinatura {
+  id          String                @id @default(uuid())
+  status      PlanoAssinaturaStatus @default(PENDENTE)
+  ciclo       PlanoCiclo            @default(MENSAL)
+  valor       Float                 @default(0)
+  iniciadoEm  DateTime              @default(now()) @map("iniciado_em")
+  renovarEm   DateTime?             @map("renovar_em")
+  canceladoEm DateTime?             @map("cancelado_em")
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+
+  terreiroId String           @map("terreiro_id")
+  terreiro   Terreiros        @relation(fields: [terreiroId], references: [id])
+  planoId    String           @map("plano_id")
+  plano      PlanoSaaS        @relation(fields: [planoId], references: [id])
+  pagamentos PlanoPagamento[]
+
+  @@unique([terreiroId, planoId])
+  @@index([terreiroId, status])
+  @@map("plano_assinaturas")
+}
+
+model PlanoPagamento {
+  id         String               @id @default(uuid())
+  valor      Float
+  metodo     PlanoPagamentoMetodo @default(PIX)
+  status     PlanoPagamentoStatus @default(PENDENTE)
+  referencia String? // QR/código de pagamento (Pix) ou URL de checkout
+  gatewayRef String?              @map("gateway_ref")
+  pagoEm     DateTime?            @map("pago_em")
+  createdAt  DateTime             @default(now()) @map("created_at")
+  updatedAt  DateTime             @updatedAt @map("updated_at")
+
+  assinaturaId    String          @map("assinatura_id")
+  assinatura      PlanoAssinatura @relation(fields: [assinaturaId], references: [id])
+  confirmadoPorId String?         @map("confirmado_por_id")
+  confirmadoPor   Usuarios?       @relation("plano_pagamento_confirmado", fields: [confirmadoPorId], references: [id])
+
+  @@unique([assinaturaId, referencia])
+  @@index([assinaturaId, status])
+  @@map("plano_pagamentos")
+}
+
+model TransacaoFinanceira {
+  id        String          @id @default(uuid())
+  tipo      TransacaoTipo   @default(RECEITA)
+  categoria String
+  valor     Float
+  descricao String?         @db.VarChar(500)
+  data      DateTime        @default(now())
+  origem    TransacaoOrigem @default(OUTRO)
+  criadoEm  DateTime        @default(now()) @map("criado_em")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  deletedAt DateTime?       @map("deleted_at")
+
+  terreiroId      String    @map("terreiro_id")
+  terreiro        Terreiros @relation(fields: [terreiroId], references: [id])
+  registradoPorId String?   @map("registrado_por_id")
+  registradoPor   Usuarios? @relation("transacao_registrada", fields: [registradoPorId], references: [id])
+
+  @@index([terreiroId, data])
+  @@index([terreiroId, tipo])
+  @@map("transacoes_financeiras")
+}
+
+model PixConfiguracao {
+  id        String       @id @default(uuid())
+  chave     String
+  tipoChave PixChaveTipo @default(CPF)
+  titulo    String?      @default("Doação para o terreiro")
+  ativo     Boolean      @default(true)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  terreiroId String    @unique @map("terreiro_id")
+  terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
+
+  @@map("pix_configuracoes")
 }

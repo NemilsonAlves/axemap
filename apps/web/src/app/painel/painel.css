@@ -195,6 +195,31 @@
   color: #991b1b;
 }
 
+.painel-ok {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #166534;
+}
+
+.plano-card.destaque {
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.plano-card.ativo {
+  background: #f5f0e8;
+  border-color: var(--color-primary);
+}
+
+.plano-card.ativo .painel-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .painel-empty {
   padding: 2rem;
   text-align: center;

@@ -12,6 +12,7 @@ const footerColumns = [
       { label: 'Terreiros Verificados', href: '/terreiros-verificados' },
       { label: 'Novos Terreiros', href: '/novos-terreiros' },
       { label: 'Eventos', href: '/eventos' },
+      { label: 'Planos e Assinatura', href: '/planos' },
     ],
   },
   {

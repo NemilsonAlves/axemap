@@ -204,3 +204,63 @@ export enum EvidenciaTipo {
   VINCULO = 'VINCULO',
   REGISTRO = 'REGISTRO',
 }
+
+// ============================================================
+// SAAS — PROMPT 07 (Planos, Assinatura e Financeiro)
+// ============================================================
+
+export enum PlanoCiclo {
+  MENSAL = 'MENSAL',
+  ANUAL = 'ANUAL',
+}
+
+export enum PlanoAssinaturaStatus {
+  PENDENTE = 'PENDENTE',
+  ATIVO = 'ATIVO',
+  ATRASADO = 'ATRASADO',
+  EXPIRADO = 'EXPIRADO',
+  CANCELADO = 'CANCELADO',
+}
+
+export enum PlanoPagamentoMetodo {
+  PIX = 'PIX',
+  CARTAO = 'CARTAO',
+  BOLETO = 'BOLETO',
+}
+
+export enum PlanoPagamentoStatus {
+  PENDENTE = 'PENDENTE',
+  CONFIRMADO = 'CONFIRMADO',
+  FALHADO = 'FALHADO',
+  REEMBOLSADO = 'REEMBOLSADO',
+  CANCELADO = 'CANCELADO',
+}
+
+export enum TransacaoTipo {
+  RECEITA = 'RECEITA',
+  DESPESA = 'DESPESA',
+}
+
+export enum TransacaoOrigem {
+  PIX = 'PIX',
+  DOACAO = 'DOACAO',
+  MENSALIDADE = 'MENSALIDADE',
+  VENDA = 'VENDA',
+  TAXA_EVENTO = 'TAXAS_EVENTO',
+  OUTRO = 'OUTRO',
+}
+
+export enum PixChaveTipo {
+  CPF = 'CPF',
+  CNPJ = 'CNPJ',
+  TELEFONE = 'TELEFONE',
+  EMAIL = 'EMAIL',
+  ALEATORIA = 'ALEATORIA',
+}
+
+export enum PlanoSlug {
+  GRATIS = 'GRATIS',
+  BASICO = 'BASICO',
+  PROFISSIONAL = 'PROFISSIONAL',
+  ENTERPRISE = 'ENTERPRISE',
+}

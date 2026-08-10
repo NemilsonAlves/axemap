@@ -21,6 +21,7 @@ async function main() {
   await createInstituicoes();
   await createCampaigns();
   await createHubContent();
+  await createPlanos();
 
   console.log('\n✅ Seed concluído com sucesso!');
 }
@@ -39,6 +40,11 @@ async function cleanup() {
     'presenca_eventos', 'eventos', 'produtos_marketplace', 'conteudos',
     'campanhas_documentos', 'campanhas_prestacao_contas', 'campanhas_comentarios',
     'campanhas_atualizacoes', 'campanhas_apoios', 'campanhas', 'instituicoes',
+    'plano_pagamentos', 'plano_assinaturas', 'planos_saas',
+    'transacoes_financeiras', 'pix_configuracoes',
+    'certificacoes', 'mediacao_mensagens', 'mediacoes',
+    'compliance_itens', 'compliance_checklists', 'antifraude_registros',
+    'evidencias', 'governanca_membros',
     'notificacoes', 'audit_logs', 'denuncias', 'terreiros', 'usuarios',
   ];
   for (const table of tables) {
@@ -552,6 +558,101 @@ async function createCampaigns() {
     });
   }
   console.log(`  ✓ ${data.length} campanhas criadas`);
+}
+
+async function createPlanos() {
+  console.log('💎 Criando planos SaaS...');
+  const planos = [
+    {
+      slug: 'GRATIS',
+      nome: 'Grátis',
+      descricao: 'Para casas que estão começando no diretório.',
+      precoMensal: 0,
+      precoAnual: 0,
+      destaque: false,
+      ordem: 0,
+      funcionalidades: [
+        'Perfil público no diretório',
+        'Até 5 membros',
+        '5 eventos públicos/mês',
+        '1 foto no perfil',
+        'Botão WhatsApp',
+      ],
+      limites: { membros: 5, eventosMensais: 5, fotos: 1 },
+    },
+    {
+      nome: 'Básico',
+      slug: 'BASICO',
+      descricao: 'Gestão essencial para o dia a dia do terreiro.',
+      precoMensal: 49,
+      precoAnual: 470,
+      destaque: false,
+      ordem: 1,
+      funcionalidades: [
+        'Tudo do plano Grátis',
+        '10 membros com cargos',
+        'Eventos ilimitados',
+        'Histórico de frequência',
+        'Pix integrado (QR Code)',
+        'Controle de receitas e despesas',
+        '10 fotos no perfil',
+      ],
+      limites: { membros: 10, eventosMensais: -1, fotos: 10 },
+    },
+    {
+      nome: 'Profissional',
+      slug: 'PROFISSIONAL',
+      descricao: 'Ferramentas profissionais para crescimento.',
+      precoMensal: 99,
+      precoAnual: 950,
+      destaque: true,
+      ordem: 2,
+      funcionalidades: [
+        'Tudo do plano Básico',
+        'Membros ilimitados com hierarquia',
+        'Subdomínio próprio (terreiro.axemap.com.br)',
+        'Notificações push',
+        'Extrato mensal e relatórios',
+        'Vídeos no perfil',
+        'Sincronia Google Calendar',
+      ],
+      limites: { membros: -1, eventosMensais: -1, fotos: -1, videos: 10 },
+    },
+    {
+      nome: 'Enterprise',
+      slug: 'ENTERPRISE',
+      descricao: 'Para federações, grandes casas e organizações.',
+      precoMensal: 299,
+      precoAnual: 2870,
+      destaque: false,
+      ordem: 3,
+      funcionalidades: [
+        'Tudo do plano Profissional',
+        'Domínio próprio',
+        'Múltiplas contas com cargos',
+        'API do terreiro',
+        'Relatórios avançados',
+        'Suporte prioritário via WhatsApp',
+        'Onboarding assistido',
+      ],
+      limites: { membros: -1, eventosMensais: -1, fotos: -1, videos: -1 },
+    },
+  ];
+
+  for (const p of planos) {
+    const data = {
+      ...p,
+      slug: p.slug ?? p.nome.toUpperCase(),
+      funcionalidades: p.funcionalidades ?? [],
+    };
+    const { funcionalidades, ...rest } = data as any;
+    await prisma.planoSaaS.upsert({
+      where: { slug: rest.slug },
+      create: { ...rest, funcionalidades },
+      update: { ...rest, funcionalidades },
+    });
+  }
+  console.log(`  ✓ ${planos.length} planos criados`);
 }
 
 main()

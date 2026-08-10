@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { api } from '@/lib/api-client';
 import { useAnalytics } from '@/lib/analytics/analytics-context';
+import { SaasAdminPanel } from './saas-panel';
 import './admin.css';
 
-type Tab = 'overview' | 'terreiros' | 'moderacao' | 'verificacao' | 'feature-flags' | 'feedback' | 'trust';
+type Tab = 'overview' | 'terreiros' | 'moderacao' | 'verificacao' | 'feature-flags' | 'feedback' | 'trust' | 'saas';
 
 interface OverviewData {
   acquisition: { novosUsuarios: number; novosTerreiros: number; convitesAceitos: number; periodo: string };
@@ -297,6 +298,7 @@ export default function AdminPage() {
           <button className={`admin-tab ${tab === 'feature-flags' ? 'active' : ''}`} onClick={() => setTab('feature-flags')}>Feature Flags</button>
           <button className={`admin-tab ${tab === 'feedback' ? 'active' : ''}`} onClick={() => setTab('feedback')}>Feedbacks</button>
           <button className={`admin-tab ${tab === 'trust' ? 'active' : ''}`} onClick={() => setTab('trust')}>Trust</button>
+          <button className={`admin-tab ${tab === 'saas' ? 'active' : ''}`} onClick={() => setTab('saas')}>SaaS</button>
           <a href="/admin/system" className="admin-tab" style={{ textDecoration: 'none' }}>🖥️ System</a>
         </div>
       </div>
@@ -703,6 +705,7 @@ export default function AdminPage() {
       )}
 
       {tab === 'trust' && <TrustDataPanel />}
+      {tab === 'saas' && <SaasAdminPanel />}
     </div>
   );
 }

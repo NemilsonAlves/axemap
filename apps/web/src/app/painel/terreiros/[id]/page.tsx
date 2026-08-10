@@ -14,6 +14,8 @@ import { GerenciarFotos } from '@/components/painel/gerenciar-fotos';
 import { GerenciarVerificacao } from '@/components/painel/gerenciar-verificacao';
 import { GerenciarEstatisticas } from '@/components/painel/gerenciar-estatisticas';
 import { GerenciarMembros } from '@/components/painel/gerenciar-membros';
+import { GerenciarPlano } from '@/components/painel/gerenciar-plano';
+import { GerenciarFinanceiro } from '@/components/painel/gerenciar-financeiro';
 import '../../painel.css';
 
 export interface TerreiroPainel {
@@ -29,7 +31,7 @@ export interface TerreiroPainel {
   fotoUrl: string | null;
 }
 
-type Tab = 'visao-geral' | 'editar' | 'eventos' | 'cursos' | 'acoes' | 'avaliacoes' | 'fotos' | 'verificacao' | 'estatisticas' | 'membros';
+type Tab = 'visao-geral' | 'editar' | 'eventos' | 'cursos' | 'acoes' | 'avaliacoes' | 'fotos' | 'verificacao' | 'estatisticas' | 'membros' | 'plano' | 'financeiro';
 
 export default function TerreiroPainelPage() {
   const params = useParams<{ id: string }>();
@@ -79,6 +81,8 @@ export default function TerreiroPainelPage() {
         <button className={`painel-tab ${tab === 'verificacao' ? 'active' : ''}`} onClick={() => setTab('verificacao')}>Verificação</button>
         <button className={`painel-tab ${tab === 'estatisticas' ? 'active' : ''}`} onClick={() => setTab('estatisticas')}>Estatísticas</button>
         <button className={`painel-tab ${tab === 'membros' ? 'active' : ''}`} onClick={() => setTab('membros')}>Membros</button>
+        <button className={`painel-tab ${tab === 'plano' ? 'active' : ''}`} onClick={() => setTab('plano')}>Plano</button>
+        <button className={`painel-tab ${tab === 'financeiro' ? 'active' : ''}`} onClick={() => setTab('financeiro')}>Financeiro</button>
       </div>
 
       {tab === 'visao-geral' && <VisaoGeral terreiroId={terreiro.id} nome={terreiro.nome} />}
@@ -91,6 +95,8 @@ export default function TerreiroPainelPage() {
       {tab === 'verificacao' && <GerenciarVerificacao terreiroId={terreiro.id} isVerified={terreiro.isVerified} />}
       {tab === 'estatisticas' && <GerenciarEstatisticas terreiroId={terreiro.id} />}
       {tab === 'membros' && <GerenciarMembros terreiroId={terreiro.id} />}
+      {tab === 'plano' && <GerenciarPlano terreiroId={terreiro.id} />}
+      {tab === 'financeiro' && <GerenciarFinanceiro terreiroId={terreiro.id} />}
     </div>
   );
 }

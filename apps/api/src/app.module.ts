@@ -33,6 +33,7 @@ import { VerificacaoModule } from './verificacao/verificacao.module';
 import { CampanhasModule } from './campanhas/campanhas.module';
 import { CampanhasAdminModule } from './campanhas-admin/campanhas-admin.module';
 import { TrustEcosystemModule } from './trust-ecosystem/trust-ecosystem.module';
+import { SaasModule } from './saas/saas.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -71,6 +72,7 @@ import { AppController } from './app.controller';
     CampanhasModule,
     CampanhasAdminModule,
     TrustEcosystemModule,
+    SaasModule,
   ],
   controllers: [AppController],
 })
