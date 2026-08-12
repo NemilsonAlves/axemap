@@ -1,34 +1,35 @@
 param(
-  [int]$Port = 3001
+  [int]$Port = 3001,
+  [switch]$Dev   # usa pnpm dev em vez do dist compilado
 )
 
 $ErrorActionPreference = 'Stop'
 
+# ── Para processo existente na porta ─────────────────────────────────────────
 $existing = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
 foreach ($conn in $existing) {
-  $proc = Get-CimInstance Win32_Process -Filter "ProcessId=$($conn.OwningProcess)" -ErrorAction SilentlyContinue
-  if ($proc -and $proc.CommandLine -match 'api/dist/main\.js') {
-    Write-Host "Parando API existente (PID $($conn.OwningProcess))..."
-    Stop-Process -Id $conn.OwningProcess -Force
-  }
+  Write-Host "Parando processo existente na porta $Port (PID $($conn.OwningProcess))..."
+  Stop-Process -Id $conn.OwningProcess -Force -ErrorAction SilentlyContinue
 }
 Start-Sleep -Seconds 1
 
-$ts = Get-Date -Format 'yyyyMMdd-HHmmss'
-$logDir = Join-Path $env:TEMP 'opencode'
-$out = Join-Path $logDir "api-$ts.out.log"
-$err = Join-Path $logDir "api-$ts.err.log"
+# ── Variáveis de ambiente obrigatórias ───────────────────────────────────────
+$env:DATABASE_URL        = "postgresql://axemap:axemap_dev@127.0.0.1:5432/axemap_dev"
+$env:REDIS_HOST          = "127.0.0.1"
+$env:REDIS_PORT          = "6379"
+$env:NODE_ENV            = "development"
+$env:JWT_SECRET          = "axemap_jwt_secret_dev"
+$env:JWT_REFRESH_SECRET  = "axemap_refresh_secret_dev"
+$env:JWT_EXPIRES_IN      = "15m"
+$env:JWT_REFRESH_EXPIRES = "7d"
+$env:PORT                = "$Port"
 
-$psi = [System.Diagnostics.ProcessStartInfo]::new()
-$psi.FileName = 'cmd.exe'
-$cmd = 'set "DATABASE_URL=postgresql://axemap:axemap_dev@127.0.0.1:5432/axemap_dev" && '
-$cmd += 'set "REDIS_HOST=127.0.0.1" && set "REDIS_PORT=6379" && set "NODE_ENV=development" && '
-$cmd += 'node apps/api/dist/main.js > "' + $out + '" 2> "' + $err + '"'
-$psi.Arguments = '/c ' + $cmd
-$psi.WorkingDirectory = (Get-Location).Path
-$psi.UseShellExecute = $true
-$psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
-
-$p = [System.Diagnostics.Process]::Start($psi)
-
-Write-Host "API iniciada: PID $($p.Id) (logs: $out)"
+# ── Execução ─────────────────────────────────────────────────────────────────
+if ($Dev) {
+  Write-Host "Iniciando API em modo DEV (pnpm dev)..."
+  Set-Location (Join-Path (Get-Location) 'apps\api')
+  pnpm dev
+} else {
+  Write-Host "Iniciando API (build compilado) na porta $Port..."
+  node apps/api/dist/main.js
+}

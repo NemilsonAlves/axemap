@@ -123,9 +123,24 @@ if ($SkipStart) {
 }
 
 Write-Host "[6/6] Iniciando API e Web" -ForegroundColor Cyan
-Push-Location (Join-Path $rootDir 'apps\api')
-$api = Start-Process pwsh -ArgumentList '-NoExit','-Command','pnpm dev' -PassThru
-Pop-Location
+
+# Variáveis de ambiente para a API (JWT obrigatório)
+$apiEnvVars = @(
+  'DATABASE_URL=postgresql://axemap:axemap_dev@127.0.0.1:5432/axemap_dev'
+  'REDIS_HOST=127.0.0.1'
+  'REDIS_PORT=6379'
+  'NODE_ENV=development'
+  'JWT_SECRET=axemap_jwt_secret_dev'
+  'JWT_REFRESH_SECRET=axemap_refresh_secret_dev'
+  'JWT_EXPIRES_IN=15m'
+  'JWT_REFRESH_EXPIRES_IN=7d'
+  'PORT=3001'
+)
+$apiEnvCmd = ($apiEnvVars | ForEach-Object { '$env:' + $_ }) -join '; '
+$apiFullCmd = "$apiEnvCmd; Set-Location '$rootDir\apps\api'; pnpm dev"
+
+$api = Start-Process pwsh -ArgumentList '-NoExit','-Command',$apiFullCmd -PassThru
+
 Push-Location (Join-Path $rootDir 'apps\web')
 $web = Start-Process pwsh -ArgumentList '-NoExit','-Command','pnpm dev' -PassThru
 Pop-Location
