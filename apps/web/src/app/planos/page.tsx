@@ -101,7 +101,7 @@ export default function PlanosPage() {
                   </ul>
 
                   <Link
-                    href="/auth/registro"
+                    href="/auth/cadastro"
                     className={`mt-6 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90 ${
                       p.destaque ? 'bg-primary text-primary-foreground' : 'border border-border bg-card text-card-foreground'
                     }`}

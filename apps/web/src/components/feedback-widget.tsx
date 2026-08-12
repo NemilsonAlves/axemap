@@ -83,11 +83,11 @@ export function FeedbackWidget() {
               <div style={{ textAlign: 'center', padding: '1rem' }}>
                 <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🙏</div>
                 <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-primary)' }}>Obrigado!</h3>
-                <p style={{ color: 'var(--color-gray-400)', marginBottom: '1rem' }}>
+                <p style={{ color: 'var(--color-muted-foreground)', marginBottom: '1rem' }}>
                   Seu feedback nos ajuda a melhorar.
                 </p>
                 <button onClick={reset} className="btn-primary" style={{
-                  background: 'var(--color-accent)', color: 'var(--color-white)',
+                  background: 'var(--color-primary)', color: 'var(--color-primary-foreground)',
                   border: 'none', borderRadius: '8px', padding: '0.625rem 1.5rem',
                   cursor: 'pointer', fontWeight: 600,
                 }}>
@@ -98,16 +98,17 @@ export function FeedbackWidget() {
               <form onSubmit={handleSubmit}>
                 <h3 style={{ marginBottom: '1rem', color: 'var(--color-primary)' }}>Enviar Feedback</h3>
 
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.375rem', color: 'var(--color-text)' }}>
+                <label htmlFor="feedback-tipo" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.375rem', color: 'var(--color-foreground)' }}>
                   Tipo
                 </label>
                 <select
+                  id="feedback-tipo"
                   value={tipo}
                   onChange={(e) => setTipo(e.target.value)}
                   style={{
                     width: '100%', padding: '0.625rem', borderRadius: '8px',
-                    border: '1px solid var(--color-gray-200)', marginBottom: '1rem',
-                    background: 'var(--color-card)', color: 'var(--color-text)', fontSize: '0.9rem',
+                    border: '1px solid var(--color-border)', marginBottom: '1rem',
+                    background: 'var(--color-card)', color: 'var(--color-foreground)', fontSize: '0.9rem',
                   }}
                 >
                   {TIPOS.map((t) => (
@@ -115,10 +116,11 @@ export function FeedbackWidget() {
                   ))}
                 </select>
 
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.375rem', color: 'var(--color-text)' }}>
+                <label htmlFor="feedback-mensagem" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.375rem', color: 'var(--color-foreground)' }}>
                   Mensagem
                 </label>
                 <textarea
+                  id="feedback-mensagem"
                   value={mensagem}
                   onChange={(e) => setMensagem(e.target.value)}
                   rows={4}
@@ -126,26 +128,28 @@ export function FeedbackWidget() {
                   placeholder="Conte o que você pensa..."
                   style={{
                     width: '100%', padding: '0.625rem', borderRadius: '8px',
-                    border: '1px solid var(--color-gray-200)', marginBottom: '1rem',
+                    border: '1px solid var(--color-border)', marginBottom: '1rem',
                     resize: 'vertical', fontSize: '0.9rem', fontFamily: 'inherit',
+                    background: 'var(--color-card)', color: 'var(--color-foreground)',
                   }}
                 />
 
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.375rem', color: 'var(--color-text)' }}>
+                <label htmlFor="feedback-contato" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.375rem', color: 'var(--color-foreground)' }}>
                   Contato (opcional)
                 </label>
                 <input
+                  id="feedback-contato"
                   type="text"
                   value={contato}
                   onChange={(e) => setContato(e.target.value)}
                   placeholder="Email ou WhatsApp"
                   style={{
                     width: '100%', padding: '0.625rem', borderRadius: '8px',
-                    border: '1px solid var(--color-gray-200)', marginBottom: '0.25rem',
-                    fontSize: '0.9rem',
+                    border: '1px solid var(--color-border)', marginBottom: '0.25rem',
+                    fontSize: '0.9rem', background: 'var(--color-card)', color: 'var(--color-foreground)',
                   }}
                 />
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-300)', marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-muted-foreground)', marginBottom: '1rem' }}>
                   Caso queira um retorno sobre seu feedback.
                 </p>
 

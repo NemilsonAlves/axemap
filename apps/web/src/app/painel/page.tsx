@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { api } from '@/lib/api-client';
+import { labelTradicao } from '@/lib/tradicoes';
 import './painel.css';
 
 interface MeuTerreiro {
@@ -65,7 +66,7 @@ export default function PainelPage() {
           <p className="painel-empty" style={{ padding: '1rem' }}>
             Você ainda não dirige nenhum terreiro cadastrado.
           </p>
-          <Link href="/onboarding" className="painel-btn" style={{ margin: '0 auto' }}>Cadastrar meu terreiro</Link>
+          <Link href="/onboarding" className="painel-btn" style={{ margin: '0 auto' }}>Cadastrar minha Casa de Axé</Link>
         </div>
       ) : (
         <div className="painel-grid">
@@ -85,7 +86,7 @@ export default function PainelPage() {
                 )}
                 <div style={{ minWidth: 0 }}>
                   <div className="painel-card-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.nome}</div>
-                  <div className="painel-card-sub">{t.cidade}, {t.estado} · {t.tradicao.replace(/_/g, ' ')}</div>
+                  <div className="painel-card-sub">{t.cidade}, {t.estado} · {labelTradicao(t.tradicao)}</div>
                 </div>
               </div>
               <div className="painel-stats">

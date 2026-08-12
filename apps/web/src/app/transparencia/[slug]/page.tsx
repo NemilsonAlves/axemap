@@ -121,6 +121,7 @@ export default function TransparenciaPage({ params }: { params: Promise<{ slug: 
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && verificar()}
+              aria-label="Código do selo para verificação"
             />
             <button className="tp-btn-primary" onClick={verificar} disabled={verificando}>
               <Search size={16} /> {verificando ? 'Verificando...' : 'Verificar'}

@@ -2,13 +2,14 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import type { DadosCidade } from '@/lib/seo/types';
 import { fetchLanding } from '@/lib/seo/fetch-landing';
+import { labelTradicao } from '@/lib/tradicoes';
 import { LandingTemplate } from '@/components/landing/landing-template';
 import { TerreiroCard } from '@/components/landing/terreiro-card';
 
 export const revalidate = 3600;
 
-function formatTradicao(slug: string): string {
-  return slug.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+function tradNomeFromSlug(slug: string): string {
+  return labelTradicao(slug.toUpperCase().replace(/-/g, '_'));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ cidadeUf: string; tradicao: string }> }): Promise<Metadata> {
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ cidadeUf:
   const data = await fetchLanding<DadosCidade>(`/cidade/${encodeURIComponent(cidadeUf)}/${encodeURIComponent(tradicao)}`);
   if (!data) return { title: 'Página não encontrada' };
 
-  const tradNome = formatTradicao(tradicao);
+  const tradNome = tradNomeFromSlug(tradicao);
   const title = `Terreiros de ${tradNome} em ${data.cidade.nome}, ${data.cidade.uf} — AxéMap`;
   const description = `Encontre terreiros de ${tradNome} em ${data.cidade.nome}, ${data.cidade.uf}. São ${data.totalTerreiro} terreiros cadastrados.`;
 
@@ -34,7 +35,7 @@ export default async function CidadeTradicaoPage({ params }: { params: Promise<{
   const data = await fetchLanding<DadosCidade>(`/cidade/${encodeURIComponent(cidadeUf)}/${encodeURIComponent(tradicao)}`);
   if (!data) notFound();
 
-  const tradNome = formatTradicao(tradicao);
+  const tradNome = tradNomeFromSlug(tradicao);
 
   return (
     <LandingTemplate

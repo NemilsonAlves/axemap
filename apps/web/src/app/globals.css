@@ -69,6 +69,22 @@
   --turquoise-strong: 177 82% 28%;
   --turquoise-soft: 172 55% 88%;
 
+  /* ── Paleta Ancestral (posicionamento global) ────────────────── */
+  /* Azul Noite Ancestral #132849 · Terra #73564D · Argila #5B2F25
+     Terracota #B1523A · Verde Floresta #4A8D36 · Verde Ancestral #7EAD38
+     Dourado Sol #E69D29 · Areia #C8A56E · Turquesa #819FA3 · Névoa #E8ECEB */
+  --ancestral: 217 59% 18%;
+  --ancestral-deep: 218 62% 13%;
+  --terra: 14 20% 38%;
+  --argila: 11 42% 25%;
+  --terracota: 12 51% 46%;
+  --verde-floresta: 106 45% 38%;
+  --verde-ancestral: 84 51% 45%;
+  --dourado-sol: 37 79% 53%;
+  --areia: 37 45% 61%;
+  --turquesa-cinza: 187 16% 57%;
+  --nevoa: 165 9% 92%;
+
   /* Superfícies sobrepostas */
   --surface-1: 0 0% 100%;
   --surface-2: 32 35% 96%;
@@ -139,6 +155,18 @@
   --turquoise: 176 80% 58%;
   --turquoise-strong: 178 86% 64%;
   --turquoise-soft: 174 45% 20%;
+
+  --ancestral: 218 48% 34%;
+  --ancestral-deep: 218 55% 20%;
+  --terra: 14 22% 56%;
+  --argila: 11 38% 40%;
+  --terracota: 12 55% 58%;
+  --verde-floresta: 106 42% 50%;
+  --verde-ancestral: 84 50% 52%;
+  --dourado-sol: 37 80% 60%;
+  --areia: 37 44% 62%;
+  --turquesa-cinza: 187 18% 64%;
+  --nevoa: 165 8% 88%;
 
   --surface-1: 22 22% 10%;
   --surface-2: 24 20% 12%;
@@ -241,6 +269,18 @@
   --color-turquoise: hsl(var(--turquoise));
   --color-turquoise-strong: hsl(var(--turquoise-strong));
   --color-turquoise-soft: hsl(var(--turquoise-soft));
+
+  --color-ancestral: hsl(var(--ancestral));
+  --color-ancestral-deep: hsl(var(--ancestral-deep));
+  --color-terra: hsl(var(--terra));
+  --color-argila: hsl(var(--argila));
+  --color-terracota: hsl(var(--terracota));
+  --color-verde-floresta: hsl(var(--verde-floresta));
+  --color-verde-ancestral: hsl(var(--verde-ancestral));
+  --color-dourado-sol: hsl(var(--dourado-sol));
+  --color-areia: hsl(var(--areia));
+  --color-turquesa-cinza: hsl(var(--turquesa-cinza));
+  --color-nevoa: hsl(var(--nevoa));
 
   --color-surface-1: hsl(var(--surface-1));
   --color-surface-2: hsl(var(--surface-2));

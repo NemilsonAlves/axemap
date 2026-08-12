@@ -48,6 +48,42 @@ enum VerificationLevel {
   COMPLETO
 }
 
+enum OrganizationType {
+  FEDERACAO
+  CONFEDERACAO
+  ASSOCIACAO
+  INSTITUTO
+  UNIVERSIDADE
+  MUSEU
+  CENTRO_CULTURAL
+  PROJETO_SOCIAL
+  DEFESA_LIBERDADE_RELIGIOSA
+  PARCEIRO
+  COMUNIDADE
+}
+
+enum OrganizationVerificationLevel {
+  NAO_VERIFICADA
+  REIVINDICADA
+  VERIFICADA
+  ORGANIZACAO_VERIFICADA
+  PARCEIRO_INSTITUCIONAL
+}
+
+enum OrgRelationshipStatus {
+  PENDENTE
+  ACEITA
+  RECUSADA
+  REMOVIDA
+}
+
+enum RegiaoTipo {
+  CONTINENTE
+  PAIS
+  REGIAO
+  TERRITORIO
+}
+
 enum EventType {
   GIRA
   TOQUE
@@ -196,6 +232,7 @@ model Usuarios {
   campanhasApoiadas       CampanhaApoio[]
   campanhasComentadas     CampanhaComentario[]
   instituicoesCriadas     Instituicoes[]        @relation("instituicao_criada_por")
+  organizacoesCriadas     Organizacoes[]        @relation("organizacao_criada_por")
   campanhaAtualizacaos    CampanhaAtualizacao[]
   mediacoesIniciadas      Mediacoes[]           @relation("mediacao_reclamante")
   mediacoesModeradas      Mediacoes[]           @relation("mediacao_moderador")
@@ -208,6 +245,15 @@ model Usuarios {
   mediacaoMensagems       MediacaoMensagem[]
   pagamentosConfirmados   PlanoPagamento[]      @relation("plano_pagamento_confirmado")
   transacoesRegistradas   TransacaoFinanceira[] @relation("transacao_registrada")
+  graphEntidadesCriadas          GraphEntidade[]                @relation("graph_entidade_criada_por")
+  graphRelacionamentosCriados    GraphRelacionamento[]          @relation("graph_rel_criada_por")
+  graphRelacionamentosVerificados GraphRelacionamento[]         @relation("graph_rel_verificada_por")
+  graphRelacionamentosRejeitados GraphRelacionamento[]          @relation("graph_rel_rejeitada_por")
+  graphHistoricoAtuado           GraphRelacionamentoHistorico[] @relation("graph_historico_por")
+  duplicidadesCriadas            GraphCandidatoDuplicidade[]    @relation("duplicidade_criada_por")
+  duplicidadesResolvidas         GraphCandidatoDuplicidade[]    @relation("duplicidade_resolvida_por")
+  conteudosCulturaisCriados      ConteudoCultural[]             @relation("conteudo_cultural_criado_por")
+  conteudosCulturaisVerificados  ConteudoCultural[]             @relation("conteudo_cultural_verificado_por")
 
   @@map("usuarios")
 }
@@ -223,6 +269,7 @@ model Terreiros {
   descricaoLonga       String?                                @map("descricao_longa") @db.Text
   cidade               String
   estado               String                                 @db.VarChar(2)
+  pais                 String                                 @default("BR") @db.VarChar(2)
   latitude             Float
   longitude            Float
   geoPoint             Unsupported("geography(Point, 4326)")? @map("geo_point")
@@ -273,6 +320,7 @@ model Terreiros {
   pedidosReivindicacao  ClaimRequest[]
   denuncias             Denuncias[]
   campanhas             Campanhas[]
+  organizacaoRelacionamentos OrganizacaoRelacionamentos[]
   certificados          Certificado[]
   mediacoes             Mediacoes[]
   evidencias            Evidencia[]
@@ -850,6 +898,87 @@ model Instituicoes {
   @@map("instituicoes")
 }
 
+model Organizacoes {
+  id                       String                        @id @default(uuid())
+  nome                     String
+  nomePublico              String?                       @map("nome_publico")
+  slug                     String                        @unique
+  tipo                     OrganizationType              @default(ASSOCIACAO)
+  pais                     String                        @default("BR") @db.VarChar(2)
+  estado                   String?                       @db.VarChar(2)
+  cidade                   String?
+  website                  String?
+  redesSociais             Json?
+  descricao                String?                       @db.Text
+  historia                 String?                       @db.Text
+  tradicoes                String[]
+  anoFundacao              Int?                          @map("ano_fundacao")
+  areaAtuacao              String?                       @map("area_atuacao")
+  numOrganizacoesAssociadas Int                          @default(0) @map("num_organizacoes_associadas")
+  contatos                 Json?
+  verificacao              OrganizationVerificationLevel @default(NAO_VERIFICADA)
+  trustScore               Float                         @default(0) @map("trust_score")
+  isPublished              Boolean                       @default(false) @map("is_published")
+  publicadoEm              DateTime?                     @map("publicado_em")
+  createdAt                DateTime                      @default(now()) @map("created_at")
+  updatedAt                DateTime                      @updatedAt @map("updated_at")
+  deletedAt                DateTime?                     @map("deleted_at")
+
+  criadoPorId    String                     @map("criado_por_id")
+  criadoPor      Usuarios                   @relation("organizacao_criada_por", fields: [criadoPorId], references: [id])
+  relacionamentos OrganizacaoRelacionamentos[]
+
+  @@index([tipo, pais])
+  @@index([trustScore])
+  @@map("organizacoes")
+}
+
+model OrganizacaoRelacionamentos {
+  id            String              @id @default(uuid())
+  status        OrgRelationshipStatus @default(PENDENTE)
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+
+  organizacaoId String
+  organizacao   Organizacoes        @relation(fields: [organizacaoId], references: [id], onDelete: Cascade)
+  terreiroId    String
+  terreiro      Terreiros           @relation(fields: [terreiroId], references: [id], onDelete: Cascade)
+
+  @@unique([organizacaoId, terreiroId])
+  @@map("organizacao_relacionamentos")
+}
+
+model Regioes {
+  id        String      @id @default(uuid())
+  slug      String      @unique
+  nome      String
+  tipo      RegiaoTipo
+  ordenacao Int         @default(0)
+  isPublished Boolean   @default(true) @map("is_published")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  parentId    String?
+  parent      Regioes?            @relation("regiao_filhas", fields: [parentId], references: [id])
+  regioesFilhas Regioes[]         @relation("regiao_filhas")
+  tradicoes   RegiaoTradicoes[]
+
+  @@index([tipo])
+  @@map("regioes")
+}
+
+model RegiaoTradicoes {
+  id        String   @id @default(uuid())
+  tradicao  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  regiaoId String
+  regiao   Regioes  @relation(fields: [regiaoId], references: [id], onDelete: Cascade)
+
+  @@unique([regiaoId, tradicao])
+  @@map("regiao_tradicoes")
+}
+
 model Campanhas {
   id                   String                    @id @default(uuid())
   titulo               String
@@ -1268,4 +1397,266 @@ model PixConfiguracao {
   terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
   @@map("pix_configuracoes")
+}
+
+// ============================================================
+// AXÉ GRAPH — PROMPT 07
+// Knowledge Graph • Relacionamentos • Busca • Recomendação
+// ============================================================
+
+enum GraphEntidadeTipo {
+  TERREIRO
+  INSTITUICAO
+  EVENTO
+  CURSO
+  CAMPANHA
+  ACAO_SOCIAL
+  PROJETO
+  CONTEUDO
+  PESQUISA
+  PATRIMONIO
+  PRODUTO
+  PESSOA
+  COMUNIDADE
+}
+
+enum GraphRelacionamentoTipo {
+  PERTENCE_A
+  LOCALIZADO_EM
+  ORGANIZA
+  PARTICIPA
+  MINISTRA
+  OFERECE
+  PATROCINA
+  APOIA
+  COLABORA_COM
+  RELACIONADO_A
+  FAZ_PARTE_DE
+  PESQUISA
+  PUBLICOU
+  PRESERVA
+  PROMOVE
+  REALIZA
+  PARTICIPA_DE
+  RECEBE_APOIO_DE
+  GERENCIA
+  CERTIFICADO_POR
+  VERIFICADO_POR
+  TEM_EVENTO
+  TEM_CURSO
+  TEM_PROJETO
+  TEM_CAMPANHA
+  TEM_CONTEUDO
+}
+
+enum GraphStatus {
+  PENDENTE
+  VERIFICADO
+  REJEITADO
+  SUSPENSO
+}
+
+enum GraphFonte {
+  INSTITUICAO
+  USUARIO
+  ADMIN
+  API_EXTERNA
+  PESQUISA
+  DOCUMENTO
+  IA_SUGERIDO
+}
+
+enum ConteudoCulturalTipo {
+  PATRIMONIO
+  HISTORIA
+  TRADICOES
+  MUSICA
+  DANCA
+  ARTE
+  LITERATURA
+  GASTRONOMIA
+  ARTESANATO
+  DOCUMENTARIO
+  ENTREVISTA
+  PESQUISA
+}
+
+enum ConteudoStatus {
+  NAO_VERIFICADA
+  VERIFICADA
+  OFICIAL
+}
+
+enum DuplicidadeStatus {
+  ABERTO
+  CONFIRMADO
+  REJEITADO
+  IGNORADO
+}
+
+model GraphEntidade {
+  id              String             @id @default(uuid())
+  entidadeTipo    GraphEntidadeTipo  @map("entidade_tipo")
+  entidadeId      String             @map("entidade_id")
+  nome            String
+  slug            String?
+  descricaoCurta  String?            @map("descricao_curta") @db.VarChar(500)
+  cidade          String?
+  estado          String?            @db.VarChar(2)
+  latitude        Float?
+  longitude       Float?
+  tags            String[]           @default([])
+  vetor           Float[]            @default([])
+  visivel         Boolean            @default(true)
+  metadata        Json?
+  origem          GraphFonte         @default(USUARIO)
+  criadoPorId     String?
+  criadoPor       Usuarios?          @relation("graph_entidade_criada_por", fields: [criadoPorId], references: [id])
+  statusIndexado  String             @default("INDEXADO") @map("status_indexado") // INDEXADO / PENDENTE / INATIVO
+  indexedAt       DateTime?          @map("indexed_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  deletedAt       DateTime?          @map("deleted_at")
+
+  origens GraphRelacionamento[] @relation("graph_rel_origem")
+  alvos   GraphRelacionamento[] @relation("graph_rel_alvo")
+
+  @@unique([entidadeTipo, entidadeId])
+  @@index([entidadeTipo, visivel])
+  @@index([cidade, estado])
+  @@index([nome])
+  @@map("graph_entidades")
+}
+
+model GraphRelacionamento {
+  id               String                  @id @default(uuid())
+  tipo             GraphRelacionamentoTipo
+  rotulo           String?
+  status           GraphStatus             @default(PENDENTE)
+  nivelConfianca   Float                   @default(0) @map("nivel_confianca")
+  fonte            GraphFonte              @default(USUARIO)
+  evidencia        String?
+  validoDe         DateTime?               @map("valido_de")
+  validoAte        DateTime?               @map("valido_ate")
+  motivo           String?
+  versao           Int                     @default(1)
+  createdAt        DateTime                @default(now()) @map("created_at")
+  updatedAt        DateTime                @updatedAt @map("updated_at")
+  deletedAt        DateTime?               @map("deleted_at")
+
+  origemEntidadeId String          @map("origem_entidade_id")
+  origemEntidade   GraphEntidade   @relation("graph_rel_origem", fields: [origemEntidadeId], references: [id])
+  alvoEntidadeId   String          @map("alvo_entidade_id")
+  alvoEntidade     GraphEntidade   @relation("graph_rel_alvo", fields: [alvoEntidadeId], references: [id])
+
+  criadoPorId       String?
+  criadoPor         Usuarios?      @relation("graph_rel_criada_por", fields: [criadoPorId], references: [id])
+  verificadoPorId   String?
+  verificadoPor     Usuarios?      @relation("graph_rel_verificada_por", fields: [verificadoPorId], references: [id])
+  rejeitadoPorId    String?
+  rejeitadoPor      Usuarios?      @relation("graph_rel_rejeitada_por", fields: [rejeitadoPorId], references: [id])
+  verificadoEm      DateTime?      @map("verificado_em")
+  historico         GraphRelacionamentoHistorico[]
+
+  @@unique([tipo, origemEntidadeId, alvoEntidadeId])
+  @@index([status, fonte])
+  @@index([origemEntidadeId])
+  @@index([alvoEntidadeId])
+  @@map("graph_relacionamentos")
+}
+
+model GraphRelacionamentoHistorico {
+  id                 String   @id @default(uuid())
+  versao             Int
+  acao               String // CRIADO / ATUALIZADO / VERIFICADO / REJEITADO / SUSPENSO / DELETADO
+  antes              Json?
+  depois             Json?
+  porId              String?  @map("por_id")
+  por                Usuarios? @relation("graph_historico_por", fields: [porId], references: [id])
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  relacionamentoId String                  @map("relacionamento_id")
+  relacionamento   GraphRelacionamento     @relation(fields: [relacionamentoId], references: [id], onDelete: Cascade)
+
+  @@index([relacionamentoId])
+  @@map("graph_relacionamentos_historico")
+}
+
+model GraphCandidatoDuplicidade {
+  id             String            @id @default(uuid())
+  entidadeTipo   GraphEntidadeTipo @map("entidade_tipo")
+  entidadeIdA    String            @map("entidade_id_a")
+  entidadeIdB    String            @map("entidade_id_b")
+  score          Float
+  motivo         String?
+  status         DuplicidadeStatus @default(ABERTO)
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  resolvidoEm    DateTime?         @map("resolvido_em")
+
+  criadoPorId    String?
+  criadoPor      Usuarios?         @relation("duplicidade_criada_por", fields: [criadoPorId], references: [id])
+  resolvidoPorId String?
+  resolvidoPor   Usuarios?         @relation("duplicidade_resolvida_por", fields: [resolvidoPorId], references: [id])
+
+  @@index([entidadeTipo, status])
+  @@map("graph_duplicidades")
+}
+
+model ConteudoCultural {
+  id               String             @id @default(uuid())
+  titulo           String
+  tipo             ConteudoCulturalTipo
+  resumo           String?            @db.Text
+  corpo            String?            @db.Text
+  url              String?
+  autorNome        String?            @map("autor_nome")
+  fonte            String?
+  dataPublicacao   DateTime?          @map("data_publicacao")
+  licenca          String?
+  origem           String?
+  thumbUrl         String?            @map("thumb_url")
+  tags             String[]           @default([])
+  status           ConteudoStatus     @default(NAO_VERIFICADA)
+  cidade           String?
+  estado           String?            @db.VarChar(2)
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  deletedAt        DateTime?          @map("deleted_at")
+
+  criadoPorId      String?
+  criadoPor        Usuarios?          @relation("conteudo_cultural_criado_por", fields: [criadoPorId], references: [id])
+  verificadoPorId  String?
+  verificadoPor    Usuarios?          @relation("conteudo_cultural_verificado_por", fields: [verificadoPorId], references: [id])
+  verificadoEm     DateTime?          @map("verificado_em")
+  terreiroId       String?
+  instituicaoId    String?
+
+  @@index([tipo, status])
+  @@index([titulo])
+  @@map("conteudos_culturais")
+}
+
+model PatrimonioCultural {
+  id               String         @id @default(uuid())
+  nome             String
+  tipo             String // MATERIAL / IMATERIAL / NATURAL / HISTORICO
+  descricao        String?        @db.Text
+  cidade           String?
+  estado           String?        @db.VarChar(2)
+  latitude         Float?
+  longitude        Float?
+  ano              Int?
+  fonte            String?
+  status           ConteudoStatus @default(NAO_VERIFICADA)
+  fotos            String[]       @default([])
+  criadoPorId      String?
+  verificadoPorId  String?
+  verificadoEm     DateTime?      @map("verificado_em")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  deletedAt        DateTime?      @map("deleted_at")
+
+  @@index([cidade, estado])
+  @@map("patrimonio_cultural")
 }

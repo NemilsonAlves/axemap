@@ -7,6 +7,7 @@ import { Search, MapPin, ArrowRight, Sparkles, Building2, Globe2, House, BookOpe
 import { SectionHeading } from './section-heading';
 import { Reveal } from './reveal';
 import type { ExploreData } from './data';
+import { labelTradicao } from '@/lib/tradicoes';
 
 const capacidades = [
   { label: 'Cidade', icon: Building2 },
@@ -22,7 +23,7 @@ export function HomeSearch({ explore }: { explore: ExploreData | null }) {
   const router = useRouter();
   const [query, setQuery] = React.useState('');
 
-  const tradicoes = (explore?.tradicoes ?? []).slice(0, 6);
+  const tradicoes = (explore?.tradicoes ?? []).slice(0, 8);
   const cidades = (explore?.cidades ?? []).slice(0, 6);
 
   function go(q: string) {
@@ -123,7 +124,7 @@ export function HomeSearch({ explore }: { explore: ExploreData | null }) {
                     href={`/tradicao/${t.nome.toLowerCase().replace(/_/g, '-')}`}
                     className="rounded-full border border-border bg-card px-4 py-2 text-sm text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-copper/50 hover:text-copper-strong"
                   >
-                    {t.nome.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())} <span className="text-xs">({t.count})</span>
+                    {labelTradicao(t.nome)} <span className="text-xs">({t.count})</span>
                   </Link>
                 ))}
               </div>

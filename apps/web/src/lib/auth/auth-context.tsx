@@ -40,6 +40,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     setLoading(false);
+
+    const onSessionRefresh = () => {
+      const current = localStorage.getItem('axemap_auth');
+      if (!current) {
+        setUser(null);
+        setToken(null);
+        return;
+      }
+      try {
+        const parsed = JSON.parse(current);
+        setToken(parsed.accessToken);
+        if (parsed.user) setUser(parsed.user);
+      } catch {}
+    };
+    window.addEventListener('axemap:session-refresh', onSessionRefresh);
+    const onSessionExpired = () => {
+      setUser(null);
+      setToken(null);
+    };
+    window.addEventListener('axemap:session-expired', onSessionExpired);
+    return () => {
+      window.removeEventListener('axemap:session-refresh', onSessionRefresh);
+      window.removeEventListener('axemap:session-expired', onSessionExpired);
+    };
   }, []);
 
   const login = useCallback(async (email: string, senha: string) => {

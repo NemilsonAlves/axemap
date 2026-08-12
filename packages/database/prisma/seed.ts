@@ -1,4 +1,16 @@
-import { PrismaClient, UserRole, TerreiroStatus, EventType, VerificationLevel } from '@prisma/client';
+import {
+  PrismaClient,
+  UserRole,
+  TerreiroStatus,
+  EventType,
+  VerificationLevel,
+  GraphEntidadeTipo,
+  GraphRelacionamentoTipo,
+  GraphStatus,
+  GraphFonte,
+  ConteudoStatus,
+  ConteudoCulturalTipo,
+} from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -22,6 +34,7 @@ async function main() {
   await createCampaigns();
   await createHubContent();
   await createPlanos();
+  await createAxegraph();
 
   console.log('\n✅ Seed concluído com sucesso!');
 }
@@ -45,6 +58,8 @@ async function cleanup() {
     'certificacoes', 'mediacao_mensagens', 'mediacoes',
     'compliance_itens', 'compliance_checklists', 'antifraude_registros',
     'evidencias', 'governanca_membros',
+    'graph_relacionamentos_historico', 'graph_duplicidades',
+    'graph_relacionamentos', 'graph_entidades', 'conteudos_culturais', 'patrimonio_cultural',
     'notificacoes', 'audit_logs', 'denuncias', 'terreiros', 'usuarios',
   ];
   for (const table of tables) {
@@ -101,6 +116,15 @@ async function createTerreiros() {
     { nome: 'Ilê Axé Oyá', slug: 'ile-axe-oya', tradicao: 'CANDOMBLE_KETU', cidade: 'Belo Horizonte', estado: 'MG', latitude: -19.9167, longitude: -43.9345, descricaoCurta: 'Casa de Oyá', descricaoLonga: 'Referência em Candomblé em Minas Gerais.' },
     { nome: 'Tambor de Mina Axé', slug: 'tambor-mina', tradicao: 'TAMBOR_DE_MINA', cidade: 'São Luís', estado: 'MA', latitude: -2.5297, longitude: -44.3028, descricaoCurta: 'Tambor de Mina tradicional', descricaoLonga: 'Casa tradicional de Tambor de Mina no Maranhão.' },
     { nome: 'Terreiro de Oxóssi', slug: 'terreiro-oxossi', tradicao: 'UMBANDA', cidade: 'Campinas', estado: 'SP', latitude: -22.9056, longitude: -47.0608, descricaoCurta: 'Terreiro de Oxóssi', descricaoLonga: 'Terreiro dedicado a Oxóssi, o caçador.' },
+    { nome: 'Ilê Awo Ifá Òrúnmìlà', slug: 'ile-awo-ifa-orunmila', tradicao: 'IFA', cidade: 'Salvador', estado: 'BA', latitude: -12.9777, longitude: -38.5016, descricaoCurta: 'Casa de Ifá — Religião Tradicional Iorubá', descricaoLonga: 'Casa de Ifá que preserva a filosofia, os Odù e os ensinamentos dos babalaôs.' },
+    { nome: 'Templo de Ifá de São Paulo', slug: 'templo-ifa-sao-paulo', tradicao: 'IFA', cidade: 'São Paulo', estado: 'SP', latitude: -23.5505, longitude: -46.6333, descricaoCurta: 'Ifaísmo em São Paulo', descricaoLonga: 'Templo dedicado ao Ifá, religião tradicional iorubá reconhecida pela UNESCO.' },
+    { nome: 'Ilê dos Ancestrais', slug: 'ile-dos-ancestrais', tradicao: 'EGUNGUN', cidade: 'Itaparica', estado: 'BA', latitude: -12.8933, longitude: -38.6781, descricaoCurta: 'Casa de culto aos Egunguns', descricaoLonga: 'Comunidade que cultua os Bàbá Egúngún, ancestrais masculinos da tradição de Oió.' },
+    { nome: 'Egbé Bàbá dos Ancestrais', slug: 'egbe-baba-ancestrais', tradicao: 'EGUNGUN', cidade: 'Recife', estado: 'PE', latitude: -8.0476, longitude: -34.8770, descricaoCurta: 'Egbé de culto aos ancestrais', descricaoLonga: 'Egbé dedicado ao culto dos ancestrais na tradição nagô do Recife.' },
+    { nome: 'Sala de Batuque do Sul', slug: 'sala-batuque-sul', tradicao: 'BATUQUE', cidade: 'Porto Alegre', estado: 'RS', latitude: -30.0346, longitude: -51.2177, descricaoCurta: 'Batuque de matriz iorubá', descricaoLonga: 'Tradicional casa de Batuque do Rio Grande do Sul, com toques e batuques aos Orixás.' },
+    { nome: 'Casa dos Encantados', slug: 'casa-encantados', tradicao: 'ENCANTARIA', cidade: 'São Luís', estado: 'MA', latitude: -2.5297, longitude: -44.3028, descricaoCurta: 'Culto aos encantados', descricaoLonga: 'Casa que cultua os encantados de água, mata e reinos místicos no universo da Encantaria.' },
+    { nome: 'Mesa de Catimbó', slug: 'mesa-catimbo', tradicao: 'CATIMBO', cidade: 'Natal', estado: 'RN', latitude: -5.7945, longitude: -35.2110, descricaoCurta: 'Tradição afro-indígena do Catimbó', descricaoLonga: 'Mesa de Catimbó que preserva a herança dos mestres e a força ancestral do Nordeste.' },
+    { nome: 'Ilê Omolocô', slug: 'ile-omoloco', tradicao: 'OMOLOKO', cidade: 'Rio de Janeiro', estado: 'RJ', latitude: -22.9068, longitude: -43.1729, descricaoCurta: 'Nação Omolocô', descricaoLonga: 'Casa de Omolocô, nação que articula as raízes bantas e iorubás.' },
+    { nome: 'Casa de Exu e Pombagira', slug: 'casa-exu-pombagira', tradicao: 'QUIMBANDA', cidade: 'São Paulo', estado: 'SP', latitude: -23.5505, longitude: -46.6333, descricaoCurta: 'Quimbanda em São Paulo', descricaoLonga: 'Casa de Quimbanda que trabalha com Exus e Pombagiras como caminho de cura e justiça.' },
   ];
 
   const terreiros = [];
@@ -653,6 +677,160 @@ async function createPlanos() {
     });
   }
   console.log(`  ✓ ${planos.length} planos criados`);
+}
+
+async function createAxegraph() {
+  console.log('🕸️  Criando Axé Graph (grafo de conhecimento)...');
+  const admin = await prisma.usuarios.findFirst({ where: { role: UserRole.ADMIN } });
+  const adminId = admin?.id ?? null;
+
+  const upsertGrafo = (
+    tipo: GraphEntidadeTipo,
+    row: {
+      id: string;
+      nome: string;
+      slug?: string | null;
+      descricao?: string | null;
+      cidade?: string | null;
+      estado?: string | null;
+      latitude?: number | null;
+      longitude?: number | null;
+    },
+  ) =>
+    prisma.graphEntidade.upsert({
+      where: { entidadeTipo_entidadeId: { entidadeTipo: tipo, entidadeId: row.id } },
+      create: {
+        entidadeTipo: tipo,
+        entidadeId: row.id,
+        nome: row.nome,
+        slug: row.slug ?? null,
+        descricaoCurta: row.descricao?.slice(0, 500) ?? null,
+        cidade: row.cidade ?? null,
+        estado: row.estado ?? null,
+        latitude: row.latitude ?? null,
+        longitude: row.longitude ?? null,
+        origem: GraphFonte.INSTITUICAO,
+        statusIndexado: 'INDEXADO',
+        indexedAt: new Date(),
+      },
+      update: {
+        nome: row.nome,
+        slug: row.slug ?? undefined,
+        descricaoCurta: row.descricao?.slice(0, 500) ?? null,
+        cidade: row.cidade ?? null,
+        estado: row.estado ?? null,
+        latitude: row.latitude ?? null,
+        longitude: row.longitude ?? null,
+        origem: GraphFonte.INSTITUICAO,
+        statusIndexado: 'INDEXADO',
+        indexedAt: new Date(),
+        visivel: true,
+        deletedAt: null,
+      },
+    });
+
+  const [terreiros, instituicoes, eventos, cursos, campanhas, acoes, conteudos, produtos, culturais, cultivados, patrimonio] = await Promise.all([
+    prisma.terreiros.findMany({ select: { id: true, nome: true, slug: true, descricaoCurta: true, cidade: true, estado: true, latitude: true, longitude: true } }),
+    prisma.instituicoes.findMany({ select: { id: true, nome: true, slug: true, descricao: true, cidade: true, estado: true } }),
+    prisma.eventos.findMany({ where: { isPublico: true }, select: { id: true, titulo: true, descricao: true, terreiroId: true } }),
+    prisma.cursos.findMany({ select: { id: true, titulo: true, descricao: true, terreiroId: true } }),
+    prisma.campanhas.findMany({ select: { id: true, titulo: true, descricao: true, cidade: true, estado: true, terreiroId: true } }),
+    prisma.acoesSociais.findMany({ select: { id: true, nome: true, descricao: true, terreiroId: true } }),
+    prisma.conteudos.findMany({ where: { publicado: true }, select: { id: true, titulo: true, conteudo: true, terreiroId: true } }),
+    prisma.produtosMarketplace.findMany({ select: { id: true, nome: true, descricao: true, terreiroId: true } }),
+    prisma.conteudoCultural.findMany({ where: { deletedAt: null }, select: { id: true, titulo: true, resumo: true, tipo: true, cidade: true, estado: true } }),
+    prisma.conteudoCultural.findMany({ where: { deletedAt: null }, select: { id: true, titulo: true, resumo: true, tipo: true, cidade: true, estado: true } }),
+    prisma.patrimonioCultural.findMany({ where: { deletedAt: null }, select: { id: true, nome: true, descricao: true, cidade: true, estado: true, latitude: true, longitude: true } }),
+  ]);
+
+  await Promise.all([
+    ...terreiros.map((t) => upsertGrafo(GraphEntidadeTipo.TERREIRO, { ...t, descricao: t.descricaoCurta })),
+    ...instituicoes.map((i) => upsertGrafo(GraphEntidadeTipo.INSTITUICAO, i)),
+    ...eventos.map((e) => upsertGrafo(GraphEntidadeTipo.EVENTO, { id: e.id, nome: e.titulo, descricao: e.descricao })),
+    ...cursos.map((c) => upsertGrafo(GraphEntidadeTipo.CURSO, { id: c.id, nome: c.titulo, descricao: c.descricao })),
+    ...campanhas.map((c) => upsertGrafo(GraphEntidadeTipo.CAMPANHA, { id: c.id, nome: c.titulo, descricao: c.descricao, cidade: c.cidade, estado: c.estado })),
+    ...acoes.map((a) => upsertGrafo(GraphEntidadeTipo.ACAO_SOCIAL, a)),
+    ...conteudos.map((c) => upsertGrafo(GraphEntidadeTipo.CONTEUDO, { id: c.id, nome: c.titulo, descricao: c.conteudo })),
+    ...produtos.map((p) => upsertGrafo(GraphEntidadeTipo.PRODUTO, p)),
+    ...culturais.map((c) => upsertGrafo(c.tipo === ConteudoCulturalTipo.PESQUISA ? GraphEntidadeTipo.PESQUISA : GraphEntidadeTipo.CONTEUDO, { id: c.id, nome: c.titulo, descricao: c.resumo, cidade: c.cidade, estado: c.estado })),
+    ...patrimonio.map((p) => upsertGrafo(GraphEntidadeTipo.PATRIMONIO, p)),
+  ]);
+
+  const entidades = await prisma.graphEntidade.findMany({
+    where: { deletedAt: null },
+    select: { id: true, entidadeTipo: true, entidadeId: true },
+  });
+  const por = (tipo: GraphEntidadeTipo, id: string) => entidades.find((e) => e.entidadeTipo === tipo && e.entidadeId === id)?.id;
+
+  const rel = (tipo: GraphRelacionamentoTipo, origemTipo: GraphEntidadeTipo, origemId: string, alvoTipo: GraphEntidadeTipo, alvoId: string, confianca: number) => {
+    const o = por(origemTipo, origemId);
+    const a = por(alvoTipo, alvoId);
+    if (!o || !a || o === a) return;
+    return prisma.graphRelacionamento.upsert({
+      where: { tipo_origemEntidadeId_alvoEntidadeId: { tipo, origemEntidadeId: o, alvoEntidadeId: a } },
+      create: { tipo, status: GraphStatus.VERIFICADO, nivelConfianca: confianca, fonte: GraphFonte.INSTITUICAO, origemEntidadeId: o, alvoEntidadeId: a, criadoPorId: adminId, verificadoPorId: adminId, verificadoEm: new Date() },
+      update: { status: GraphStatus.VERIFICADO, nivelConfianca: confianca, fonte: GraphFonte.INSTITUICAO, deletedAt: null },
+    });
+  };
+
+  let vinculados = 0;
+  const criarRels = async (lotes: (Promise<unknown> | undefined)[]) => {
+    const r = await Promise.all(lotes.filter(Boolean) as Promise<unknown>[]);
+    vinculados += r.length;
+  };
+
+  await criarRels([
+    ...eventos.map((e) => e.terreiroId && rel(GraphRelacionamentoTipo.ORGANIZA, GraphEntidadeTipo.TERREIRO, e.terreiroId, GraphEntidadeTipo.EVENTO, e.id, 0.9)),
+    ...cursos.map((c) => c.terreiroId && rel(GraphRelacionamentoTipo.TEM_CURSO, GraphEntidadeTipo.TERREIRO, c.terreiroId, GraphEntidadeTipo.CURSO, c.id, 0.9)),
+    ...acoes.map((a) => a.terreiroId && rel(GraphRelacionamentoTipo.OFERECE, GraphEntidadeTipo.TERREIRO, a.terreiroId, GraphEntidadeTipo.ACAO_SOCIAL, a.id, 0.85)),
+    ...conteudos.map((c) => c.terreiroId && rel(GraphRelacionamentoTipo.PUBLICOU, GraphEntidadeTipo.TERREIRO, c.terreiroId, GraphEntidadeTipo.CONTEUDO, c.id, 0.8)),
+    ...campanhas.map((c) => c.terreiroId && rel(GraphRelacionamentoTipo.TEM_CAMPANHA, GraphEntidadeTipo.TERREIRO, c.terreiroId, GraphEntidadeTipo.CAMPANHA, c.id, 0.9)),
+  ]);
+
+  await criarRels(
+    instituicoes.flatMap((i) =>
+      terreiros.filter((t) => t.estado === i.estado).slice(0, 3).map((t) =>
+        rel(GraphRelacionamentoTipo.APOIA, GraphEntidadeTipo.INSTITUICAO, i.id, GraphEntidadeTipo.TERREIRO, t.id, 0.75)),
+    ),
+  );
+
+  await criarRels(
+    terreiros.flatMap((t, i) =>
+      terreiros.slice(i + 1).filter((o) => o.cidade === t.cidade && o.cidade).slice(0, 2).map((o) =>
+        rel(GraphRelacionamentoTipo.COLABORA_COM, GraphEntidadeTipo.TERREIRO, t.id, GraphEntidadeTipo.TERREIRO, o.id, 0.5)),
+    ),
+  );
+
+  await criarRels([
+    ...cultivados.map((c) => {
+      const t = terreiros.find((x) => (x.cidade ?? '').toLowerCase() === (c.cidade ?? '').toLowerCase());
+      return t && rel(GraphRelacionamentoTipo.RELACIONADO_A, GraphEntidadeTipo.CONTEUDO, c.id, GraphEntidadeTipo.TERREIRO, t.id, 0.4);
+    }),
+    ...patrimonio.map((p) => {
+      const t = terreiros.find((x) => (x.cidade ?? '').toLowerCase() === (p.cidade ?? '').toLowerCase());
+      return t && rel(GraphRelacionamentoTipo.PRESERVA, GraphEntidadeTipo.TERREIRO, t.id, GraphEntidadeTipo.PATRIMONIO, p.id, 0.7);
+    }),
+  ]);
+
+  const adminSeed = adminId ?? undefined;
+  await prisma.conteudoCultural.createMany({
+    data: [
+      { titulo: 'A História do Ilê Axé Oxum', tipo: ConteudoCulturalTipo.HISTORIA, resumo: 'Registro oral da fundação da casa, suas ialorixás e principais rituais.', autorNome: 'Maria de Oxum', fonte: 'Entrevista comunitária', licenca: 'CC-BY-4.0', cidade: 'Salvador', estado: 'BA', status: ConteudoStatus.VERIFICADA, tags: ['historia', 'salvador'], criadoPorId: adminSeed },
+      { titulo: 'Toque de Atabaque: Rhythms do Ketu', tipo: ConteudoCulturalTipo.MUSICA, resumo: 'Vídeo-documentário sobre os toques (alujá, bravum, ijexá).', fonte: 'Gravação autorizada', licenca: 'CC-BY-NC-4.0', cidade: 'São Paulo', estado: 'SP', status: ConteudoStatus.VERIFICADA, tags: ['musica', 'atabaque'], criadoPorId: adminSeed },
+      { titulo: 'Levantamento dos Terreiros do Recife', tipo: ConteudoCulturalTipo.PESQUISA, resumo: 'Pesquisa acadêmica mapeando casas de Jurema Sagrada e Xangô no Recife.', autorNome: 'Núcleo de Estudos Afro', fonte: 'Artigo científico', licenca: 'CC-BY-4.0', cidade: 'Recife', estado: 'PE', status: ConteudoStatus.OFICIAL, tags: ['pesquisa', 'recife'], criadoPorId: adminSeed },
+    ],
+  });
+
+  await prisma.patrimonioCultural.createMany({
+    data: [
+      { nome: 'Assentamento de Xangô da Casa de Xangô', tipo: 'MATERIAL', descricao: 'Assentamento sagrado tombado pela comunidade.', cidade: 'São Paulo', estado: 'SP', latitude: -23.5505, longitude: -46.6333, ano: 1960, fonte: 'Registro comunitário', status: ConteudoStatus.VERIFICADA, criadoPorId: adminSeed },
+      { nome: 'Tambor Sagrado de São Luís', tipo: 'MATERIAL', descricao: 'Tambor chamado no Tambor de Mina por gerações.', cidade: 'São Luís', estado: 'MA', latitude: -2.5297, longitude: -44.3028, fonte: 'Acervo da casa', status: ConteudoStatus.VERIFICADA, criadoPorId: adminSeed },
+    ],
+  });
+
+  const contagens = await prisma.graphEntidade.groupBy({ by: ['entidadeTipo'], _count: true });
+  console.log(`  ✓ Grafo: ${entidades.length} entidades, ${vinculados} relacionamentos verificados`);
+  contagens.forEach((c) => console.log(`    • ${c.entidadeTipo}: ${c._count}`));
 }
 
 main()

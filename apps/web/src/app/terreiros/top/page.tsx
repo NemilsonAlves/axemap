@@ -7,11 +7,11 @@ import { TerreiroCard } from '@/components/landing/terreiro-card';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Melhores Terreiros — AxéMap',
-  description: 'Conheça os terreiros mais bem avaliados de religiões afro-brasileiras no Brasil, classificados por Trust Score.',
+  title: 'Melhores Comunidades — AxéMap',
+  description: 'Conheça as comunidades de matriz africana mais bem avaliadas, classificadas por Trust Score.',
   openGraph: {
-    title: 'Melhores Terreiros — AxéMap',
-    description: 'Conheça os terreiros mais bem avaliados do Brasil.',
+    title: 'Melhores Comunidades — AxéMap',
+    description: 'Conheça as comunidades de matriz africana mais bem avaliadas.',
     locale: 'pt_BR',
     siteName: 'AxéMap',
   },
@@ -25,8 +25,8 @@ export default async function TopTerreirosPage() {
 
   return (
     <LandingTemplate
-      titulo="Melhores Terreiros"
-      subtitulo="Conheça os terreiros mais bem avaliados de religiões afro-brasileiras no Brasil, classificados por Trust Score."
+      titulo="Melhores Comunidades"
+      subtitulo="Conheça as comunidades de matriz africana mais bem avaliadas, classificadas por Trust Score."
       breadcrumb={[
         { label: 'Terreiros', href: '/terreiros' },
         { label: 'Top' },

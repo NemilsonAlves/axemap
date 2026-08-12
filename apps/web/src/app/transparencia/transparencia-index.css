@@ -1,0 +1,87 @@
+.tpix-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tpix-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+}
+
+.tpix-card svg {
+  color: var(--color-primary);
+}
+
+.tpix-card strong {
+  font-size: 0.95rem;
+  color: var(--color-foreground);
+}
+
+.tpix-card span {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-muted-foreground);
+}
+
+.tpix-code-row {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 480px;
+}
+
+.tpix-input {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  background: var(--color-card);
+  color: var(--color-foreground);
+}
+
+.tpix-input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tpix-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tpix-btn:hover {
+  opacity: 0.92;
+}
+
+.tpix-erro {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-danger);
+}
+
+.tpix-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-muted-foreground);
+}
+
+.tpix-hint code {
+  font-family: ui-monospace, monospace;
+}

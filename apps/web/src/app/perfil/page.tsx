@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
 import { api } from '@/lib/api-client';
+import { labelTradicao } from '@/lib/tradicoes';
 
 interface Favorito {
   id: string;
@@ -69,14 +70,14 @@ export default function PerfilPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h2>{user.nome}</h2>
-            <p style={{ color: 'var(--color-gray-300)' }}>{user.email}</p>
+            <p style={{ color: 'var(--color-muted-foreground)' }}>{user.email}</p>
             <span style={{
               display: 'inline-block',
               padding: '0.25rem 0.5rem',
-              borderRadius: '1rem',
+              borderRadius: 'var(--radius-full)',
               fontSize: '0.75rem',
-              background: 'var(--color-secondary)',
-              color: 'white',
+              background: 'hsl(var(--primary) / 0.12)',
+              color: 'var(--color-primary)',
               marginTop: '0.5rem',
             }}>
               {user.role}
@@ -88,9 +89,9 @@ export default function PerfilPage() {
       <div className="feature-card" style={{ marginBottom: '1.5rem' }}>
         <h2 style={{ marginBottom: '0.75rem' }}>Meus Favoritos</h2>
         {carregandoFavs ? (
-          <p style={{ color: 'var(--color-gray-300)' }}>Carregando...</p>
+          <p style={{ color: 'var(--color-muted-foreground)' }}>Carregando...</p>
         ) : favoritos.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-300)' }}>
+          <p style={{ color: 'var(--color-muted-foreground)' }}>
             Você ainda não favoritou nenhum terreiro.{' '}
             <Link href="/busca" style={{ textDecoration: 'underline' }}>Explorar terreiros</Link>
           </p>
@@ -105,8 +106,8 @@ export default function PerfilPage() {
                   gap: '0.75rem',
                   alignItems: 'center',
                   padding: '0.75rem',
-                  border: '1px solid var(--color-gray-200, #e5e7eb)',
-                  borderRadius: '0.5rem',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
                   textDecoration: 'none',
                   color: 'inherit',
                 }}
@@ -120,17 +121,17 @@ export default function PerfilPage() {
                   />
                 ) : (
                   <div style={{
-                    width: 56, height: 56, borderRadius: '0.5rem',
+                    width: 56, height: 56, borderRadius: 'var(--radius-sm)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'var(--color-secondary)', color: 'white',
+                    background: 'var(--color-primary)', color: 'var(--color-primary-foreground)',
                   }}>
                     {f.nome.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div>
                   <strong>{f.nome}</strong>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-300)' }}>
-                    {f.tradicao.replace(/_/g, ' ')} &middot; {f.cidade}, {f.estado}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-muted-foreground)' }}>
+                    {labelTradicao(f.tradicao)} &middot; {f.cidade}, {f.estado}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>
                     {f.isVerified && '✔ Verificado '}Trust Score {f.trustScore?.toFixed(1)}
@@ -145,9 +146,9 @@ export default function PerfilPage() {
       <div className="feature-card" style={{ marginBottom: '1.5rem' }}>
         <h2 style={{ marginBottom: '0.75rem' }}>Meus Cursos</h2>
         {carregandoCursos ? (
-          <p style={{ color: 'var(--color-gray-300)' }}>Carregando...</p>
+          <p style={{ color: 'var(--color-muted-foreground)' }}>Carregando...</p>
         ) : cursos.length === 0 ? (
-          <p style={{ color: 'var(--color-gray-300)' }}>
+          <p style={{ color: 'var(--color-muted-foreground)' }}>
             Você ainda não está matriculado em nenhum curso.{' '}
             <Link href="/cursos" style={{ textDecoration: 'underline' }}>Ver cursos disponíveis</Link>
           </p>
@@ -162,25 +163,25 @@ export default function PerfilPage() {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '0.75rem',
-                  border: '1px solid var(--color-gray-200, #e5e7eb)',
-                  borderRadius: '0.5rem',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
                 }}
               >
                 <div>
                   <strong>{m.curso.titulo}</strong>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-gray-300)' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-muted-foreground)' }}>
                     <Link href={`/t/${m.curso.terreiro.slug}`} style={{ textDecoration: 'underline' }}>
                       {m.curso.terreiro.nome}
                     </Link>{' '}
                     &middot; {m.curso.terreiro.cidade}, {m.curso.terreiro.estado}
                   </div>
                   {m.curso.modalidade && (
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-gray-300)' }}>{m.curso.modalidade}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-muted-foreground)' }}>{m.curso.modalidade}</div>
                   )}
                 </div>
                 <span style={{
                   fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase',
-                  color: '#16a34a', background: '#d4edda', padding: '0.2rem 0.5rem', borderRadius: 4,
+                  color: 'var(--color-fern)', background: 'hsl(var(--fern) / 0.14)', padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-sm)',
                 }}>
                   {m.status}
                 </span>
@@ -194,7 +195,7 @@ export default function PerfilPage() {
         <button
           onClick={() => { logout(); router.push('/'); }}
           className="btn btn-secondary"
-          style={{ borderColor: '#c00', color: '#c00' }}
+          style={{ borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}
         >
           Sair
         </button>

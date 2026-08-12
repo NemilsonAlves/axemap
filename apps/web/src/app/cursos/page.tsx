@@ -10,11 +10,11 @@ import { JsonLd, websiteSchema } from '@/lib/seo/json-ld';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Cursos de Religiões Afro-Brasileiras — AxéMap',
-  description: 'Encontre cursos, oficinas e formações sobre religiões afro-brasileiras em todo o Brasil.',
+  title: 'Cursos das Tradições Africanas e Afro-Diaspóricas — AxéMap',
+  description: 'Encontre cursos, oficinas e formações sobre as tradições africanas e afro-diaspóricas na África e nas diásporas.',
   openGraph: {
     title: 'Cursos — AxéMap',
-    description: 'Encontre cursos de religiões afro-brasileiras em todo o Brasil.',
+    description: 'Encontre cursos das tradições africanas e afro-diaspóricas.',
     locale: 'pt_BR',
     siteName: 'AxéMap',
   },
@@ -32,7 +32,7 @@ export default async function CursosPage() {
       <LandingBreadcrumb items={[{ label: 'Cursos' }]} />
       <LandingHero
         titulo="Cursos"
-        subtitulo="Encontre cursos, oficinas e formações sobre religiões afro-brasileiras em todo o Brasil."
+        subtitulo="Encontre cursos, oficinas e formações sobre as tradições africanas e afro-diaspóricas na África e nas diásporas."
         totalTerreiro={cursos?.length || 0}
         totalVerificados={0}
       />

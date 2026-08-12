@@ -1,0 +1,24 @@
+.tp-admin-desc {
+  max-width: 720px;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-muted-foreground);
+}
+
+.tp-admin-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tp-admin-note {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid hsl(var(--info) / 0.35);
+  background: hsl(var(--info) / 0.08);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-foreground);
+}

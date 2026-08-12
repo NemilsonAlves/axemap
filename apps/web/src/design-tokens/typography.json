@@ -1,0 +1,65 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "axemap-typography",
+  "description": "Escala tipográfica AxéMap. Fontes: Inter (sans), Plus Jakarta Sans (display), IBM Plex Mono (mono).",
+  "tokens": {
+    "fontSans": { "$type": "fontFamily", "$value": ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"] },
+    "fontDisplay": { "$type": "fontFamily", "$value": ["Plus Jakarta Sans", "Inter", "ui-sans-serif", "system-ui", "sans-serif"] },
+    "fontMono": { "$type": "fontFamily", "$value": ["IBM Plex Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"] },
+    "display": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": { "min": "2.5rem", "max": "4.75rem" },
+        "lineHeight": "1.02",
+        "letterSpacing": "-0.035em",
+        "fontFamily": "fontDisplay"
+      }
+    },
+    "hero": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": { "min": "2rem", "max": "3.5rem" },
+        "lineHeight": "1.06",
+        "letterSpacing": "-0.03em",
+        "fontFamily": "fontDisplay"
+      }
+    },
+    "heading": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": { "min": "1.5rem", "max": "2.25rem" },
+        "lineHeight": "1.14",
+        "letterSpacing": "-0.025em",
+        "fontFamily": "fontDisplay"
+      }
+    },
+    "title": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": { "min": "1.1875rem", "max": "1.5rem" },
+        "lineHeight": "1.22",
+        "letterSpacing": "-0.018em",
+        "fontFamily": "fontDisplay"
+      }
+    },
+    "subtitle": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": { "min": "1rem", "max": "1.125rem" },
+        "lineHeight": "1.5",
+        "letterSpacing": "-0.012em"
+      }
+    },
+    "body": { "$type": "typography", "$value": { "fontSize": "0.9375rem", "lineHeight": "1.6" } },
+    "caption": { "$type": "typography", "$value": { "fontSize": "0.8125rem", "lineHeight": "1.45" } },
+    "label": {
+      "$type": "typography",
+      "$value": { "fontSize": "0.8125rem", "lineHeight": "1.2", "letterSpacing": "0.06em", "fontWeight": "600" }
+    },
+    "button": {
+      "$type": "typography",
+      "$value": { "fontSize": "0.875rem", "lineHeight": "1", "fontWeight": "600" }
+    },
+    "code": { "$type": "typography", "$value": { "fontSize": "0.8125rem", "lineHeight": "1.5", "fontFamily": "fontMono" } }
+  }
+}

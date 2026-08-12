@@ -4,8 +4,10 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useI18n } from '@/lib/i18n/i18n-context';
 import { Logo } from '@/components/brand/logo';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { LocaleSwitcher } from '@/components/i18n/locale-switcher';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -19,21 +21,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, MapPin, LayoutGrid, BookOpen, GraduationCap, Search, ChevronDown } from 'lucide-react';
+import { Menu, MapPin, LayoutGrid, BookOpen, GraduationCap, Search, ChevronDown, Network } from 'lucide-react';
 import { cn } from '@/lib/cn';
-
-const mainNav = [
-  { label: 'Explorar', href: '/busca', icon: Search },
-  { label: 'Mapa', href: '/mapa', icon: MapPin },
-  { label: 'Terreiros', href: '/terreiros', icon: LayoutGrid },
-  { label: 'Cursos', href: '/cursos', icon: GraduationCap },
-  { label: 'Tradição', href: '/tradicao', icon: BookOpen },
-];
 
 export function AppHeader() {
   const { user, loading, logout } = useAuth();
+  const { t } = useI18n();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = React.useState(false);
+
+  const mainNav = [
+    { labelKey: 'nav.explorar' as const, shortKey: 'nav.explorar' as const,    href: '/busca',        icon: Search },
+    { labelKey: 'nav.mapa' as const,     shortKey: 'nav.mapa' as const,         href: '/mapa',         icon: MapPin },
+    { labelKey: 'nav.casas' as const,    shortKey: 'nav.casas_short' as const,  href: '/terreiros',    icon: LayoutGrid },
+    { labelKey: 'nav.tradicao' as const, shortKey: 'nav.tradicao' as const,     href: '/tradicao',     icon: BookOpen },
+    { labelKey: 'nav.rede' as const,     shortKey: 'nav.rede_short' as const,   href: '/organizacoes', icon: Network },
+    { labelKey: 'nav.cursos' as const,   shortKey: 'nav.cursos' as const,       href: '/cursos',       icon: GraduationCap },
+  ];
 
   const isAdmin = !!user && ['ADMIN', 'SUPER_ADMIN', 'MODERATOR'].includes(user.role);
   const isDirigente = !!user && ['DIRIGENTE', 'OGA', 'EKEDI'].includes(user.role);
@@ -63,14 +67,14 @@ export function AppHeader() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-[var(--duration-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
+                    'inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-medium transition-colors duration-[var(--duration-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
                     active
                       ? 'text-copper-strong'
                       : 'text-muted-foreground hover:bg-accent hover:text-foreground',
                   )}
                 >
-                  <item.icon className="size-4" />
-                  {item.label}
+                  <item.icon className="size-4 shrink-0" />
+                  {t(item.shortKey)}
                 </Link>
               );
             })}
@@ -84,6 +88,7 @@ export function AppHeader() {
             </Link>
           </Button>
 
+          <LocaleSwitcher />
           <ThemeToggle />
 
           {loading ? null : user ? (
@@ -122,22 +127,22 @@ export function AppHeader() {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem asChild>
-                  <Link href="/notificacoes">Notificações</Link>
+                  <Link href="/notificacoes">{t('nav.notificacoes')}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} destructive>
-                  Sair
+                  {t('nav.sair')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-                <Link href="/auth/login">Entrar</Link>
+                <Link href="/auth/login" target="_blank" rel="noopener noreferrer">{t('nav.entrar')}</Link>
               </Button>
               <Button asChild size="sm">
                 <Link href="/onboarding">
-                  Cadastrar Terreiro
+                  {t('nav.cadastrar')}
                   <Badge className="ml-1 bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20">
                     Grátis
                   </Badge>
@@ -164,7 +169,7 @@ export function AppHeader() {
                       className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
                     >
                       <item.icon className="size-4 text-muted-foreground" />
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   ))}
                   <Separator className="my-3" />
@@ -173,15 +178,17 @@ export function AppHeader() {
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-copper-strong transition-colors hover:bg-copper-soft/40"
                   >
-                    Cadastrar Terreiro
+                    {t('nav.cadastrar')}
                   </Link>
                   {!user && (
                     <Link
                       href="/auth/login"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent"
                     >
-                      Entrar
+                      {t('nav.entrar')}
                     </Link>
                   )}
                 </nav>

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { CursoLanding } from '@/lib/seo/types';
 import { fetchLanding } from '@/lib/seo/fetch-landing';
+import { labelTradicao } from '@/lib/tradicoes';
 import { LandingBreadcrumb } from '@/components/landing/landing-breadcrumb';
 import { LandingHero } from '@/components/landing/landing-hero';
 import { LandingFaq } from '@/components/landing/landing-faq';
@@ -10,15 +11,15 @@ import { JsonLd, websiteSchema } from '@/lib/seo/json-ld';
 
 export const revalidate = 3600;
 
-function formatTradicao(slug: string): string {
-  return slug.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+function tradNomeFromSlug(slug: string): string {
+  return labelTradicao(slug.toUpperCase().replace(/-/g, '_'));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ tradicao: string }> }): Promise<Metadata> {
   const { tradicao } = await params;
-  const tradNome = formatTradicao(tradicao);
+  const tradNome = tradNomeFromSlug(tradicao);
   const title = `Cursos de ${tradNome} — AxéMap`;
-  const description = `Encontre cursos, oficinas e formações sobre ${tradNome} em todo o Brasil.`;
+  const description = `Encontre cursos, oficinas e formações sobre ${tradNome} na África e nas diásporas.`;
 
   return {
     title,
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ tradicao:
 
 export default async function CursosTradicaoPage({ params }: { params: Promise<{ tradicao: string }> }) {
   const { tradicao } = await params;
-  const tradNome = formatTradicao(tradicao);
+  const tradNome = tradNomeFromSlug(tradicao);
   const data = await fetchLanding<{ cursos: CursoLanding[] }>(`/cursos?tradicao=${encodeURIComponent(tradicao)}`);
   const cursos = data?.cursos;
   if (!cursos) notFound();
@@ -45,7 +46,7 @@ export default async function CursosTradicaoPage({ params }: { params: Promise<{
       ]} />
       <LandingHero
         titulo={`Cursos de ${tradNome}`}
-        subtitulo={`Encontre cursos, oficinas e formações sobre ${tradNome} em todo o Brasil.`}
+        subtitulo={`Encontre cursos, oficinas e formações sobre ${tradNome} na África e nas diásporas.`}
         totalTerreiro={cursos.length}
         totalVerificados={0}
       />

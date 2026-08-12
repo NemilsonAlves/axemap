@@ -96,7 +96,7 @@ export interface DadosCidade {
 }
 
 export interface DadosTradicao {
-  tradicao: { nome: string; label: string; slug: string };
+  tradicao: { nome: string; label: string; slug: string; descricao?: string };
   totalTerreiro: number;
   totalVerificados: number;
   trustScoreMedio: number;

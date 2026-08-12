@@ -1,41 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import { LogoMark } from '@/components/brand/logo';
 import { Separator } from '@/components/ui/separator';
 import { Camera, Mail } from 'lucide-react';
-
-const footerColumns = [
-  {
-    title: 'Plataforma',
-    links: [
-      { label: 'Buscar Terreiros', href: '/busca' },
-      { label: 'Mapa', href: '/mapa' },
-      { label: 'Terreiros Verificados', href: '/terreiros-verificados' },
-      { label: 'Novos Terreiros', href: '/novos-terreiros' },
-      { label: 'Eventos', href: '/eventos' },
-      { label: 'Planos e Assinatura', href: '/planos' },
-    ],
-  },
-  {
-    title: 'Comunidade',
-    links: [
-      { label: 'Cursos', href: '/cursos' },
-      { label: 'Ações Sociais', href: '/acoes-sociais' },
-      { label: 'Central de Evolução', href: '/central-evolucao' },
-      { label: 'Tradição', href: '/tradicao' },
-      { label: 'Cadastrar Terreiro', href: '/onboarding' },
-    ],
-  },
-  {
-    title: 'Institucional',
-    links: [
-      { label: 'Sobre o AxéMap', href: '/sobre' },
-      { label: 'Governança', href: '/governanca' },
-      { label: 'Transparência', href: '/transparencia' },
-      { label: 'Privacidade (LGPD)', href: '/privacidade' },
-      { label: 'Termos de Uso', href: '/termos' },
-    ],
-  },
-];
+import { useI18n } from '@/lib/i18n/i18n-context';
 
 const socials = [
   { icon: Camera, label: 'Instagram', href: 'https://instagram.com/axemap' },
@@ -43,6 +12,42 @@ const socials = [
 ];
 
 export function AppFooter() {
+  const { t } = useI18n();
+
+  const footerColumns = [
+    {
+      titleKey: 'footer.plataforma' as const,
+      links: [
+        { label: 'Buscar Casas de Axé', href: '/busca' },
+        { label: 'Mapa', href: '/mapa' },
+        { label: 'Casas Verificadas', href: '/terreiros-verificados' },
+        { label: 'Novas Casas', href: '/novos-terreiros' },
+        { label: 'Eventos', href: '/eventos' },
+        { label: 'Planos e Assinatura', href: '/planos' },
+      ],
+    },
+    {
+      titleKey: 'footer.comunidade' as const,
+      links: [
+        { label: 'Cursos', href: '/cursos' },
+        { label: 'Ações Sociais', href: '/acoes-sociais' },
+        { label: 'Central de Evolução', href: '/central-evolucao' },
+        { label: 'Tradição', href: '/tradicao' },
+        { label: 'Cadastrar Casa de Axé', href: '/onboarding' },
+      ],
+    },
+    {
+      titleKey: 'footer.institucional' as const,
+      links: [
+        { label: 'Sobre o AxéMap', href: '/sobre' },
+        { label: 'Governança', href: '/governanca' },
+        { label: 'Transparência', href: '/transparencia' },
+        { label: 'Privacidade (LGPD)', href: '/privacidade' },
+        { label: 'Termos de Uso', href: '/termos' },
+      ],
+    },
+  ];
+
   return (
     <footer className="border-t border-border/70 bg-surface-2/60">
       <div className="container-page py-14">
@@ -55,16 +60,16 @@ export function AppFooter() {
               </span>
             </div>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              A tecnologia a serviço da tradição. O maior ecossistema digital das
-              religiões de matriz africana do Brasil — preservando conhecimento,
-              fortalecendo comunidade e promovendo confiança.
+              A tecnologia a serviço da tradição. Um mapa vivo das tradições
+              africanas e de suas diásporas — da África para o mundo,
+              conectando comunidades, territórios, conhecimento e memória.
             </p>
           </div>
 
           {footerColumns.map((col) => (
-            <nav key={col.title} aria-label={col.title} className="flex flex-col gap-3.5">
+            <nav key={col.titleKey} aria-label={t(col.titleKey)} className="flex flex-col gap-3.5">
               <h3 className="font-display text-sm font-semibold uppercase tracking-wider text-foreground">
-                {col.title}
+                {t(col.titleKey)}
               </h3>
               <ul className="flex flex-col gap-2.5">
                 {col.links.map((link) => (
@@ -86,7 +91,7 @@ export function AppFooter() {
 
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} AxéMap — Plataforma de Religiões de Matriz Africana.
+            © {new Date().getFullYear()} AxéMap — {t('footer.copyright')}
           </p>
           <div className="flex items-center gap-2">
             {socials.map((s) => (
@@ -106,7 +111,7 @@ export function AppFooter() {
 
         <div className="mt-6 flex flex-col items-center justify-between gap-2 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            Feito com respeito à ancestralidade.
+            {t('footer.feito_com')}
           </p>
           <p className="text-xs text-muted-foreground">
             Dados protegidos conforme a LGPD ·{' '}

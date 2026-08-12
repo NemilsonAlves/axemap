@@ -8,10 +8,10 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Terreiros Verificados — AxéMap',
-  description: 'Encontre terreiros verificados de religiões afro-brasileiras em todo o Brasil. Terreiros verificados passaram por nosso processo de validação.',
+  description: 'Encontre terreiros verificados das tradições africanas e afro-diaspóricas. Terreiros verificados passaram por nosso processo de validação.',
   openGraph: {
     title: 'Terreiros Verificados — AxéMap',
-    description: 'Encontre terreiros verificados de religiões afro-brasileiras em todo o Brasil.',
+    description: 'Encontre terreiros verificados das tradições africanas e afro-diaspóricas.',
     locale: 'pt_BR',
     siteName: 'AxéMap',
   },

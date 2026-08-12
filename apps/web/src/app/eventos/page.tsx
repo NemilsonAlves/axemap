@@ -10,11 +10,11 @@ import { JsonLd, websiteSchema } from '@/lib/seo/json-ld';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Eventos de Religiões Afro-Brasileiras — AxéMap',
-  description: 'Encontre eventos, festas e celebrações de religiões afro-brasileiras em todo o Brasil.',
+  title: 'Eventos das Tradições Africanas e Afro-Diaspóricas — AxéMap',
+  description: 'Encontre eventos, festas e celebrações das tradições africanas e afro-diaspóricas na África e nas diásporas.',
   openGraph: {
     title: 'Eventos — AxéMap',
-    description: 'Encontre eventos de religiões afro-brasileiras em todo o Brasil.',
+    description: 'Encontre eventos das tradições africanas e afro-diaspóricas.',
     locale: 'pt_BR',
     siteName: 'AxéMap',
   },
@@ -38,7 +38,7 @@ export default async function EventosPage() {
       <LandingBreadcrumb items={[{ label: 'Eventos' }]} />
       <LandingHero
         titulo="Eventos"
-        subtitulo="Encontre eventos, festas e celebrações de religiões afro-brasileiras em todo o Brasil."
+        subtitulo="Encontre eventos, festas e celebrações das tradições africanas e afro-diaspóricas na África e nas diásporas."
         totalTerreiro={eventos?.length || 0}
         totalVerificados={0}
       />

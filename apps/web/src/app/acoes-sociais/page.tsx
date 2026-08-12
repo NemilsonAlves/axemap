@@ -10,11 +10,11 @@ import { JsonLd, websiteSchema } from '@/lib/seo/json-ld';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Ações Sociais de Terreiros — AxéMap',
-  description: 'Conheça ações sociais realizadas por terreiros de religiões afro-brasileiras em todo o Brasil.',
+  title: 'Ações Sociais das Tradições Africanas e Afro-Diaspóricas — AxéMap',
+  description: 'Conheça ações sociais realizadas por comunidades das tradições africanas e afro-diaspóricas.',
   openGraph: {
     title: 'Ações Sociais — AxéMap',
-    description: 'Conheça ações sociais realizadas por terreiros em todo o Brasil.',
+    description: 'Conheça ações sociais realizadas por comunidades das tradições de matriz africana.',
     locale: 'pt_BR',
     siteName: 'AxéMap',
   },
@@ -32,7 +32,7 @@ export default async function AcoesSociaisPage() {
       <LandingBreadcrumb items={[{ label: 'Ações Sociais' }]} />
       <LandingHero
         titulo="Ações Sociais"
-        subtitulo="Conheça ações sociais realizadas por terreiros de religiões afro-brasileiras em todo o Brasil."
+        subtitulo="Conheça ações sociais realizadas por comunidades das tradições africanas e afro-diaspóricas."
         totalTerreiro={acoes?.length || 0}
         totalVerificados={0}
       />

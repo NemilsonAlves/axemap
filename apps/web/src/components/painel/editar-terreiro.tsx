@@ -3,11 +3,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
+import { labelTradicao, TRADICOES_CATALOGO } from '@/lib/tradicoes';
 
-const TRADICOES = [
-  'UMBANDA', 'CANDOMBLE_KETU', 'CANDOMBLE_ANGOLA', 'CANDOMBLE_JEJE',
-  'JUREMA', 'TAMBOR_DE_MINA', 'XANGO',
-];
+const TRADICOES = TRADICOES_CATALOGO.map((t) => t.nome);
 
 const DIAS = [
   { chave: 'segunda', label: 'Segunda' },
@@ -142,14 +140,14 @@ export function EditarTerreiro({ terreiroId, slug }: { terreiroId: string; slug:
       <div className="painel-form-card">
         <div className="painel-form-grid">
           <div className="painel-field">
-            <label>Nome do terreiro *</label>
+            <label>Nome da Casa de Axé *</label>
             <input value={form.nome} onChange={(e) => set('nome', e.target.value)} required />
           </div>
           <div className="painel-field">
             <label>Tradição *</label>
             <select value={form.tradicao} onChange={(e) => set('tradicao', e.target.value)} required>
               <option value="">Selecione...</option>
-              {TRADICOES.map((t) => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+              {TRADICOES.map((t) => <option key={t} value={t}>{labelTradicao(t)}</option>)}
             </select>
           </div>
           <div className="painel-field">

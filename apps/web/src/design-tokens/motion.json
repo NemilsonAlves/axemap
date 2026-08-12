@@ -1,0 +1,15 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "axemap-motion",
+  "description": "Durações e easing — movimento suave, respeitando prefers-reduced-motion.",
+  "tokens": {
+    "durationFast": { "$type": "duration", "$value": "120ms" },
+    "durationBase": { "$type": "duration", "$value": "200ms" },
+    "durationSlow": { "$type": "duration", "$value": "320ms" },
+    "durationSlower": { "$type": "duration", "$value": "520ms" },
+    "easeOut": { "$type": "transition", "$value": "cubic-bezier(0.22, 1, 0.36, 1)" },
+    "easeInOut": { "$type": "transition", "$value": "cubic-bezier(0.65, 0.05, 0.36, 1)" },
+    "easeSpring": { "$type": "transition", "$value": "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+    "motionReduce": { "$type": "boolean", "$value": true }
+  }
+}

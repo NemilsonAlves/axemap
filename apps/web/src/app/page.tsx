@@ -5,6 +5,8 @@ import { JsonLd, websiteSchema, organizationSchema, datasetSchema } from '@/lib/
 import { getHomeData } from '@/components/home/data';
 import { HomeHero } from '@/components/home/home-hero';
 import { HomeSearch } from '@/components/home/home-search';
+import { HomeTraditions } from '@/components/home/home-traditions';
+import { HomeIfa } from '@/components/home/home-ifa';
 import { HomeTrust } from '@/components/home/home-trust';
 import { HomeVerified } from '@/components/home/home-verified';
 import { HomeEvents } from '@/components/home/home-events';
@@ -22,18 +24,22 @@ import { HeroSkeleton, SectionsSkeleton } from '@/components/home/home-skeletons
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://axemap.com.br'),
-  title: 'AxéMap — Encontre e fortaleça as religiões de matriz africana',
+  title: 'AxéMap — Mapa · Memória · Ancestralidade · Conexão',
   description:
-    'Encontre terreiros, eventos, cursos e comunidades de religiões de matriz africana em todo o Brasil. Casas verificadas, Trust Score transparente e respeito à tradição.',
+    'Infraestrutura digital global para descobrir, conectar e preservar tradições africanas e afro-diaspóricas, comunidades, culturas, conhecimentos e territórios. Ifá, Candomblé, Umbanda, Santería, Vodou, Yorùbá, Akan, Bantu — da África para o mundo.',
   keywords: [
-    'terreiro', 'candomblé', 'umbanda', 'religiões de matriz africana', 'axé',
-    'mapa de terreiros', 'casas de santo', 'eventos afro-brasileiros',
+    'tradições africanas', 'afro-diáspora', 'cultura africana', 'ifá', 'candomblé', 'umbanda',
+    'santería', 'vodou', 'yorùbá', 'akan', 'bantu', 'kongo', 'igbo', 'fon', 'ewe',
+    'religiões de matriz africana', 'axé', 'mapa cultural', 'comunidades africanas',
+    'diáspora africana', 'patrimônio africano', 'terreiros', 'casas de santo',
+    'cultura afro-brasileira', 'cultura afro-cubana', 'cultura afro-haitiana',
+    'african traditions', 'african diaspora', 'afro heritage', 'axemap',
   ],
   alternates: { canonical: '/' },
   openGraph: {
-    title: 'AxéMap — A ancestralidade brasileira em um mapa vivo',
+    title: 'AxéMap — Infraestrutura digital global para África e suas diásporas',
     description:
-      'Encontre, conheça e fortaleça comunidades de matriz africana em todo o Brasil. Tecnologia, ancestralidade, confiança e comunidade.',
+      'Mapa · Memória · Ancestralidade · Conexão. Da África para o mundo: tradições, comunidades, territórios, conhecimento e diásporas.',
     url: 'https://axemap.com.br',
     siteName: 'AxéMap',
     locale: 'pt_BR',
@@ -41,8 +47,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AxéMap — A ancestralidade brasileira em um mapa vivo',
-    description: 'Encontre, conheça e fortaleça comunidades de matriz africana em todo o Brasil.',
+    title: 'AxéMap — Mapa · Memória · Ancestralidade · Conexão',
+    description: 'Infraestrutura digital global para tradições africanas e suas diásporas.',
   },
   robots: { index: true, follow: true },
 };
@@ -71,6 +77,8 @@ async function ContentSections() {
   return (
     <>
       <HomeSearch explore={data.explore} />
+      <HomeTraditions explore={data.explore} />
+      <HomeIfa />
       <HomeMapLoader />
       <HomeVerified data={data} />
       <HomeTrust data={data} />

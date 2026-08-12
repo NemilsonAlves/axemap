@@ -14,8 +14,10 @@ export function websiteSchema() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'AxéMap',
+    alternateName: 'AxeMap',
     url: 'https://axemap.com.br',
-    description: 'Plataforma de descoberta de terreiros de religiões afro-brasileiras',
+    description: 'Infraestrutura digital global para descobrir, conectar e preservar tradições africanas e afro-diaspóricas — Mapa · Memória · Ancestralidade · Conexão.',
+    inLanguage: ['pt-BR', 'en', 'es', 'fr'],
     potentialAction: {
       '@type': 'SearchAction',
       target: {
@@ -32,9 +34,23 @@ export function organizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'AxéMap',
+    alternateName: 'AxeMap',
     url: 'https://axemap.com.br',
     logo: 'https://axemap.com.br/logo.png',
-    description: 'Plataforma de descoberta de terreiros de religiões afro-brasileiras',
+    description: 'Infraestrutura digital global para tradições africanas e afro-diaspóricas — conectando África, diáspora, comunidades, conhecimento e memória.',
+    foundingLocation: {
+      '@type': 'Country',
+      name: 'Brasil',
+    },
+    areaServed: {
+      '@type': 'Place',
+      name: 'Global',
+    },
+    knowsAbout: [
+      'African Traditions', 'African Diaspora', 'Ifá', 'Candomblé', 'Umbanda',
+      'Santería', 'Vodou', 'Yorùbá culture', 'African heritage',
+      'Afro-Brazilian culture', 'Akan', 'Bantu', 'Igbo',
+    ],
     sameAs: [
       'https://instagram.com/axemap',
     ],

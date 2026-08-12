@@ -17,17 +17,26 @@
 
 .input {
   padding: 0.75rem 1rem;
-  border: 2px solid var(--color-gray-200);
-  border-radius: 0.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 1rem;
-  background: var(--color-white);
+  background: var(--color-card);
+  color: var(--color-foreground);
   flex: 1;
   min-width: 200px;
+  appearance: auto;
+}
+
+/* selects específicos dentro do formulário de busca */
+.search-form select.input {
+  cursor: pointer;
+  background-image: none;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--color-secondary);
+  border-color: var(--color-ring);
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.25);
 }
 
 .btn {
@@ -41,22 +50,22 @@
 }
 
 .btn-primary {
-  background: var(--color-secondary);
-  color: var(--color-white);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
 }
 
 .btn-primary:hover {
-  background: var(--color-accent);
+  background: hsl(var(--primary) / 0.9);
 }
 
 .btn-secondary {
-  background: var(--color-white);
+  background: var(--color-card);
   color: var(--color-primary);
   border: 2px solid var(--color-primary);
 }
 
 .btn-secondary:hover {
-  background: var(--color-gray-100);
+  background: var(--color-accent);
 }
 
 .results {
@@ -66,17 +75,18 @@
 }
 
 .terreiro-card {
-  background: var(--color-white);
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.75rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
   text-decoration: none;
   color: inherit;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s var(--ease-out);
 }
 
 .terreiro-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-md);
+  border-color: hsl(var(--ring) / 0.4);
 }
 
 .terreiro-card-header {
@@ -87,27 +97,28 @@
 }
 
 .terreiro-card-header h3 {
-  color: var(--color-primary);
+  color: var(--color-foreground);
 }
 
 .trust-score-badge {
-  background: var(--color-secondary);
-  color: var(--color-white);
+  background: hsl(var(--fern) / 0.14);
+  color: var(--color-fern);
+  border: 1px solid hsl(var(--fern) / 0.35);
   padding: 0.25rem 0.5rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-full);
   font-size: 0.875rem;
   font-weight: 600;
 }
 
 .descricao {
-  color: var(--color-gray-300);
+  color: var(--color-muted-foreground);
   margin-top: 0.5rem;
   font-size: 0.875rem;
 }
 
 .empty-state {
   text-align: center;
-  color: var(--color-gray-300);
+  color: var(--color-muted-foreground);
   padding: 3rem 0;
 }
 
@@ -118,13 +129,13 @@
 
 .hero h1 {
   font-size: 2.5rem;
-  color: var(--color-primary);
+  color: var(--color-foreground);
   margin-bottom: 1rem;
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
-  color: var(--color-gray-300);
+  color: var(--color-muted-foreground);
   margin-bottom: 2rem;
   max-width: 600px;
   margin-left: auto;
@@ -145,17 +156,17 @@
 }
 
 .feature-card {
-  background: var(--color-white);
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.75rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
 }
 
 .feature-card h3 {
-  color: var(--color-primary);
+  color: var(--color-foreground);
   margin-bottom: 0.5rem;
 }
 
 .feature-card p {
-  color: var(--color-gray-300);
+  color: var(--color-muted-foreground);
 }

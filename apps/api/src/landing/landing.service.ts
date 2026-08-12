@@ -11,13 +11,43 @@ const terreiroBasico = {
 } as const;
 
 const NOME_TRADICOES: Record<string, string> = {
-  UMBANDA: 'Umbanda',
+  IFA: 'Ifá',
   CANDOMBLE_KETU: 'Candomblé de Ketu',
-  CANDOMBLE_ANGOLA: 'Candomblé de Angola',
-  CANDOMBLE_JEJE: 'Candomblé Jeje',
-  JUREMA: 'Jurema',
-  TAMBOR_DE_MINA: 'Tambor de Mina',
+  EGUNGUN: 'Culto aos Egunguns',
   XANGO: 'Xangô',
+  BATUQUE: 'Batuque',
+  CANDOMBLE_ANGOLA: 'Candomblé de Angola',
+  OMOLOKO: 'Omolocô',
+  CANDOMBLE_JEJE: 'Candomblé Jeje',
+  TAMBOR_DE_MINA: 'Tambor de Mina',
+  ENCANTARIA: 'Encantaria',
+  JUREMA: 'Jurema',
+  CATIMBO: 'Catimbó',
+  UMBANDA: 'Umbanda',
+  QUIMBANDA: 'Quimbanda',
+  SANTERIA: 'Santería / Regla de Ocha',
+  VODOU: 'Vodou Haitiano',
+  PALO: 'Palo Monte',
+};
+
+const DESCRICOES_TRADICOES: Record<string, string> = {
+  IFA: 'Ifaísmo: religião tradicional iorubá e sistema oracular dos 256 Odù, reconhecido pela UNESCO como patrimônio imaterial da humanidade. Filosofia, teologia e cosmologia transmitidas pelos babalaôs (Awo).',
+  CANDOMBLE_KETU: 'Nação iorubá-nagô com culto aos Orixás e forte preservação da língua e dos cantos rituais.',
+  EGUNGUN: 'Culto aos ancestrais masculinos (Bàbá Egúngún), originário do império de Oió, na Nigéria. Presente no Brasil desde o século XIX, com casas em Itaparica (Ilê Agboulá, Ilê Axipá) e em Recife (egbé Bàbá Oba Èrín).',
+  XANGO: 'Tradição nagô do Nordeste (Pernambuco e Alagoas), centrada no culto aos Orixás com intensa ritualística e musicalidade.',
+  BATUQUE: 'Tradição de matriz iorubá nascida no Sul do Brasil, especialmente no Rio Grande do Sul, com toques, batuques e o culto aos Orixás como eixo central.',
+  CANDOMBLE_ANGOLA: 'Raiz banta, com culto aos Inquices, Nkisis e antepassados, forte presença do ritmo e da cosmologia centro-africana.',
+  OMOLOKO: 'Nação do candomblé que articula raízes bantas e iorubás, cultuando Inquices e Orixás em uma só matriz.',
+  CANDOMBLE_JEJE: 'Tradição fon-ewé com culto aos Voduns, preservando língua, funções e fundamentos originários do Golfo do Benim.',
+  TAMBOR_DE_MINA: 'Tradição maranhense que integra elementos jejes, nagôs, caboclos e encantados, com destaque para as tocatas e os cultos das Minas.',
+  ENCANTARIA: 'Culto aos encantados, integrado ao universo do Tambor de Mina e das tradições amazônicas, que reverencia encantos de água, mata e reinos místicos.',
+  JUREMA: 'Tradição de raízes indígenas do Nordeste que se entrelaçou às matrizes africanas, centrada na planta sagrada da Jurema, nos mestres e nos encantados.',
+  CATIMBO: 'Prática afro-indígena do Nordeste (Rio Grande do Norte e Paraíba), irmã da Jurema, centrada nos mestres, na mesa e na força da herança ancestral.',
+  UMBANDA: 'Religião brasileira que acolhe matrizes africanas, indígenas e espíritas, com giras, incorporações e caridade como fundamento.',
+  QUIMBANDA: 'Linha de trabalho das tradições afro-brasileiras dedicada aos Exus e Pombagiras, compreendida como caminho de cura, justiça e amparo.',
+  SANTERIA: 'Tradição afro-cubana de culto aos Orixás (Orishas), nascida no encontro entre o povo yorùbá e o catolicismo em Cuba, com forte presença na diáspora cubana.',
+  VODOU: 'Tradição do Haiti formada na síntese entre cultos fon, ewé, iorubá e bantos e o catolicismo, presente na diáspora haitiana em vários territórios.',
+  PALO: 'Tradição afro-cubana de raiz banta (Kongo), centrada no culto aos espíritos da natureza (Nkisi), presente na diáspora cubana.',
 };
 
 const ESTADOS_BR: Record<string, string> = {
@@ -302,7 +332,7 @@ export class LandingService {
       .map(([key, label]) => ({ nome: key, label, slug: key.toLowerCase().replace(/_/g, '-') }));
 
     const dados = {
-      tradicao: { nome: nomeTradicao, label: labelTradicao, slug: tradicao },
+      tradicao: { nome: nomeTradicao, label: labelTradicao, slug: tradicao, descricao: DESCRICOES_TRADICOES[nomeTradicao] || '' },
       totalTerreiro: stats._count,
       totalVerificados,
       trustScoreMedio: Number(stats._avg.trustScore?.toFixed(1) || 0),
@@ -575,7 +605,7 @@ export class LandingService {
       `${i === tradicoes.slice(0, 3).length - 1 ? 'e ' : ''}${NOME_TRADICOES[t.tradicao] || t.tradicao} (${t.count} casa${t.count !== 1 ? 's' : ''})`
     ).join(', ');
     const pVerificados = total > 0 ? Math.round((verificados / total) * 100) : 0;
-    return `${ufNome} conta atualmente com ${total} terreiro${total !== 1 ? 's' : ''} de religiões de matriz africana cadastrado${total !== 1 ? 's' : ''} no AxéMap. Destes, ${verificados} (${pVerificados}%) são perfis verificados, garantindo maior confiabilidade para quem busca conhecer e frequentar essas casas. As principais tradições presentes no estado são ${tradicoesTexto}. O AxéMap é a maior plataforma de descoberta de terreiros do Brasil, conectando visitantes a casas de axé em todo o país.`;
+    return `${ufNome} conta atualmente com ${total} comunidade${total !== 1 ? 's' : ''} de tradições de matriz africana cadastrada${total !== 1 ? 's' : ''} no AxéMap. Destas, ${verificados} (${pVerificados}%) têm perfil verificado, garantindo maior confiabilidade para quem busca conhecer e frequentar essas casas. As principais tradições presentes no estado são ${tradicoesTexto}. O AxéMap é um mapa vivo das tradições africanas e de suas diásporas, conectando visitantes a comunidades de axé no Brasil e no mundo.`;
   }
 
   private gerarPanoramaCidade(cidade: string, uf: string, total: number, verificados: number, tradicoes: Array<{ tradicao: string; count: number }>): string {
@@ -586,11 +616,11 @@ export class LandingService {
 
   private gerarPanoramaTradicao(label: string, total: number, estados: Array<{ estado: string; count: number }>): string {
     const topEstados = estados.slice(0, 3).map(e => `${ESTADOS_BR[e.estado] || e.estado} (${e.count} casa${e.count !== 1 ? 's' : ''})`).join(', ');
-    return `A tradição ${label} está presente em ${total} terreiro${total !== 1 ? 's' : ''} cadastrado${total !== 1 ? 's' : ''} no AxéMap, distribuído${total !== 1 ? 's' : ''} por ${estados.length} estado${estados.length !== 1 ? 's' : ''} brasileiro${estados.length !== 1 ? 's' : ''}. Os estados com maior concentração são ${topEstados}. O AxéMap é a plataforma referência para descobrir e conectar-se com terreiros de ${label} em todo o Brasil.`;
+    return `A tradição ${label} está presente em ${total} comunidade${total !== 1 ? 's' : ''} cadastrada${total !== 1 ? 's' : ''} no AxéMap, distribuída${total !== 1 ? 's' : ''} por ${estados.length} estado${estados.length !== 1 ? 's' : ''} brasileiro${estados.length !== 1 ? 's' : ''}. Os estados com maior concentração são ${topEstados}. O AxéMap é um mapa vivo das tradições africanas e de suas diásporas, ajudando a descobrir e conectar-se com comunidades de ${label} no Brasil e no mundo.`;
   }
 
   private gerarPerfilComunidade(total: number, verificados: number, dirigentes: number): string {
-    return `A comunidade cadastrada no AxéMap nesta região é composta por ${total} terreiro${total !== 1 ? 's' : ''}, dos quais ${verificados} ${verificados !== 1 ? 'são' : 'é'} verificado${verificados !== 1 ? 's' : ''}${dirigentes > 0 ? `, e conta com aproximadamente ${dirigentes} dirigente${dirigentes !== 1 ? 's' : ''} vinculado${dirigentes !== 1 ? 's' : ''}` : ''}. A plataforma segue crescendo e fortalecendo a rede de religiões de matriz africana no Brasil.`;
+    return `A comunidade cadastrada no AxéMap nesta região é composta por ${total} comunidade${total !== 1 ? 's' : ''}, das quais ${verificados} ${verificados !== 1 ? 'são' : 'é'} verificada${verificados !== 1 ? 's' : ''}${dirigentes > 0 ? `, e conta com aproximadamente ${dirigentes} dirigente${dirigentes !== 1 ? 's' : ''} vinculado${dirigentes !== 1 ? 's' : ''}` : ''}. A plataforma segue crescendo e fortalecendo a rede de tradições de matriz africana no Brasil e nas diásporas.`;
   }
 
   private gerarFAQsEstado(ufNome: string, uf: string, total: number, verificados: number, tradicoes: Array<{ tradicao: string; count: number }>, eventos: number, cursos: number): FAQ[] {
