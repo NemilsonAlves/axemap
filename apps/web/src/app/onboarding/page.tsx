@@ -63,7 +63,7 @@ export default function OnboardingPage() {
   if (!user) return (
     <div className="onb-container">
       <div className="onb-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-        <h1>Cadastre seu Terreiro</h1>
+        <h1>Cadastre sua Casa de Axé</h1>
         <p style={{ margin: '1rem 0', color: 'var(--color-gray-300)' }}>Faça login para começar.</p>
         <a href="/auth/login" className="btn btn-primary">Fazer Login</a>
       </div>
@@ -72,7 +72,7 @@ export default function OnboardingPage() {
 
   const steps = [
     {
-      title: 'Qual o nome do terreiro?',
+      title: 'Qual o nome da Casa de Axé?',
       desc: 'Comece pelo nome. Você pode completar os detalhes depois.',
       content: (
         <div className="onb-field">

@@ -7,11 +7,11 @@ import { TerreiroCard } from '@/components/landing/terreiro-card';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Terreiros Verificados — AxéMap',
-  description: 'Encontre terreiros verificados das tradições africanas e afro-diaspóricas. Terreiros verificados passaram por nosso processo de validação.',
+  title: 'Casas de Axé Verificadas — AxéMap',
+  description: 'Encontre casas de axé verificadas das tradições africanas e afro-diaspóricas. Casas verificadas passaram por nosso processo de validação.',
   openGraph: {
-    title: 'Terreiros Verificados — AxéMap',
-    description: 'Encontre terreiros verificados das tradições africanas e afro-diaspóricas.',
+    title: 'Casas de Axé Verificadas — AxéMap',
+    description: 'Encontre casas de axé verificadas das tradições africanas e afro-diaspóricas.',
     locale: 'pt_BR',
     siteName: 'AxéMap',
   },
@@ -25,9 +25,9 @@ export default async function TerreirosVerificadosPage() {
 
   return (
     <LandingTemplate
-      titulo="Terreiros Verificados"
-      subtitulo="Encontre terreiros verificados de religiões afro-brasileiras. Terreiros verificados passaram por nosso processo de validação de autenticidade."
-      breadcrumb={[{ label: 'Terreiros Verificados' }]}
+      titulo="Casas de Axé Verificadas"
+      subtitulo="Encontre casas de axé / asé verificadas de tradições africanas e afro-diaspóricas. Casas verificadas passaram por nosso processo de validação de autenticidade."
+      breadcrumb={[{ label: 'Casas de Axé Verificadas' }]}
       stats={{
         trustScoreMedio: 0,
         totalTerreiro: terreiros.length,
@@ -35,12 +35,12 @@ export default async function TerreirosVerificadosPage() {
       }}
       faqs={[
         {
-          pergunta: 'O que significa um terreiro verificado?',
-          resposta: 'Um terreiro verificado passou pelo processo de validação do AxéMap, confirmando sua autenticidade e informações básicas.',
+          pergunta: 'O que significa uma casa de axé verificada?',
+          resposta: 'Uma casa de axé verificada passou pelo processo de validação do AxéMap, confirmando sua autenticidade e informações básicas.',
         },
         {
-          pergunta: 'Como verificar meu terreiro?',
-          resposta: 'Após cadastrar seu terreiro, você pode solicitar a verificação através da plataforma. Nossa equipe analisará as informações e validará o terreiro.',
+          pergunta: 'Como verificar minha Casa de Axé?',
+          resposta: 'Após cadastrar sua casa de axé, você pode solicitar a verificação através da plataforma. Nossa equipe analisará as informações e validará a casa.',
         },
       ]}
     >
@@ -48,7 +48,7 @@ export default async function TerreirosVerificadosPage() {
         <TerreiroCard key={t.id} terreiro={t} />
       )) : (
         <p className="text-muted-foreground col-span-full text-center py-12">
-          Nenhum terreiro verificado encontrado.
+          Nenhuma casa de axé verificada encontrada.
         </p>
       )}
     </LandingTemplate>

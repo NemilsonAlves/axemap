@@ -81,7 +81,7 @@ export default async function CursosPage() {
           },
           {
             pergunta: 'Como divulgar meu curso no AxéMap?',
-            resposta: 'Cadastre seu terreiro na plataforma e adicione cursos à página do seu terreiro. Eles aparecerão automaticamente nesta listagem.',
+            resposta: 'Cadastre sua casa de axé na plataforma e adicione cursos à página da sua casa. Eles aparecerão automaticamente nesta listagem.',
           },
         ]}
       />

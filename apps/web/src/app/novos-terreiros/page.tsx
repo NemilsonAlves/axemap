@@ -7,11 +7,11 @@ import { TerreiroCard } from '@/components/landing/terreiro-card';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Novos Terreiros — AxéMap',
-  description: 'Conheça os terreiros recém-cadastrados de religiões afro-brasileiras no AxéMap.',
+  title: 'Novas Casas de Axé — AxéMap',
+  description: 'Conheça as casas de axé recém-cadastradas de tradições africanas e afro-diaspóricas no AxéMap.',
   openGraph: {
-    title: 'Novos Terreiros — AxéMap',
-    description: 'Conheça os terreiros recém-cadastrados no AxéMap.',
+    title: 'Novas Casas de Axé — AxéMap',
+    description: 'Conheça as casas de axé recém-cadastradas no AxéMap.',
     locale: 'pt_BR',
     siteName: 'AxéMap',
   },
@@ -25,9 +25,9 @@ export default async function NovosTerreirosPage() {
 
   return (
     <LandingTemplate
-      titulo="Novos Terreiros"
-      subtitulo="Conheça os terreiros recém-cadastrados de religiões afro-brasileiras no AxéMap."
-      breadcrumb={[{ label: 'Novos Terreiros' }]}
+      titulo="Novas Casas de Axé"
+      subtitulo="Conheça as casas de axé / asé recém-cadastradas de tradições africanas e afro-diaspóricas no AxéMap."
+      breadcrumb={[{ label: 'Novas Casas de Axé' }]}
       stats={{
         trustScoreMedio: 0,
         totalTerreiro: terreiros.length,
@@ -35,12 +35,12 @@ export default async function NovosTerreirosPage() {
       }}
       faqs={[
         {
-          pergunta: 'Com que frequência novos terreiros são adicionados?',
-          resposta: 'Novos terreiros são adicionados diariamente por usuários da plataforma. Esta página mostra os cadastros mais recentes.',
+          pergunta: 'Com que frequência novas casas são adicionadas?',
+          resposta: 'Novas casas de axé são adicionadas diariamente por usuários da plataforma. Esta página mostra os cadastros mais recentes.',
         },
         {
-          pergunta: 'Como cadastrar meu terreiro?',
-          resposta: 'Crie uma conta gratuita no AxéMap e siga o processo de cadastro. Seu terreiro aparecerá nesta listagem após a publicação.',
+          pergunta: 'Como cadastrar minha Casa de Axé?',
+          resposta: 'Crie uma conta gratuita no AxéMap e siga o processo de cadastro. Sua casa de axé aparecerá nesta listagem após a publicação.',
         },
       ]}
     >
@@ -48,7 +48,7 @@ export default async function NovosTerreirosPage() {
         <TerreiroCard key={t.id} terreiro={t} />
       )) : (
         <p className="text-muted-foreground col-span-full text-center py-12">
-          Nenhum terreiro encontrado.
+          Nenhuma casa de axé encontrada.
         </p>
       )}
     </LandingTemplate>

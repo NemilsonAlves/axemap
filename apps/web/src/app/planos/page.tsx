@@ -43,7 +43,7 @@ export default function PlanosPage() {
             AxéMap Pro
           </span>
           <h1 className="font-display mt-4 text-3xl font-bold tracking-tight text-card-foreground md:text-5xl">
-            Ferramentas profissionais para o seu terreiro
+            Ferramentas profissionais para a sua Casa de Axé
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
             Gerencie membros, agenda, fotos e finanças com ferramentas tão boas quanto de qualquer empresa,

@@ -95,7 +95,7 @@ export default async function CursosTradicaoPage({ params }: { params: Promise<{
           },
           {
             pergunta: 'Como divulgar meu curso no AxéMap?',
-            resposta: 'Cadastre seu terreiro na plataforma e adicione cursos à página do seu terreiro.',
+            resposta: 'Cadastre sua casa de axé na plataforma e adicione cursos à página da sua casa.',
           },
         ]}
       />

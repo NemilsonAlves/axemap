@@ -64,7 +64,7 @@ export default function TerreiroPainelPage() {
     <div className="painel-container">
       <div className="painel-header">
         <div>
-          <Link href="/painel" style={{ fontSize: '0.85rem', color: 'var(--color-accent)', textDecoration: 'none' }}>← Meus terreiros</Link>
+          <Link href="/painel" style={{ fontSize: '0.85rem', color: 'var(--color-accent)', textDecoration: 'none' }}>← Minhas Casas de Axé</Link>
           <h1 className="painel-title">{terreiro.nome}</h1>
           <p className="painel-subtitle">{terreiro.cidade}, {terreiro.estado} · <Link href={`/t/${terreiro.slug}`} style={{ color: 'var(--color-accent)' }}>ver página pública</Link></p>
         </div>
@@ -110,7 +110,7 @@ function VisaoGeral({ terreiroId, nome }: { terreiroId: string; nome: string }) 
         </p>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-300)', lineHeight: 1.6 }}>
           Use as abas acima para completar seu perfil. Preencher descrição, telefone, WhatsApp, horário de funcionamento,
-          adicionar fotos e cadastrar eventos aumenta a <strong>completude</strong> e o <strong>trust score</strong> do seu terreiro.
+          adicionar fotos e cadastrar eventos aumenta a <strong>completude</strong> e o <strong>trust score</strong> da sua casa de axé.
         </p>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-300)', lineHeight: 1.6, marginTop: '0.5rem' }}>
           Nas abas <strong>Estatísticas</strong> e <strong>Membros</strong> você acompanha seguidores, favoritos, presenças,

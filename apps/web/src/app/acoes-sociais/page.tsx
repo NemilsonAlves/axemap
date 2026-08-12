@@ -76,12 +76,12 @@ export default async function AcoesSociaisPage() {
       <LandingFaq
         faqs={[
           {
-            pergunta: 'O que são ações sociais de terreiros?',
+            pergunta: 'O que são ações sociais de casas de axé?',
             resposta: 'Terreiros frequentemente realizam ações sociais como distribuição de alimentos, assistência comunitária, atividades culturais e educacionais para suas comunidades.',
           },
           {
             pergunta: 'Como divulgar uma ação social no AxéMap?',
-            resposta: 'Cadastre seu terreiro na plataforma e adicione ações sociais à página do seu terreiro.',
+            resposta: 'Cadastre sua casa de axé na plataforma e adicione ações sociais à página da sua casa.',
           },
         ]}
       />

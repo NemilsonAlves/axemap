@@ -115,7 +115,7 @@ export function GerenciarPlano({ terreiroId }: { terreiroId: string }) {
         <p style={{ fontSize: '0.85rem', color: 'var(--color-gray-300)', marginTop: '0.25rem' }}>
           {nomeAtual
             ? `Plano atual: ${nomeAtual} (${assinatura!.ciclo === 'ANUAL' ? 'anual' : 'mensal'})`
-            : 'Você está no plano Grátis. Desbloqueie ferramentas profissionais do seu terreiro.'}
+            : 'Você está no plano Grátis. Desbloqueie ferramentas profissionais da sua Casa de Axé.'}
         </p>
       </div>
 

@@ -88,7 +88,7 @@ export default async function EventosPage() {
           },
           {
             pergunta: 'Como divulgar meu evento no AxéMap?',
-            resposta: 'Cadastre seu terreiro na plataforma e adicione eventos à página do seu terreiro. Eles aparecerão automaticamente nesta listagem.',
+            resposta: 'Cadastre sua casa de axé na plataforma e adicione eventos à página da sua casa. Eles aparecerão automaticamente nesta listagem.',
           },
         ]}
       />

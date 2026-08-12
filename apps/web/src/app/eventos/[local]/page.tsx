@@ -97,7 +97,7 @@ export default async function EventosLocalPage({ params }: { params: Promise<{ l
           },
           {
             pergunta: 'Como divulgar meu evento no AxéMap?',
-            resposta: 'Cadastre seu terreiro na plataforma e adicione eventos à página do seu terreiro.',
+            resposta: 'Cadastre sua casa de axé na plataforma e adicione eventos à página da sua casa.',
           },
         ]}
       />

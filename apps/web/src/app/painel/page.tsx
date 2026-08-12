@@ -53,18 +53,18 @@ export default function PainelPage() {
         <div>
           <h1 className="painel-title">Painel do Dirigente</h1>
           <p className="painel-subtitle">
-            Gerencie os terreiros que você dirige: perfil, eventos, cursos, ações sociais, avaliações e fotos.
+            Gerencie as casas de axé que você dirige: perfil, eventos, cursos, ações sociais, avaliações e fotos.
           </p>
         </div>
-        <Link href="/onboarding" className="painel-btn">+ Cadastrar terreiro</Link>
+        <Link href="/onboarding" className="painel-btn">+ Cadastrar Casa de Axé</Link>
       </div>
 
       {carregando ? (
-        <p className="painel-empty">Carregando seus terreiros...</p>
+        <p className="painel-empty">Carregando suas casas de axé...</p>
       ) : terreiros.length === 0 ? (
         <div className="painel-card" style={{ textAlign: 'center' }}>
           <p className="painel-empty" style={{ padding: '1rem' }}>
-            Você ainda não dirige nenhum terreiro cadastrado.
+            Você ainda não dirige nenhuma casa de axé cadastrada.
           </p>
           <Link href="/onboarding" className="painel-btn" style={{ margin: '0 auto' }}>Cadastrar minha Casa de Axé</Link>
         </div>
