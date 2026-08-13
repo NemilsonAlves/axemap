@@ -178,7 +178,7 @@ export default function CadastroPage() {
             <div className="auth-art-text">
               <h2 className="auth-art-titulo">{t('auth.art_titulo')}</h2>
               <p className="auth-art-subtitulo">{t('auth.art_subtitulo')}</p>
-              <blockquote className="auth-art-frase">"{t('auth.art_frase')}"</blockquote>
+              <blockquote className="auth-art-frase">&ldquo;{t('auth.art_frase')}&rdquo;</blockquote>
             </div>
           </div>
 

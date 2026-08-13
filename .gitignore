@@ -18,6 +18,7 @@ docker/data/
 backups/
 *.sql
 *.sql.gz
+!**/prisma/migrations/**/*.sql
 !scripts/
 .vscode/
 .idea/

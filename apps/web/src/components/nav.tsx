@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
 import { NotificationsBell } from '@/components/notifications-bell';
 
@@ -10,7 +11,7 @@ export function Nav() {
 
   return (
     <nav className="nav">
-      <a href="/" className="logo">AxéMap</a>
+      <Link href="/" className="logo">AxéMap</Link>
       <div className="nav-links">
         <a href="/busca">Buscar</a>
         <a href="/mapa">Mapa</a>

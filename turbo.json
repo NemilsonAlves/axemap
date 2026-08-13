@@ -6,6 +6,9 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "dist/**"]
     },
+    "@axemap/database#build": {
+      "outputs": []
+    },
     "dev": {
       "cache": false,
       "persistent": true

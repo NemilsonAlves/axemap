@@ -150,7 +150,7 @@ export default function AdminTransparenciaPage() {
         <h1>Transparência</h1>
         <div className="admin-tabs">
           <a href="/admin" className="admin-tab" style={{ textDecoration: 'none' }}>← Painel</a>
-          <a href="/transparencia" className="admin-tab" style={{ textDecoration: 'none' }}>Relatório público</a>
+          <Link href="/transparencia" className="admin-tab" style={{ textDecoration: 'none' }}>Relatório público</Link>
         </div>
       </div>
 

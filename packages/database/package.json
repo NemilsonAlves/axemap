@@ -10,10 +10,10 @@
     "migrate:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
     "studio": "prisma studio",
-    "build": "echo 'database build ok'",
-    "lint": "echo 'database lint ok'",
+    "build": "prisma generate",
+    "lint": "eslint prisma src --config ../../eslint.config.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo 'database test ok'"
+    "test": "prisma validate"
   },
   "dependencies": {
     "@prisma/client": "^6.2.0",

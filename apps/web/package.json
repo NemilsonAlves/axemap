@@ -6,9 +6,9 @@
     "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start",
-    "lint": "echo 'web lint ok'",
+    "lint": "eslint src --config ../../eslint.config.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'web test ok'"
+    "test": "vitest run"
   },
   "dependencies": {
     "@axemap/shared": "workspace:*",
@@ -50,6 +50,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "tailwindcss": "^4.3.2",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.10"
   }
 }

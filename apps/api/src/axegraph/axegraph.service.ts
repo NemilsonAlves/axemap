@@ -3,7 +3,6 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import {
@@ -256,7 +255,7 @@ export class AxegraphService {
     if (params.estado) where.estado = params.estado;
     if (params.cidade) where.cidade = { contains: params.cidade, mode: 'insensitive' };
 
-    let candidatos = await this.prisma.graphEntidade.findMany({
+    const candidatos = await this.prisma.graphEntidade.findMany({
       where,
       include: {
         _count: {

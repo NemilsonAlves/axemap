@@ -376,11 +376,12 @@ export class EvolutionService {
         return false;
       case 'verification':
         return terreiro.verificationLevel === 'DOCUMENTAL' || terreiro.verificationLevel === 'COMUNITARIO' || terreiro.verificationLevel === 'AVANCADO' || terreiro.verificationLevel === 'COMPLETO';
-      case 'age':
+      case 'age': {
         const idadeDias = Math.ceil(
           (Date.now() - new Date(terreiro.createdAt).getTime()) / (1000 * 60 * 60 * 24),
         );
         return idadeDias >= req.minDays;
+      }
       default:
         return false;
     }

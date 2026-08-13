@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
-import { axegraphApi, GrafoEstatisticas, Relacionamento, CandidataDuplicidade, ConteudoCultural, GraphEntidadeTipo, GraphRelacionamentoTipo, GraphStatus, ConteudoStatus, DuplicidadeStatus, TIPOS_ENTIDADE, TIPOS_RELACIONAMENTO, ResultadoBusca } from '@/lib/axegraph';
+import { axegraphApi, GrafoEstatisticas, Relacionamento, CandidataDuplicidade, ConteudoCultural, GraphRelacionamentoTipo, GraphStatus, ConteudoStatus, DuplicidadeStatus, TIPOS_RELACIONAMENTO, ResultadoBusca } from '@/lib/axegraph';
 import '../admin.css';
 import './axegraph-admin.css';
 
