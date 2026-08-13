@@ -36,6 +36,8 @@ export class AuthService {
     const user = await this.prisma.usuarios.findUnique({ where: { email: dto.email } });
     if (!user) throw new UnauthorizedException('Credenciais inválidas');
 
+    if (user.bloqueadoEm) throw new UnauthorizedException('Usuário bloqueado');
+
     const isValid = await bcrypt.compare(dto.senha, user.senhaHash);
     if (!isValid) throw new UnauthorizedException('Credenciais inválidas');
 
@@ -61,8 +63,13 @@ export class AuthService {
         throw new UnauthorizedException('Refresh token inválido');
       }
 
+      if (user.bloqueadoEm) throw new UnauthorizedException('Usuário bloqueado');
+
       return this.generateTokens(user.id, user.email);
-    } catch {
+    } catch (error) {
+      if (error instanceof UnauthorizedException && error.message === 'Usuário bloqueado') {
+        throw error;
+      }
       throw new UnauthorizedException('Refresh token inválido ou expirado');
     }
   }

@@ -58,8 +58,18 @@ export class AxegraphPublicController {
 
   // ---------- Vizinhança / subgrafo (visualizador) ----------
   @Get('graph/vizinhanca/:tipo/:id')
-  vizinhanca(@Param('tipo') tipo: GraphEntidadeTipo, @Param('id') id: string, @Query('profundidade') profundidade?: string) {
-    return this.axegraph.vizinhanca(tipo, id, profundidade ? parseInt(profundidade) : 1, true);
+  vizinhanca(
+    @Param('tipo') tipo: GraphEntidadeTipo,
+    @Param('id') id: string,
+    @Query('profundidade') profundidade?: string,
+    @Query('apenasVerificados') apenasVerificados?: string,
+  ) {
+    return this.axegraph.vizinhanca(
+      tipo,
+      id,
+      profundidade ? parseInt(profundidade) : 1,
+      apenasVerificados === undefined ? true : apenasVerificados !== 'false',
+    );
   }
 
   // ---------- Relacionamentos públicos (verificados) ----------

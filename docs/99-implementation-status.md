@@ -13,7 +13,8 @@
 | Renomeação "Terreiros" | ✅ Todos textos visíveis → Casa de Axé/Asé |
 | Diáspora redefinida | ✅ "todo culto fora da África" |
 | Taxonomia multidimensional | ✅ TipoConceitual + 15 tradições catalogadas |
-| API NestJS rodando | ⚠️ Precisa debug de boot |
+| API NestJS rodando | ✅ Boot OK · endpoints admin smoke-testados |
+| SuperAdmin Console Central | ✅ Dashboard real, usuários, mapa, integrações, jobs, auditoria |
 
 ---
 
@@ -59,9 +60,16 @@
 | `/organizacoes/[slug]` | `organizacoes/[slug]/page.tsx` | `organizacoes.controller.ts` | ✅ |
 | `/federacoes` | `federacoes/page.tsx` | — | ⚠️ Controller ausente |
 | `/grafo` | `grafo/page.tsx` | `axegraph.controller.ts` | ✅ |
-| `/admin` | `admin/page.tsx` | `admin.controller.ts` | ✅ |
+| `/admin` | `admin/page.tsx` (dashboard real) | `dashboard-admin.controller.ts` | ✅ |
+| `/admin/central` | `admin/central/page.tsx` (moderação, 9 abas) | `admin.controller.ts` | ✅ |
+| `/admin/usuarios` | `admin/usuarios/page.tsx` | `usuarios-admin.controller.ts` | ✅ |
+| `/admin/mapa` | `admin/mapa/page.tsx` | `monitor-admin.controller.ts` | ✅ |
+| `/admin/auditoria` | `admin/auditoria/page.tsx` | `admin.controller.ts` (`GET /admin/audit-logs`) | ✅ |
+| `/admin/integracoes` | `admin/integracoes/page.tsx` | `monitor-admin.controller.ts` | ✅ |
+| `/admin/jobs` | `admin/jobs/page.tsx` | `monitor-admin.controller.ts` | ✅ |
 | `/admin/axegraph` | `admin/axegraph/page.tsx` | `axegraph-admin.controller.ts` | ✅ |
 | `/admin/transparencia` | `admin/transparencia/page.tsx` | `admin.controller.ts` | ✅ |
+| `/admin/system` | `admin/system/page.tsx` | `system.controller.ts` | ✅ (protegido pelo layout) |
 | `/sobre` | `sobre/page.tsx` | — | ✅ (estático) |
 | `/privacidade` | `privacidade/page.tsx` | — | ✅ (estático) |
 | `/termos` | `termos/page.tsx` | — | ✅ (estático) |
@@ -101,12 +109,20 @@
 | 7 | Renomeação "Terreiros" → "Casas de Axé/Asé" em toda interface visível |
 | 7b | Diáspora redefinida — "todo culto africano praticado fora do continente" |
 | 7c | Metadata global internacional — layout.tsx, page.tsx, json-ld.tsx |
+| S2.1-A | **SuperAdmin**: dashboard com dados reais (`GET /admin/dashboard`) + layout admin com sidebar e gate |
+| S2.1-B | **Gestão de usuários**: listar, buscar, bloquear/desbloquear (com motivo), alterar papel — com auditoria |
+| S2.1-C | **Bloco de conta**: migration `add_usuarios_bloqueio` + rejeição em login/refresh/JWT |
+| S2.1-D | **RBAC**: feature-flags writes exigem ADMIN/SUPER_ADMIN; `/admin/system` protegido |
+| S2.1-E | **Monitoramento**: `/admin/mapa`, `/admin/integracoes`, `/admin/jobs` |
+| S2.1-F | **Moderação**: `/admin/eventos`, `/admin/organizacoes`, `/admin/avaliacoes` (arquivar/publicar/ocultar + auditoria) |
+| S2.1-G | 54 testes API verdes (4 suítes novas), lint 0 erros, typecheck 4/4, build web OK |
 
 ### ⚠️ Em Progresso
 
 | Fase | Descrição | Bloqueio |
 |---|---|---|
-| — | API NestJS não inicializa | Verificar logs de boot, JWT_SECRET, DATABASE_URL |
+| S2.1-H | Testar fluxo completo de bloqueio pela UI web (login + acesso negado + auditoria) | Precisa dos 2 servidores de pé |
+| i18n+ | Extrair textos hardcode de Hero, Tradição, Perfil, Painel | Média |
 
 ### ⏳ Pendentes
 

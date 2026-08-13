@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   axegraphApi,
   RespostaVizinhanca,
@@ -99,13 +100,28 @@ function colocarNos(
 }
 
 export default function GrafoPage() {
-  const [busca, setBusca] = useState('');
+  return (
+    <Suspense fallback={null}>
+      <GrafoExplorador />
+    </Suspense>
+  );
+}
+
+function GrafoExplorador() {
+  const searchParams = useSearchParams();
+  const [busca, setBusca] = useState(searchParams.get('q') ?? '');
   const [tipoFiltro, setTipoFiltro] = useState('');
   const [resultados, setResultados] = useState<ResultadoBusca[]>([]);
   const [buscando, setBuscando] = useState(false);
   const [grafo, setGrafo] = useState<RespostaVizinhanca | null>(null);
   const [selNode, setSelNode] = useState<string | null>(null);
   const [erro, setErro] = useState('');
+
+  const qInicial = searchParams.get('q');
+  useEffect(() => {
+    if (qInicial) void doBuscar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const pos = useMemo(
     () =>

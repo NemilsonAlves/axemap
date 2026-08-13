@@ -729,7 +729,7 @@ async function createAxegraph() {
       },
     });
 
-  const [terreiros, instituicoes, eventos, cursos, campanhas, acoes, conteudos, produtos, culturais, cultivados, patrimonio] = await Promise.all([
+  const [terreiros, instituicoes, eventos, cursos, campanhas, acoes, conteudos, produtos, culturais, patrimonio] = await Promise.all([
     prisma.terreiros.findMany({ select: { id: true, nome: true, slug: true, descricaoCurta: true, cidade: true, estado: true, latitude: true, longitude: true } }),
     prisma.instituicoes.findMany({ select: { id: true, nome: true, slug: true, descricao: true, cidade: true, estado: true } }),
     prisma.eventos.findMany({ where: { isPublico: true }, select: { id: true, titulo: true, descricao: true, terreiroId: true } }),
@@ -738,7 +738,6 @@ async function createAxegraph() {
     prisma.acoesSociais.findMany({ select: { id: true, nome: true, descricao: true, terreiroId: true } }),
     prisma.conteudos.findMany({ where: { publicado: true }, select: { id: true, titulo: true, conteudo: true, terreiroId: true } }),
     prisma.produtosMarketplace.findMany({ select: { id: true, nome: true, descricao: true, terreiroId: true } }),
-    prisma.conteudoCultural.findMany({ where: { deletedAt: null }, select: { id: true, titulo: true, resumo: true, tipo: true, cidade: true, estado: true } }),
     prisma.conteudoCultural.findMany({ where: { deletedAt: null }, select: { id: true, titulo: true, resumo: true, tipo: true, cidade: true, estado: true } }),
     prisma.patrimonioCultural.findMany({ where: { deletedAt: null }, select: { id: true, nome: true, descricao: true, cidade: true, estado: true, latitude: true, longitude: true } }),
   ]);
@@ -802,7 +801,7 @@ async function createAxegraph() {
   );
 
   await criarRels([
-    ...cultivados.map((c) => {
+    ...culturais.map((c) => {
       const t = terreiros.find((x) => (x.cidade ?? '').toLowerCase() === (c.cidade ?? '').toLowerCase());
       return t && rel(GraphRelacionamentoTipo.RELACIONADO_A, GraphEntidadeTipo.CONTEUDO, c.id, GraphEntidadeTipo.TERREIRO, t.id, 0.4);
     }),

@@ -195,6 +195,8 @@ export interface GrafoEstatisticas {
   duplicidadesAbertas: number;
   conteudosCulturais: number;
   patrimonio: number;
+  confiancaMedianaRelacionamento: number | null;
+  observacao: string;
 }
 
 export interface RotaCultural {
@@ -202,6 +204,65 @@ export interface RotaCultural {
   conteudos: { nome: string; cidade?: string | null; estado?: string | null }[];
   patrimonio: PatrimonioCultural[];
   aviso: string;
+}
+
+export interface CriarRelacionamentoInput {
+  origemTipo: GraphEntidadeTipo;
+  origemId: string;
+  alvoTipo: GraphEntidadeTipo;
+  alvoId: string;
+  tipo: GraphRelacionamentoTipo;
+  fonte?: GraphFonte;
+  evidencia?: string;
+  rotulo?: string;
+  validoDe?: string;
+  validoAte?: string;
+}
+
+export interface RespostaCriarRelacionamento {
+  relacionamento: Relacionamento;
+  status: GraphStatus;
+  moderacao: string;
+}
+
+export interface MeuRelacionamento {
+  id: string;
+  tipo: GraphRelacionamentoTipo;
+  status: GraphStatus;
+  fonte: GraphFonte;
+  nivelConfianca: number | null;
+  evidencia: string | null;
+  createdAt: string;
+  origemEntidade: { nome: string; entidadeTipo: GraphEntidadeTipo; entidadeId: string };
+  alvoEntidade: { nome: string; entidadeTipo: GraphEntidadeTipo; entidadeId: string };
+}
+
+export interface CriarConteudoInput {
+  titulo: string;
+  tipo: string;
+  resumo?: string;
+  corpo?: string;
+  url?: string;
+  autorNome?: string;
+  fonte?: string;
+  dataPublicacao?: string;
+  licenca?: string;
+  tags?: string[];
+  cidade?: string;
+  estado?: string;
+}
+
+export interface CriarPatrimonioInput {
+  nome: string;
+  tipo?: string;
+  descricao?: string;
+  cidade?: string;
+  estado?: string;
+  latitude?: number;
+  longitude?: number;
+  ano?: number;
+  fonte?: string;
+  fotos?: string[];
 }
 
 export type TipoEntidade = { value: GraphEntidadeTipo; label: string };
@@ -252,7 +313,7 @@ export const TIPOS_RELACIONAMENTO: TipoRelacionamento[] = [
   { value: 'TEM_CONTEUDO', label: 'tem conteúdo' },
 ];
 
-function qs(params: Record<string, string | number | undefined>) {
+function qs(params: Record<string, string | number | boolean | undefined>) {
   const clean = Object.entries(params).filter(([, v]) => v !== undefined && v !== '');
   if (!clean.length) return '';
   return '?' + new URLSearchParams(clean.map(([k, v]) => [k, String(v)])).toString();
@@ -265,8 +326,8 @@ export const axegraphApi = {
   recomendacoes: (p: { tipo?: GraphEntidadeTipo; interesse?: string; estado?: string; cidade?: string; limit?: number }) =>
     api.get<RespostaRecomendacoes>(`/graph/recomendacoes${qs({ ...p })}`),
 
-  vizinhanca: (tipo: GraphEntidadeTipo, id: string, profundidade?: number) =>
-    api.get<RespostaVizinhanca>(`/graph/vizinhanca/${tipo}/${encodeURIComponent(id)}${qs({ profundidade })}`),
+  vizinhanca: (tipo: GraphEntidadeTipo, id: string, profundidade?: number, apenasVerificados?: boolean) =>
+    api.get<RespostaVizinhanca>(`/graph/vizinhanca/${tipo}/${encodeURIComponent(id)}${qs({ profundidade, apenasVerificados })}`),
 
   relacionamentos: (p: { tipo?: GraphRelacionamentoTipo; origemTipo?: string; origemId?: string; limit?: number; offset?: number }) =>
     api.get<RespostaRelacionamentos>(`/graph/relacionamentos${qs({ ...p })}`),
@@ -280,24 +341,37 @@ export const axegraphApi = {
   rotas: (p: { cidade?: string; estado?: string; dias?: number; lat?: number; lon?: number; raio?: number }) =>
     api.get<RotaCultural>(`/graph/rotas${qs({ ...p })}`),
 
+  // ---------- Contribuições do usuário autenticado (com revisão) ----------
+  criarRelacionamento: (body: CriarRelacionamentoInput) =>
+    api.post<RespostaCriarRelacionamento>('/graph/relacionamentos', body),
+  meusRelacionamentos: () =>
+    api.get<MeuRelacionamento[]>('/graph/relacionamentos/meus'),
+  sugerirRelacionamento: (body: CriarRelacionamentoInput) =>
+    api.post<RespostaCriarRelacionamento>('/graph/sugerir', body),
+  criarConteudo: (body: CriarConteudoInput) =>
+    api.post<ConteudoCultural>('/graph/conteudos', body),
+  criarPatrimonio: (body: CriarPatrimonioInput) =>
+    api.post<PatrimonioCultural>('/graph/patrimonios', body),
+
   admin: {
     dashboard: () => api.get<GrafoEstatisticas>('/admin/graph/dashboard'),
     sincronizar: () => api.post<{ total: number }>('/admin/graph/sincronizar', {}),
     relacionamentos: (p: { tipo?: GraphRelacionamentoTipo; status?: GraphStatus; limit?: number; offset?: number }) =>
       api.get<RespostaRelacionamentos>(`/admin/graph/relacionamentos${qs({ ...p })}`),
-    criarRelacionamento: (body: {
-      origemTipo: GraphEntidadeTipo; origemId: string; alvoTipo: GraphEntidadeTipo; alvoId: string;
-      tipo: GraphRelacionamentoTipo; fonte?: GraphFonte; evidencia?: string; rotulo?: string; validoDe?: string; validoAte?: string;
-    }) => api.post<any>('/admin/graph/relacionamentos', body),
+    criarRelacionamento: (body: CriarRelacionamentoInput) => api.post<RespostaCriarRelacionamento>('/admin/graph/relacionamentos', body),
     revisarRelacionamento: (id: string, decisao: 'VERIFICAR' | 'REJEITAR' | 'SUSPENDER') =>
       api.post<any>(`/admin/graph/relacionamentos/${id}/revisar`, { decisao }),
+    historicoRelacionamento: (id: string) =>
+      api.get<{ relacionamento: Relacionamento; historico: { id: string; versao: number; acao: string; antes: unknown; depois: unknown; createdAt: string; por: { id: string; nome: string } | null }[] }>(
+        `/admin/graph/relacionamentos/${id}/historico`,
+      ),
     removerRelacionamento: (id: string) => api.post(`/admin/graph/relacionamentos/${id}/remover`, {}),
     duplicidades: (p: { status?: DuplicidadeStatus }) =>
       api.get<CandidataDuplicidade[]>(`/admin/graph/duplicidades${qs({ ...p })}`),
     detectarDuplicidades: () => api.post<{ novasCandidaturas: number; totalPendentes: number }>('/admin/graph/duplicidades/detectar', {}),
     resolverDuplicidade: (id: string, decisao: 'CONFIRMAR' | 'REJEITAR', entidadeCanonicaId?: string) =>
       api.post<any>(`/admin/graph/duplicidades/${id}/resolver`, { decisao, entidadeCanonicaId }),
-    conteudos: (p: { status?: ConteudoStatus; limit?: number }) =>
+    conteudos: (p: { status?: ConteudoStatus; tipo?: string; q?: string; limit?: number; offset?: number }) =>
       api.get<{ data: ConteudoCultural[]; total: number }>(`/admin/graph/conteudos${qs({ ...p })}`),
     revisarConteudo: (id: string, status: ConteudoStatus) =>
       api.post<any>(`/admin/graph/conteudos/${id}/revisar`, { status }),
