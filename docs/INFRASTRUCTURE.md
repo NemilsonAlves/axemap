@@ -60,12 +60,15 @@ Cloudflare  ──DNS/HTTPS/WAF──►  Nginx / Reverse Proxy (VPS)
 
 | Serviço | Container | Porta | Público? | Healthcheck |
 |---|---|---|---|---|
-| Nginx | `nginx:1.27-alpine` | 80/443 | ✅ | — |
-| Web | `Dockerfile.web` | 3000 | interno | via nginx |
-| API | `Dockerfile.api` | 3001 | interno | via nginx |
+| Nginx | `nginx:1.27-alpine` | 80/443 | ✅ | `wget http://127.0.0.1/healthz` |
+| Web | `Dockerfile.web` | 3000 | interno | `GET /manifest.webmanifest` (asset estático) |
+| API | `Dockerfile.api` | 3001 | interno | `GET /api/v1/health` |
 | PostgreSQL | `postgis/postgis:16-3.4` | 127.0.0.1:5432 | ❌ | `pg_isready` |
 | Redis | `redis:7-alpine` | 127.0.0.1:6379 | ❌ | `redis-cli ping` |
-| MinIO | `quay.io/minio/minio` | 127.0.0.1:9000 | ❌ | `/minio/health/live` |
+| MinIO | `quay.io/minio/minio:latest` | 127.0.0.1:9000 | ❌ | `mc ready local` (MinIO não tem `curl`) |
+
+> Healthchecks de API/Web ficam no próprio Dockerfile (herdados pelo compose).
+> MinIO console (9001) não é publicado em nenhuma porta.
 
 ---
 
@@ -75,14 +78,16 @@ Referência completa: `.env.example` (dev) e `docker/docker-compose.prod.yml` (p
 
 | Grupo | Vars | Nota |
 |---|---|---|
-| Banco | `DATABASE_URL`, `SHADOW_DATABASE_URL` | **NUNCA iguais** (ver FASE 06) |
-| Redis | `REDIS_HOST`, `REDIS_PORT` | usado só em health checks hoje |
-| JWT | `JWT_SECRET`, `JWT_REFRESH_SECRET`, `NEXTAUTH_SECRET` | ≥32 chars, gerados via `openssl rand` |
-| API | `API_URL`, `PORT`, `NEXT_PUBLIC_API_URL` | CORS usa `FRONTEND_URL` |
+| Banco | `DATABASE_URL`, `SHADOW_DATABASE_URL`, `MIGRATION_DATABASE_URL` | **NUNCA** `DATABASE_URL` igual a `SHADOW_DATABASE_URL`; `MIGRATION_DATABASE_URL` = host (`127.0.0.1`) |
+| Redis | `REDIS_HOST`, `REDIS_PORT` | `redis`/`6379` na rede interna; usados em health checks |
+| JWT | `JWT_SECRET`, `JWT_REFRESH_SECRET`, `JWT_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN` | ≥32 chars, gerados via `openssl rand -hex 32`; fail-fast se placeholder em produção |
+| API | `API_URL`, `PORT`, `NEXT_PUBLIC_API_URL` | CORS usa `FRONTEND_URL`; `APP_URL` é a base de links de e-mail (reset de senha) |
 | CORS | `FRONTEND_URL` | lista separada por vírgula; em prod = domínio real |
-| Storage | `STORAGE_TYPE/REGION/ENDPOINT/ACCESS_KEY/SECRET_KEY/BUCKET/PUBLIC_URL/FORCE_PATH_STYLE` | abstração S3/MinIO/R2 |
+| Storage | `STORAGE_TYPE/REGION/ENDPOINT/ACCESS_KEY/SECRET_KEY/BUCKET/PUBLIC_URL/FORCE_PATH_STYLE` | abstração S3/MinIO/R2; credenciais obrigatórias em produção (fail-fast) |
 | Email | `MAIL_PROVIDER`, `MAIL_API_URL`, `MAIL_API_KEY` | `console` (dev) / `http` (prod) |
 | Env | `NODE_ENV`, `LOG_LEVEL` | `production`/`info` em prod |
+
+Referência completa (matriz de variáveis): `.env.example`.
 
 ---
 

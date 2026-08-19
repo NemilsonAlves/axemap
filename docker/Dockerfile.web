@@ -15,7 +15,25 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN corepack enable && pnpm --filter @axemap/web build
+
+# NEXT_PUBLIC_* é incorporado ao bundle no "next build" — as ARGs precisam
+# existir AQUI (estágio builder). Nunca colocar secrets em NEXT_PUBLIC_*.
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_TV_MUSIC_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_TV_MUSIC_URL=$NEXT_PUBLIC_TV_MUSIC_URL
+
+# Build do monorepo: turbo resolve a ordem (compila @axemap/shared antes do web).
+RUN corepack enable && pnpm exec turbo run build --filter=@axemap/web...
+
+# Materializa os pacotes do workspace (symlinks do pnpm) em diretórios reais,
+# para que o runner não dependa de links quebrados para @axemap/*.
+RUN for pkg in node_modules/@axemap/*; do \
+      if [ -L "$pkg" ]; then \
+        rm "$pkg"; \
+        cp -rL "packages/$(basename "$pkg")" "$pkg"; \
+      fi; \
+    done
 
 # Production
 FROM base AS runner
@@ -30,4 +48,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
+
+# Healthcheck real (Next.js não tem rota nativa; usa um asset estático do /public)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/manifest.webmanifest').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 CMD ["node_modules/.bin/next", "start"]

@@ -52,6 +52,10 @@ assertProductionConfig();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
+  // Shutdown gracioso: SIGTERM/SIGINT disparam os lifecycle hooks
+  // (fecha HTTP server, encerra Prisma/Redis — onModuleDestroy).
+  app.enableShutdownHooks();
+
   const logger = app.get(PinoLoggerService);
   app.useLogger(logger);
 

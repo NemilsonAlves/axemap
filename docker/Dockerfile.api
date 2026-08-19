@@ -15,11 +15,25 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN corepack enable && pnpm --filter @axemap/api build
+
+# Build do monorepo: turbo resolve a ordem — compila @axemap/shared e roda
+# "prisma generate" (@axemap/database) antes de compilar a API.
+# Migration NÃO roda aqui (é operação separada de deploy).
+RUN corepack enable && pnpm exec turbo run build --filter=@axemap/api...
+
+# Materializa os pacotes do workspace (symlinks do pnpm) em diretórios reais,
+# para que o runner não dependa de links quebrados para @axemap/*.
+RUN for pkg in node_modules/@axemap/*; do \
+      if [ -L "$pkg" ]; then \
+        rm "$pkg"; \
+        cp -rL "packages/$(basename "$pkg")" "$pkg"; \
+      fi; \
+    done
 
 # Production
 FROM base AS runner
 WORKDIR /app
+ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nestjs
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./dist
@@ -27,5 +41,9 @@ COPY --from=builder --chown=nestjs:nodejs /app/apps/api/package.json ./
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 USER nestjs
 EXPOSE 3001
-ENV NODE_ENV=production
+
+# Healthcheck real (endpoint existente da API)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3001/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 CMD ["node", "dist/main"]

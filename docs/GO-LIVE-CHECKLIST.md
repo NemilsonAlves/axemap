@@ -10,6 +10,7 @@ cada infraestrutura estiver disponível (FASE 26).
 ## 1. Infraestrutura
 
 - [ ] VPS ativa (contratada, acessível, atualizada)
+- [ ] `bash scripts/preflight-vps.sh` sem falhas críticas (CPU/RAM/disco/Docker/UFW/fail2ban/portas)
 - [ ] PostgreSQL produção ativo
 - [ ] PostGIS ativo (`CREATE EXTENSION postgis`)
 - [ ] Redis validado (quando necessário)

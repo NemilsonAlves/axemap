@@ -44,18 +44,28 @@ NUNCA usar `prisma migrate reset` / `prisma db push` em produção.
 
 ---
 
-## 4. Deploy via Docker (VPS futura)
+## 4. Deploy via Docker (VPS)
 
 ```bash
+# Build das imagens (no VPS ou em build server)
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=https://api.axemap.com.br \
+  --build-arg NEXT_PUBLIC_TV_MUSIC_URL= \
+  -f docker/Dockerfile.web -t axemap-web:latest .
 docker build -f docker/Dockerfile.api -t axemap-api:latest .
-docker build -f docker/Dockerfile.web -t axemap-web:latest .
 
-docker compose -f docker/docker-compose.prod.yml --env-file .env.production up -d
+# Subir a stack — secrets vêm do .env.production na VPS (nunca do git)
+docker compose -f docker/docker-compose.prod.yml --env-file .env.production up -d --build
 ```
 
-- Template: `docker/docker-compose.prod.yml` (sem secrets — valores via `${VAR}`).
-- Reverse proxy: `docker/nginx/nginx.conf` (portas 80/443; api/web/storage internos).
-- **NUNCA** commit secrets; use `.env.production` na VPS.
+- `NEXT_PUBLIC_*` é incorporado ao bundle no `next build` → passado por **build ARG**.
+- Os Dockerfiles compilam o monorepo com `turbo` (ordem: `@axemap/shared` antes das apps; `prisma generate` antes da API). Migration **não** roda no build.
+- Healthchecks reais: API → `GET /api/v1/health`; Web → asset estático; MinIO → `mc ready local` (MinIO não tem `curl`).
+- Template: `docker/docker-compose.prod.yml` (sem secrets — valores via `${VAR}`); expõe apenas 80/443 (nginx). postgres/redis/storage ficam em `127.0.0.1` (justificativa: backup/migrate no host).
+- Reverse proxy: `docker/nginx/nginx.conf` (rotas `axemap.com.br → web:3000`, `api.axemap.com.br → api:3001`, `storage.axemap.com.br → storage:9000`).
+- **NUNCA** commit secrets; use `.env.production` na VPS (gitignorado).
+
+Pré-deploy na VPS: `bash scripts/preflight-vps.sh` (CPU/RAM/disco, Docker, UFW, fail2ban, portas).
 
 ---
 

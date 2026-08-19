@@ -14,25 +14,32 @@ Estratégia de backup e restauração do PostgreSQL.
 
 ---
 
-## 2. Backup Local (funcional)
+## 2. Backup (local e VPS — mesmo script)
 
 ```bash
 bash scripts/backup-db.sh
 ```
 
 O que faz:
-1. Usa container `docker/docker-compose.dev.yml` se `postgres` estiver `Up`.
-2. Fallback: `pg_dump "$DATABASE_URL"` (lê `.env` da raiz).
-3. Gera `backups/<timestamp>.sql.gz`.
-4. Valida integridade (`gzip -t`).
-5. Retenção: mantém os **30 backups mais recentes**.
+1. Detecta o compose file com o container `postgres` em execução
+   (`prod` > `dev` > root) e faz `pg_dump` via `docker exec` (não precisa de
+   cliente PostgreSQL no host).
+2. Fallback: `pg_dump` direto usando `DATABASE_URL` ou `MIGRATION_DATABASE_URL`
+   (na VPS, `MIGRATION_DATABASE_URL` aponta para `127.0.0.1:5432` — o postgres
+   exposto apenas no host).
+3. Lê credenciais do `.env.production` (VPS) ou `.env` (dev) **sem imprimir senhas**.
+4. Gera `backups/<timestamp>.sql.gz`.
+5. Valida integridade (`gzip -t`).
+6. Retenção: mantém os **30 backups mais recentes**.
+
+> O script nunca imprime `DATABASE_URL`/senha em logs. Exit code ≠ 0 em falha.
 
 Backup existente (schema+dados íntegros):
 `backups/pre-taxonomia-2026-08-15-0835.sql` (e variante PG16 `.fix16.sql`).
 
 ---
 
-## 3. Restore Local
+## 3. Restore (local e VPS)
 
 ```bash
 bash scripts/restore-db.sh
@@ -40,9 +47,11 @@ bash scripts/restore-db.sh
 
 Fluxo interativo:
 1. Lista backups em `backups/`.
-2. Pede confirmação digitando `restaurar`.
-3. Cria `pre-restore` automático do estado atual.
-4. Restaura via `gunzip -c | psql`.
+2. Valida o arquivo escolhido (`gzip -t`).
+3. Pede confirmação digitando **`restaurar`** (restore é destrutivo).
+4. Cria `pre-restore` automático do estado atual.
+5. Restaura via `gunzip -c | psql` (via `docker exec` ou direto com
+   `DATABASE_URL`/`MIGRATION_DATABASE_URL`).
 
 ---
 
