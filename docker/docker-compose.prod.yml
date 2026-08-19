@@ -92,7 +92,8 @@ services:
       # Certificados reais vivem FORA do Git (docker/nginx/certs/ é gitignorado).
       - ./nginx/certs:/etc/nginx/certs:ro
       # Webroot do certbot (desafios ACME) — docker/nginx/www é gitignorado.
-      - ./nginx/www:/var/www/certbot
+      # :ro — o container nginx apenas LÊ os desafios (certbot escreve no host).
+      - ./nginx/www:/var/www/certbot:ro
     healthcheck:
       # /healthz existe no bloco HTTP (porta 80) — verifica api+nginx sem TLS.
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
