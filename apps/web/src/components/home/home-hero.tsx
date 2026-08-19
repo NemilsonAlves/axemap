@@ -119,7 +119,7 @@ export function HomeHero({ data }: HeroProps) {
                   backgroundClip: 'text',
                 }}
               >
-                tradições de Axé Asé
+                tradições de Axé
               </span>{' '}
               no Brasil
             </h1>
