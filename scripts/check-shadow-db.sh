@@ -21,10 +21,18 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ENV_FILE="${ENV_FILE:-$PROJECT_DIR/.env}"
+# Preferir .env.production (VPS) — o prisma em produção roda no host.
+ENV_FILE="${ENV_FILE:-}"
+if [ -z "$ENV_FILE" ]; then
+  if [ -f "$PROJECT_DIR/.env.production" ]; then
+    ENV_FILE="$PROJECT_DIR/.env.production"
+  elif [ -f "$PROJECT_DIR/.env" ]; then
+    ENV_FILE="$PROJECT_DIR/.env"
+  fi
+fi
 
-if [ -f "$ENV_FILE" ]; then
-  export $(grep -v '^#' "$ENV_FILE" | xargs) 2>/dev/null || true
+if [ -n "$ENV_FILE" ] && [ -f "$ENV_FILE" ]; then
+  export $(grep -vE '^\s*#|^\s*$' "$ENV_FILE" | xargs) 2>/dev/null || true
 fi
 
 DATABASE_URL="${DATABASE_URL:-}"

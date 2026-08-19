@@ -17,12 +17,20 @@
 
 name: axemap-prod
 
+# Rotação de logs: evita disco cheio na VPS (96 GB) com logs JSON infinitos.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   api:
     build:
       context: ..
       dockerfile: docker/Dockerfile.api
     restart: unless-stopped
+    logging: *default-logging
     environment:
       NODE_ENV: production
       PORT: 3001
@@ -64,6 +72,7 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
         NEXT_PUBLIC_TV_MUSIC_URL: ${NEXT_PUBLIC_TV_MUSIC_URL:-}
     restart: unless-stopped
+    logging: *default-logging
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -82,7 +91,10 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       # Certificados reais vivem FORA do Git (docker/nginx/certs/ é gitignorado).
       - ./nginx/certs:/etc/nginx/certs:ro
+      # Webroot do certbot (desafios ACME) — docker/nginx/www é gitignorado.
+      - ./nginx/www:/var/www/certbot
     healthcheck:
+      # /healthz existe no bloco HTTP (porta 80) — verifica api+nginx sem TLS.
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
       interval: 30s
       timeout: 5s
@@ -94,8 +106,11 @@ services:
       - web
 
   postgres:
-    image: postgis/postgis:16-3.4
+    # Mesmo major da dev (postgis/postgis:17-3.5) — migrations geradas em dev
+    # são executadas em prod; versões distintas podem gerar SQL incompatível.
+    image: postgis/postgis:17-3.5
     restart: unless-stopped
+    logging: *default-logging
     # Ligado apenas em 127.0.0.1 do host — justificativa: backup/restore e
     # migrate-deploy rodam no host (scripts/*.sh). NUNCA expor à Internet.
     ports:
@@ -117,6 +132,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    logging: *default-logging
     # Ligado apenas em 127.0.0.1 do host — justificativa: tooling de backup/ops
     # no host. NUNCA expor à Internet.
     ports:
@@ -133,8 +149,11 @@ services:
       - axemap_internal
 
   storage:
+    # TODO antes do go-live: pinar para um RELEASE específico (ex.: RELEASE.2025-04-22T22-12-26Z)
+    # em vez de latest — reproduzibilidade. `latest` é aceitável para testes.
     image: quay.io/minio/minio:latest
     restart: unless-stopped
+    logging: *default-logging
     # Porta 9000 ligada apenas em 127.0.0.1 do host (proxy nginx usa a rede
     # interna). O console administrativo (9001) NÃO é publicado.
     ports:

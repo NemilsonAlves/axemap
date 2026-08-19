@@ -20,6 +20,7 @@ coverage/
 *.pem
 *.key
 docker/nginx/certs/
+docker/nginx/www/
 
 # Git
 .git/

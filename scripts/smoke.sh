@@ -32,12 +32,10 @@ echo -e "  API: ${API_URL}"
 echo -e "  Web: ${WEB_URL}"
 echo ""
 
-echo -e "\n${CYAN}——— Health Checks ———${NC}"
+echo -e "\n${CYAN}——— Health Checks (endpoints públicos) ———${NC}"
 check "Health endpoint" "curl -sf ${API_URL}/system/health | grep -q healthy"
 check "Liveness endpoint" "curl -sf ${API_URL}/system/liveness | grep -q alive"
 check "Readiness endpoint" "curl -sf ${API_URL}/system/readiness | grep -q ready"
-check "Version endpoint" "curl -sf ${API_URL}/system/version | grep -q node"
-check "Status endpoint" "curl -sf ${API_URL}/system/status | grep -q resources"
 
 echo -e "\n${CYAN}——— Auth ———${NC}"
 SIGNUP_RESP=$(curl -sf -X POST "${API_URL}/auth/signup" \

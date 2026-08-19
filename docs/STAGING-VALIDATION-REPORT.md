@@ -186,7 +186,7 @@ connect-src: 'self' http://localhost:3001 https://axemap.com.br https://*.axemap
 ```
 **Comportamento esperado** — `NODE_ENV=development` inclui localhost para HMR e API local.
 
-### Produção (simulado com `NODE_ENV=production`, `NEXT_PUBLIC_API_URL=https://api.axemap.com.br/api/v1`)
+### Produção (simulado com `NODE_ENV=production`, `NEXT_PUBLIC_API_URL=https://api.axemap.com.br`)
 ```
 connect-src: 'self' https://api.axemap.com.br https://axemap.com.br https://*.axemap.com.br
 HAS_LOCALHOST: false

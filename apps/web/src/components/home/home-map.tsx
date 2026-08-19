@@ -29,11 +29,11 @@ export function HomeMap() {
   const [error, setError] = React.useState(false);
 
   React.useEffect(() => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     let active = true;
     (async () => {
       try {
-        const res = await fetch(`${API_URL}/terreiros?limit=150`);
+        const res = await fetch(`${API_URL}/api/v1/terreiros?limit=150`);
         const json = await res.json();
         if (!active) return;
         const dados: TerreiroNoMapa[] = (json?.data ?? [])

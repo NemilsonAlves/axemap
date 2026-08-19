@@ -1,13 +1,13 @@
 import { MetadataRoute } from 'next';
 import type { DadosSitemap } from '@/lib/seo/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   try {
-    const res = await fetch(`${API_URL}/landing/sitemap`, {
+    const res = await fetch(`${API_URL}/api/v1/landing/sitemap`, {
       next: { revalidate: 3600 },
     });
 

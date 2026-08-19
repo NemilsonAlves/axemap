@@ -10,6 +10,7 @@ dist/
 *.pem
 *.key
 docker/nginx/certs/
+docker/nginx/www/
 !.env.example
 coverage/
 .turbo/

@@ -239,7 +239,7 @@ else
   FAIL=$((FAIL + 1))
 fi
 
-check "System/status endpoint" "curl -sf ${API_URL}/system/status | grep -q resources"
+warn "System/status endpoint (admin)" "curl -sf ${API_URL}/system/status | grep -q resources"
 
 VERSION_INFO=$(curl -sf "${API_URL}/system/version" 2>/dev/null || echo "")
 if echo "$VERSION_INFO" | grep -q "node"; then
