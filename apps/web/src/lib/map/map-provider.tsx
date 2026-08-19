@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, ReactNode } from 'react';
-import type { MapProviderInstance, MapProviderDefinition } from './map-provider.interface';
+import type { MapProviderDefinition } from './map-provider.interface';
 
 interface MapProviderContextValue {
   provider: MapProviderDefinition | null;

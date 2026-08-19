@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { api } from '@/lib/api-client';
+import { MessageCircle, X } from 'lucide-react';
 
 const TIPOS = [
   { value: 'SUGESTAO', label: 'Sugestão' },
@@ -47,19 +48,19 @@ export function FeedbackWidget() {
   return (
     <>
       <button
-        className="feedback-fab"
+        className="feedback-fab fixed bottom-6 left-6 z-[200] inline-flex size-13 items-center justify-center rounded-full text-white shadow-xl shadow-copper/30 transition-all duration-300 hover:scale-105 hover:brightness-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2"
         onClick={() => setOpen(true)}
         aria-label="Enviar feedback"
         style={{
-          position: 'fixed', bottom: '1.5rem', right: '1.5rem',
-          width: '56px', height: '56px', borderRadius: '50%',
-          background: 'var(--color-accent)', color: 'var(--color-white)',
-          border: 'none', cursor: 'pointer', fontSize: '1.5rem',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-          zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'linear-gradient(135deg, hsl(var(--copper)), hsl(var(--bronze)))',
+          border: '1px solid hsl(var(--acafrao)/0.35)',
         }}
       >
-        💬
+        {open ? (
+          <X className="size-5" aria-hidden="true" />
+        ) : (
+          <MessageCircle className="size-5" aria-hidden="true" />
+        )}
       </button>
 
       {open && (

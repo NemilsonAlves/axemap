@@ -2,7 +2,7 @@
   "name": "axemap",
   "private": true,
   "version": "0.1.0",
-  "description": "Plataforma digital para religiões afro-brasileiras",
+  "description": "Infraestrutura digital global para descobrir, conectar e preservar tradições africanas e afro-diaspóricas, comunidades, culturas, conhecimentos e territórios.",
   "scripts": {
     "dev": "turbo dev",
     "dev:start": "docker compose -f docker-compose.yml --profile core up -d && bash scripts/wait-for-services.sh && cd packages/database && npx prisma migrate dev && npx prisma db seed && cd ../.. && turbo dev",
@@ -44,5 +44,8 @@
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
   },
-  "packageManager": "pnpm@9.15.4"
+  "packageManager": "pnpm@9.15.4",
+  "dependencies": {
+    "helmet": "^8.3.0"
+  }
 }

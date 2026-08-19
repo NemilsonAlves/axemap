@@ -6,7 +6,8 @@ import { MapProviderWrapper, MapView, leafletProvider } from '@/lib/map';
 import type { MapMarker } from '@/lib/map';
 import { SectionHeading } from './section-heading';
 import { Reveal } from './reveal';
-import { ShieldCheck, MapPin, Loader2 } from 'lucide-react';
+import { ShieldCheck, MapPin, Loader2, Landmark, MapPinned } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/i18n-context';
 
 interface TerreiroNoMapa {
   id: string;
@@ -21,6 +22,7 @@ interface TerreiroNoMapa {
 }
 
 export function HomeMap() {
+  const { formatNumber } = useI18n();
   const [terreiros, setTerreiros] = React.useState<TerreiroNoMapa[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [filtrarVerificados, setFiltrarVerificados] = React.useState(false);
@@ -52,6 +54,17 @@ export function HomeMap() {
   const visiveis = filtrarVerificados ? terreiros.filter((t) => t.isVerified) : terreiros;
   const topos = [...visiveis].sort((a, b) => b.trustScore - a.trustScore).slice(0, 3);
 
+  const estados = new Set(visiveis.map((t) => t.estado));
+  const cidades = new Set(visiveis.map((t) => t.cidade));
+  const verificadas = visiveis.filter((t) => t.isVerified).length;
+
+  const indicadores = [
+    { icon: MapPin,      valor: visiveis.length,    rotulo: 'Casas mapeadas' },
+    { icon: ShieldCheck, valor: verificadas,       rotulo: 'Verificadas' },
+    { icon: MapPinned,   valor: estados.size,      rotulo: 'Estados' },
+    { icon: Landmark,    valor: cidades.size,      rotulo: 'Cidades' },
+  ];
+
   const markers: MapMarker[] = visiveis.map((t) => ({
     id: t.id,
     position: { lat: t.latitude, lng: t.longitude },
@@ -67,11 +80,38 @@ export function HomeMap() {
       <div className="container-page relative flex flex-col gap-10">
         <Reveal>
           <SectionHeading
-            eyebrow="Mapa vivo"
+            eyebrow="Território e presença"
             id="mapa-titulo"
-            title="Explore o território, não só a lista"
+            title={
+              <>
+                O axé está{' '}
+                <span className="text-brand-gradient">em movimento.</span>
+              </>
+            }
             description="Veja as casas, eventos e comunidades distribuídos pelo Brasil. Filtre por casas verificadas e comece sua jornada."
           />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {indicadores.map((ind) => (
+              <div
+                key={ind.rotulo}
+                className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 shadow-sm"
+              >
+                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-copper-soft/60 text-copper-strong">
+                  <ind.icon className="size-4" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <dt className="sr-only">{ind.rotulo}</dt>
+                  <dd className="font-display text-xl font-black leading-none text-foreground">
+                    {ind.valor > 0 ? formatNumber(ind.valor) : '—'}
+                  </dd>
+                  <p className="mt-1 truncate text-xs font-medium text-muted-foreground">{ind.rotulo}</p>
+                </div>
+              </div>
+            ))}
+          </dl>
         </Reveal>
 
         <Reveal delay={0.05}>
@@ -124,7 +164,7 @@ export function HomeMap() {
                 )}
 
                 {!loading && !error && (
-                  <div className="pointer-events-none absolute right-4 top-4 hidden w-60 flex-col gap-2 overflow-hidden rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur md:flex">
+                  <div className="pointer-events-none absolute right-4 top-4 z-[1000] hidden w-60 flex-col gap-2 overflow-hidden rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur md:flex">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                       {filtrarVerificados ? 'Casas verificadas em destaque' : 'Em destaque por Trust Score'}
                     </p>

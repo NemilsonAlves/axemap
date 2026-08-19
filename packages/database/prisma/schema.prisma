@@ -60,6 +60,10 @@ enum OrganizationType {
   DEFESA_LIBERDADE_RELIGIOSA
   PARCEIRO
   COMUNIDADE
+  PESQUISADOR
+  GRUPO_DE_PESQUISA
+  TEMPLO
+  ORGANIZACAO_INTERNACIONAL
 }
 
 enum OrganizationVerificationLevel {
@@ -74,7 +78,23 @@ enum OrgRelationshipStatus {
   PENDENTE
   ACEITA
   RECUSADA
-  REMOVIDA
+}
+
+/**
+ * Níveis de privacidade (LGPD / Privacy by Design).
+ * PUBLICO: visível para todos.
+ * COMUNITARIO: visível para a rede/comunidade da entidade.
+ * RESTRITO: visível para membros vinculados.
+ * PRIVADO: visível apenas para responsáveis.
+ * SENSIVEL: nunca exposto automaticamente (ex.: informações iniciáticas,
+ * dados religiosos sensíveis, dados de menores).
+ */
+enum NivelPrivacidade {
+  PUBLICO
+  COMUNITARIO
+  RESTRITO
+  PRIVADO
+  SENSIVEL
 }
 
 enum RegiaoTipo {
@@ -82,6 +102,46 @@ enum RegiaoTipo {
   PAIS
   REGIAO
   TERRITORIO
+}
+
+/**
+ * Níveis de categoria da taxonomia multidimensional (prompt 03)
+ * POVO: grupos étnicos, nações africanas e diásporas
+ * TRADICAO: práticas, rituais e saberes transmitidos
+ * RELIGIAO: sistemas de crenças e culto
+ * ESPALTALIDADE: graus de iniciação e autoridade espiritual
+ * SISTEMA_CONHECIMENTO: estruturas epistemológicas
+ * SISTEMA_ADIVINHACAO: métodos de adivinhação e adivinhos
+ * EXPRESSAO_CULTURAL: artes, música, dança, literatura
+ * LINGUA: línguas africanas e afro-brasileiras
+ * TERRITORIO: terras sagradas, quilombos, terreiros
+ * REGIAO: sub-divisões geográficas (estados, províncias)
+ * PAIS: países africanos e de diáspora
+ * DIASPORA: comunidades africanas fora do continente
+ * COMUNIDADE: grupos locais de prática
+ * INSTITUICAO: templos, centros, instituições formais
+ * PATRIMONIO: bens culturais, imóveis, objetos
+ * EVENTO: rituais, festas, cerimônias
+ * CONTEUDO: artigos, vídeos, podcasts, materiais didáticos
+ */
+enum TaxonomyCategory {
+  POVO
+  TRADICAO
+  RELIGIAO
+  ESPALTALIDADE
+  SISTEMA_CONHECIMENTO
+  SISTEMA_ADIVINHACAO
+  EXPRESSAO_CULTURAL
+  LINGUA
+  TERRITORIO
+  REGIAO
+  PAIS
+  DIASPORA
+  COMUNIDADE
+  INSTITUICAO
+  PATRIMONIO
+  EVENTO
+  CONTEUDO
 }
 
 enum EventType {
@@ -188,6 +248,38 @@ enum PixChaveTipo {
   ALEATORIA
 }
 
+// ============================================================
+// SUSTENTABILIDADE — PROMPT 14 (Círculo de Apoiadores)
+// ============================================================
+
+enum ApoioNivel {
+  SEMENTE
+  GUARDIAO
+  AXE
+  MEMORIA
+  ANCESTRALIDADE
+  MANTENEDOR
+}
+
+enum ApoioPeriodicidade {
+  AVULSO
+  MENSAL
+}
+
+enum ApoioPlataformaStatus {
+  PENDENTE
+  CONFIRMADO
+  FALHADO
+  REEMBOLSADO
+  CANCELADO
+}
+
+enum LocalizacaoVisibilidade {
+  PUBLICO
+  APROXIMADA
+  PRIVADA
+}
+
 model Usuarios {
   id           String    @id @default(uuid())
   email        String    @unique
@@ -197,10 +289,12 @@ model Usuarios {
   avatarUrl    String?   @map("avatar_url")
   isVerified   Boolean   @default(false) @map("is_verified")
   trustScore   Float     @default(0) @map("trust_score")
-  refreshToken   String?   @map("refresh_token")
-  deletedAt      DateTime? @map("deleted_at")
-  bloqueadoEm    DateTime? @map("bloqueado_em")
-  motivoBloqueio String?   @map("motivo_bloqueio")
+  refreshToken     String?   @map("refresh_token")
+  resetTokenHash    String?   @map("reset_token_hash")
+  resetTokenExpira  DateTime? @map("reset_token_expira")
+  deletedAt         DateTime? @map("deleted_at")
+  bloqueadoEm       DateTime? @map("bloqueado_em")
+  motivoBloqueio    String?   @map("motivo_bloqueio")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
@@ -256,6 +350,16 @@ model Usuarios {
   duplicidadesResolvidas         GraphCandidatoDuplicidade[]    @relation("duplicidade_resolvida_por")
   conteudosCulturaisCriados      ConteudoCultural[]             @relation("conteudo_cultural_criado_por")
   conteudosCulturaisVerificados  ConteudoCultural[]             @relation("conteudo_cultural_verificado_por")
+  sourcesCriadas                 Source[]                       @relation("source_criada_por")
+  sourcesVerificadas             Source[]                       @relation("source_verificada_por")
+  apoiosPlataforma               ApoioPlataforma[]              @relation("apoio_plataforma_apoiador")
+  apoiosConfirmados              ApoioPlataforma[]              @relation("apoio_plataforma_confirmado")
+  adCampanhasAnunciante          AdCampanha[]                   @relation("ad_campanha_anunciante")
+  adCampanhasRevisadas           AdCampanha[]                   @relation("ad_campanha_revisada_por")
+  adPagamentosConfirmados        AdPagamento[]                  @relation("ad_pagamento_confirmado")
+  episodiosSubmetidos            EpisodioTV[]                   @relation("episodio_submetido_por")
+  episodiosRevisados             EpisodioTV[]                   @relation("episodio_revisado_por")
+  consentRecords                 ConsentRecord[]
 
   @@map("usuarios")
 }
@@ -265,6 +369,7 @@ model Terreiros {
   nome                 String
   slug                 String                                 @unique
   tradicao             String
+  taxonomyCategory     TaxonomyCategory
   status               TerreiroStatus                         @default(RASCUNHO)
   trustScore           Float                                  @default(0) @map("trust_score")
   descricaoCurta       String?                                @map("descricao_curta") @db.VarChar(500)
@@ -272,6 +377,7 @@ model Terreiros {
   cidade               String
   estado               String                                 @db.VarChar(2)
   pais                 String                                 @default("BR") @db.VarChar(2)
+  continente           String                                 @default("AMERICA-SUL")
   latitude             Float
   longitude            Float
   geoPoint             Unsupported("geography(Point, 4326)")? @map("geo_point")
@@ -292,6 +398,8 @@ model Terreiros {
   estacionamento       String?                                @db.VarChar(20)
   codigoIndicacao      String?                                @unique @map("codigo_indicacao")
   publicadoEm          DateTime?                              @map("publicado_em")
+  nivelPrivacidade     NivelPrivacidade                       @default(PUBLICO) @map("nivel_privacidade")
+  visibilidadeLocalizacao LocalizacaoVisibilidade             @default(PUBLICO) @map("visibilidade_localizacao")
   createdAt            DateTime                               @default(now()) @map("created_at")
   updatedAt            DateTime                               @updatedAt @map("updated_at")
   deletedAt            DateTime?                              @map("deleted_at")
@@ -330,6 +438,7 @@ model Terreiros {
   assinaturas           PlanoAssinatura[]
   transacoesFinanceiras TransacaoFinanceira[]
   pixConfig             PixConfiguracao?
+  episodiosTV           EpisodioTV[]
 
   @@index([tradicao, cidade, estado])
   @@index([trustScore])
@@ -362,10 +471,12 @@ model Eventos {
   titulo     String
   descricao  String?   @db.Text
   tipo       EventType
+  taxonomyCategory TaxonomyCategory
   dataInicio DateTime  @map("data_inicio")
   dataFim    DateTime? @map("data_fim")
   capacidade Int?
   isPublico  Boolean   @default(true) @map("is_publico")
+  nivelPrivacidade NivelPrivacidade @default(PUBLICO) @map("nivel_privacidade")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")
@@ -463,20 +574,21 @@ model ProdutosMarketplace {
 }
 
 model Conteudos {
-  id        String    @id @default(uuid())
-  titulo    String
-  tipo      String
-  conteudo  String?   @db.Text
-  url       String?
-  publicado Boolean   @default(false)
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  id                String              @id @default(uuid())
+  titulo            String
+  tipo              String
+  conteudo          String?   @db.Text
+  url               String?
+  publicado         Boolean   @default(false)
+  taxonomyCategory  TaxonomyCategory
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
 
-  criadoPorId String     @map("criado_por_id")
-  criadoPor   Usuarios   @relation("conteudo_criado_por", fields: [criadoPorId], references: [id])
-  terreiroId  String?    @map("terreiro_id")
-  terreiro    Terreiros? @relation(fields: [terreiroId], references: [id])
+  criadoPorId String       @map("criado_por_id")
+  criadoPor   Usuarios      @relation("conteudo_criado_por", fields: [criadoPorId], references: [id])
+  terreiroId  String?        @map("terreiro_id")
+  terreiro    Terreiros?     @relation(fields: [terreiroId], references: [id])
 
   @@map("conteudos")
 }
@@ -499,6 +611,7 @@ model AcoesSociais {
 
 model Denuncias {
   id          String    @id @default(uuid())
+  protocolo   String?   @unique @map("protocolo")
   motivo      String
   descricao   String?   @db.Text
   tipo        String    @default("TERREIRO")
@@ -508,10 +621,11 @@ model Denuncias {
   updatedAt   DateTime  @updatedAt @map("updated_at")
   resolvidoEm DateTime? @map("resolvido_em")
 
-  criadoPorId   String     @map("criado_por_id")
-  criadoPor     Usuarios   @relation("denuncia_criada_por", fields: [criadoPorId], references: [id])
+  criadoPorId   String?    @map("criado_por_id")
+  criadoPor     Usuarios?  @relation("denuncia_criada_por", fields: [criadoPorId], references: [id])
   revisadoPorId String?    @map("revisado_por_id")
   revisadoPor   Usuarios?  @relation("denuncia_revisada_por", fields: [revisadoPorId], references: [id])
+  emailContato  String?    @map("email_contato")
   terreiroId    String?    @map("terreiro_id")
   terreiro      Terreiros? @relation(fields: [terreiroId], references: [id])
 
@@ -880,7 +994,7 @@ model Instituicoes {
   id         String    @id @default(uuid())
   nome       String
   slug       String    @unique
-  tipo       String    @default("INSTITUICAO")
+  tipo       String
   cnpj       String?
   descricao  String?   @db.Text
   cidade     String?
@@ -895,6 +1009,8 @@ model Instituicoes {
   criadoPorId String      @map("criado_por_id")
   criadoPor   Usuarios    @relation("instituicao_criada_por", fields: [criadoPorId], references: [id])
   campanhas   Campanhas[]
+
+ taxonomyCategory TaxonomyCategory
 
   @@index([slug])
   @@map("instituicoes")
@@ -914,6 +1030,7 @@ model Organizacoes {
   descricao                String?                       @db.Text
   historia                 String?                       @db.Text
   tradicoes                String[]
+  taxonomyCategory         TaxonomyCategory
   anoFundacao              Int?                          @map("ano_fundacao")
   areaAtuacao              String?                       @map("area_atuacao")
   numOrganizacoesAssociadas Int                          @default(0) @map("num_organizacoes_associadas")
@@ -1402,6 +1519,37 @@ model PixConfiguracao {
 }
 
 // ============================================================
+// SUSTENTABILIDADE — PROMPT 14
+// Apoio à plataforma (Círculo de Apoiadores). Nunca influencia
+// Trust, verificação, reputação, autoridade ou posição orgânica.
+// ============================================================
+
+model ApoioPlataforma {
+  id             String                 @id @default(uuid())
+  valor          Float
+  nivel          ApoioNivel
+  periodicidade  ApoioPeriodicidade     @default(AVULSO)
+  status         ApoioPlataformaStatus  @default(PENDENTE)
+  anonimo        Boolean                @default(false)
+  mensagem       String?                @db.VarChar(600)
+  referencia     String? // QR/código de pagamento (Pix) ou URL de checkout
+  gatewayRef     String?                @map("gateway_ref")
+  pagoEm         DateTime?              @map("pago_em")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+
+  apoiadorId      String    @map("apoiador_id")
+  apoiador        Usuarios  @relation("apoio_plataforma_apoiador", fields: [apoiadorId], references: [id])
+  confirmadoPorId String?   @map("confirmado_por_id")
+  confirmadoPor   Usuarios? @relation("apoio_plataforma_confirmado", fields: [confirmadoPorId], references: [id])
+
+  @@index([status, createdAt])
+  @@index([apoiadorId, status])
+  @@index([nivel])
+  @@map("apoios_plataforma")
+}
+
+// ============================================================
 // AXÉ GRAPH — PROMPT 07
 // Knowledge Graph • Relacionamentos • Busca • Recomendação
 // ============================================================
@@ -1559,11 +1707,14 @@ model GraphRelacionamento {
   rejeitadoPor      Usuarios?      @relation("graph_rel_rejeitada_por", fields: [rejeitadoPorId], references: [id])
   verificadoEm      DateTime?      @map("verificado_em")
   historico         GraphRelacionamentoHistorico[]
+  sourceId          String?        @map("source_id")
+  source            Source?        @relation(fields: [sourceId], references: [id])
 
   @@unique([tipo, origemEntidadeId, alvoEntidadeId])
   @@index([status, fonte])
   @@index([origemEntidadeId])
   @@index([alvoEntidadeId])
+  @@index([sourceId])
   @@map("graph_relacionamentos")
 }
 
@@ -1620,6 +1771,7 @@ model ConteudoCultural {
   thumbUrl         String?            @map("thumb_url")
   tags             String[]           @default([])
   status           ConteudoStatus     @default(NAO_VERIFICADA)
+  nivelPrivacidade NivelPrivacidade   @default(PUBLICO) @map("nivel_privacidade")
   cidade           String?
   estado           String?            @db.VarChar(2)
   createdAt        DateTime           @default(now()) @map("created_at")
@@ -1651,6 +1803,7 @@ model PatrimonioCultural {
   ano              Int?
   fonte            String?
   status           ConteudoStatus @default(NAO_VERIFICADA)
+  nivelPrivacidade NivelPrivacidade @default(PUBLICO) @map("nivel_privacidade")
   fotos            String[]       @default([])
   criadoPorId      String?
   verificadoPorId  String?
@@ -1661,4 +1814,267 @@ model PatrimonioCultural {
 
   @@index([cidade, estado])
   @@map("patrimonio_cultural")
+}
+
+// ============================================================
+// FONTES / PROVENIÊNCIA — PROMPT 09 (Fase 12)
+// Permite documentar de onde vem cada afirmação, relação ou conteúdo.
+// ============================================================
+model Source {
+  id          String   @id @default(uuid())
+  titulo      String
+  autor       String?
+  instituicao String?
+  url         String?  @db.VarChar(1000)
+  tipo        String // COMUNITARIA / INSTITUCIONAL / ACADEMICA / HISTORICA / EDITORIAL / ARQUIVO / PUBLICA
+  data        DateTime?
+  idioma      String?  @default("pt-BR")
+  referencia  String?  @db.Text
+  status      String   @default("NAO_VERIFICADA") // NAO_VERIFICADA / VERIFICADA / OFICIAL
+  conteudo    String?  @db.Text
+  criadoPorId String?  @map("criado_por_id")
+  criadoPor   Usuarios? @relation("source_criada_por", fields: [criadoPorId], references: [id])
+  verificadoPorId String? @map("verificado_por_id")
+  verificadoPor   Usuarios? @relation("source_verificada_por", fields: [verificadoPorId], references: [id])
+  verificadoEm DateTime?  @map("verificado_em")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+
+  relacoes GraphRelacionamento[]
+
+  @@index([tipo, status])
+  @@index([autor])
+  @@map("sources")
+}
+
+// ============================================================
+// AXÉMAP ADS — Módulo de publicidade (Prompt 14, seções 14–16, 40–41)
+//
+// REGRA ABSOLUTA:
+// Pagamento publicitário NUNCA altera Trust Score, verificação,
+// certificação, avaliações, denúncias, reputação ou posição orgânica.
+// Todo anúncio publicado exibe rótulo "PATROCINADO" ou "PUBLICIDADE".
+// ============================================================
+
+enum AdStatus {
+  RASCUNHO
+  AGUARDANDO_PAGAMENTO
+  EM_REVISAO
+  APROVADO
+  PUBLICADO
+  PAUSADO
+  ENCERRADO
+  REJEITADO
+  BLOQUEADO
+}
+
+enum AdPlacement {
+  BANNER_HOME
+  BANNER_MAPA
+  CARD_PATROCINADO
+  EVENTO_PATROCINADO
+  ORGANIZACAO_PATROCINADORA
+  CONTEUDO_PATROCINADO
+  PAGINA_INSTITUCIONAL
+  MIDIA_REGIONAL
+  MIDIA_NACIONAL
+  MIDIA_INTERNACIONAL
+}
+
+enum AdCategory {
+  CULTURAL
+  SOCIAL
+  EDUCACIONAL
+  COMERCIAL
+  INSTITUCIONAL
+  RELIGIOSO
+  EVENTO
+  PRODUTO
+  SERVICO
+}
+
+/// Campanha publicitária do AxéMap ADS.
+/// Publicidade → Exposição publicitária identificada. Nunca altera Trust.
+model AdCampanha {
+  id              String      @id @default(uuid())
+  titulo          String
+  descricao       String?     @db.Text
+  destinatarioUrl String?     @map("destinatario_url") @db.VarChar(1000)
+  imagemUrl       String?     @map("imagem_url")
+  placement       AdPlacement
+  category        AdCategory
+  cidadeAlvo      String?     @map("cidade_alvo")
+  estadoAlvo      String?     @map("estado_alvo") @db.VarChar(2)
+  orcamentoBRL    Float       @map("orcamento_brl")
+  status          AdStatus    @default(RASCUNHO)
+  motivoRejeicao  String?     @map("motivo_rejeicao") @db.VarChar(500)
+  impressoes      Int         @default(0)
+  cliques         Int         @default(0)
+  dataInicio      DateTime    @map("data_inicio")
+  dataFim         DateTime?   @map("data_fim")
+  publicadoEm     DateTime?   @map("publicado_em")
+  revisadoEm      DateTime?   @map("revisado_em")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  anuncianteId  String    @map("anunciante_id")
+  anunciante    Usuarios  @relation("ad_campanha_anunciante", fields: [anuncianteId], references: [id])
+  revisadoPorId String?   @map("revisado_por_id")
+  revisadoPor   Usuarios? @relation("ad_campanha_revisada_por", fields: [revisadoPorId], references: [id])
+
+  pagamentos AdPagamento[]
+
+  @@index([status, dataInicio])
+  @@index([placement, status])
+  @@index([anuncianteId, status])
+  @@map("ad_campanhas")
+}
+
+/// Pagamento associado a uma campanha publicitária.
+/// Pagamento NÃO altera Trust Score nem posição orgânica.
+model AdPagamento {
+  id         String    @id @default(uuid())
+  valor      Float
+  status     String    @default("PENDENTE") // PENDENTE / CONFIRMADO / FALHADO / REEMBOLSADO
+  gatewayRef String?   @map("gateway_ref")
+  pagoEm     DateTime? @map("pago_em")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  campanhaId      String       @map("campanha_id")
+  campanha        AdCampanha   @relation(fields: [campanhaId], references: [id])
+  confirmadoPorId String?      @map("confirmado_por_id")
+  confirmadoPor   Usuarios?    @relation("ad_pagamento_confirmado", fields: [confirmadoPorId], references: [id])
+
+  @@index([campanhaId, status])
+  @@map("ad_pagamentos")
+}
+
+// ============================================================
+// PAYMENT ABSTRACTION — Registro genérico de eventos de pagamento
+// (Prompt 14, seção 27–28)
+// Auditoria de webhooks e idempotência.
+// ============================================================
+
+model PaymentWebhookLog {
+  id          String   @id @default(uuid())
+  provider    String // MOCK / MERCADO_PAGO / STRIPE / PAGARME / ASAAS
+  gatewayRef  String   @map("gateway_ref")
+  eventType   String   @map("event_type")
+  status      String
+  origin      String // APOIO / SUBSCRIPTION / CAMPAIGN / AD
+  amountBRL   Float?   @map("amount_brl")
+  rawPayload  Json?    @map("raw_payload")
+  processado  Boolean  @default(false)
+  erroMensagem String? @map("erro_mensagem") @db.VarChar(500)
+  occurredAt  DateTime @map("occurred_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([provider, gatewayRef, eventType])
+  @@index([processado, createdAt])
+  @@index([gatewayRef])
+  @@map("payment_webhook_logs")
+}
+
+// ============================================================
+// TV AXÉMAP — Episódios, Programas e Submissões
+// Módulo de mídia cultural. Conteúdo enviado pelas casas passa
+// por moderação antes de ser publicado.
+// ============================================================
+
+enum EpisodioStatus {
+  RASCUNHO
+  AGUARDANDO_REVISAO
+  EM_REVISAO
+  APROVADO
+  PUBLICADO
+  PAUSADO
+  REJEITADO
+  ARQUIVADO
+}
+
+enum EpisodioTipo {
+  DOCUMENTARIO
+  ENTREVISTA
+  RITUAL_PUBLICO
+  FESTA_CULTURAL
+  MUSICA
+  EDUCATIVO
+  INSTITUCIONAL
+  EVENTO_AO_VIVO
+  CONTEUDO_COMUNIDADE
+}
+
+/// Episódio da TV AxéMap.
+/// Conteúdo cultural enviado pelas comunidades e publicado após moderação.
+model EpisodioTV {
+  id           String          @id @default(uuid())
+  titulo       String
+  slug         String          @unique
+  descricao    String?         @db.Text
+  tipo         EpisodioTipo    @default(DOCUMENTARIO)
+  status       EpisodioStatus  @default(RASCUNHO)
+  /// ID do vídeo no YouTube (preenchido após upload/aprovação)
+  youtubeId    String?         @map("youtube_id")
+  /// URL direta do vídeo (S3 ou CDN, alternativa ao YouTube)
+  videoUrl     String?         @map("video_url")
+  thumbnailUrl String?         @map("thumbnail_url")
+  duracao      Int?            /// duração em segundos
+  tags         String[]        @default([])
+  tradicao     String?
+  /// Visibilidade: PUBLICO = qualquer pessoa; COMUNITARIO = membros; PRIVADO = só admins
+  nivelPrivacidade NivelPrivacidade @default(PUBLICO) @map("nivel_privacidade")
+  motivoRejeicao String?       @map("motivo_rejeicao") @db.VarChar(500)
+  visualizacoes  Int           @default(0)
+  publicadoEm  DateTime?       @map("publicado_em")
+  revisadoEm   DateTime?       @map("revisado_em")
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+  deletedAt    DateTime?       @map("deleted_at")
+
+  /// Casa que submeteu o conteúdo (opcional — pode ser conteúdo institucional)
+  terreiroId   String?         @map("terreiro_id")
+  terreiro     Terreiros?      @relation(fields: [terreiroId], references: [id])
+  submitorId   String          @map("submitor_id")
+  submitor     Usuarios        @relation("episodio_submetido_por", fields: [submitorId], references: [id])
+  revisadoPorId String?        @map("revisado_por_id")
+  revisadoPor  Usuarios?       @relation("episodio_revisado_por", fields: [revisadoPorId], references: [id])
+
+  @@index([status, publicadoEm])
+  @@index([tipo, status])
+  @@index([terreiroId])
+  @@index([slug])
+  @@map("episodios_tv")
+}
+
+// ============================================================
+// CONSENTIMENTO LGPD — Registro server-side de consentimento
+// (LGPD Art. 7 / Art. 11 / ANPD Resolução CD/ANPD nº 2/2022)
+//
+// REGRA: ipHash e userAgentHash são SHA-256 do IP/UA — NUNCA
+// o dado bruto. userId pode ser null para sessões anônimas.
+// ============================================================
+
+model ConsentRecord {
+  id             String    @id @default(cuid())
+  userId         String?   @map("user_id")
+  sessionId      String?   @map("session_id")
+  consentVersion String    @map("consent_version")
+  essential      Boolean   @default(true)
+  analytics      Boolean   @default(false)
+  marketing      Boolean   @default(false)
+  preferences    Boolean   @default(false)
+  source         String    // "banner" | "settings" | "api"
+  ipHash         String?   @map("ip_hash")    // SHA-256 de IP — nunca IP bruto
+  userAgentHash  String?   @map("user_agent_hash") // SHA-256 de UA
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  revokedAt      DateTime? @map("revoked_at")
+
+  user Usuarios? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([sessionId])
+  @@map("consent_records")
 }

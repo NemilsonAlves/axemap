@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { TaxonomyCategory } from '@axemap/shared';
 import { PrismaService } from '../database/prisma.service';
 import { NotificacoesService } from '../notificacoes/notificacoes.service';
 
@@ -9,7 +10,7 @@ export class OnboardingService {
     private notificacoes: NotificacoesService,
   ) {}
 
-  async getSteps() {
+  getSteps() {
     return [
       {
         key: 'nome',
@@ -62,6 +63,7 @@ export class OnboardingService {
     nome: string; cidade: string; estado: string;
     latitude: number; longitude: number; whatsapp: string;
     tradicao?: string;
+    taxonomyCategory?: TaxonomyCategory;
   }, usuarioId: string) {
     const slug = dto.nome
       .toLowerCase()
@@ -76,6 +78,7 @@ export class OnboardingService {
         nome: dto.nome,
         slug,
         tradicao: dto.tradicao || 'NAO_INFORMADA',
+        taxonomyCategory: dto.taxonomyCategory || 'POVO',
         cidade: dto.cidade,
         estado: dto.estado,
         latitude: dto.latitude,

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { RecommendationEngine } from './recommendation-engine.service';
-import { WeightConfig, PESOS_PADRAO } from './recommendation-weights';
+import { WeightConfig } from './recommendation-weights';
 import {
   Recomendacao, BlocoHome, ContextoRecomendacao,
   PesoRecomendacao,

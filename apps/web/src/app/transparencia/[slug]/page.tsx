@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
+import { useI18n } from '@/lib/i18n/i18n-context';
 import { ShieldCheck, Scale, HeartHandshake, MessageSquareText, ClipboardCheck, History, CheckCircle2, Search } from 'lucide-react';import './transparencia.css';
 
 interface TransparenciaData {
@@ -42,6 +43,7 @@ export default function TransparenciaPage({ params }: { params: Promise<{ slug: 
   const [codigo, setCodigo] = useState('');
   const [verificando, setVerificando] = useState(false);
   const [verificacao, setVerificacao] = useState<any>(null);
+  const { formatCurrency } = useI18n();
 
   useEffect(() => {
     params.then((p) => setSlug(p.slug));
@@ -185,7 +187,7 @@ export default function TransparenciaPage({ params }: { params: Promise<{ slug: 
             </div>
             <div className="tp-metric">
               <span className="tp-metric-value">
-                {t.prestacaoDeContas.arrecadadoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+                {formatCurrency(t.prestacaoDeContas.arrecadadoTotal, 'BRL').replace(/,\d{2}/, '')}
               </span>
               <span className="tp-metric-label">Total arrecadado</span>
             </div>
@@ -198,7 +200,7 @@ export default function TransparenciaPage({ params }: { params: Promise<{ slug: 
                     <strong>{c.titulo}</strong>
                     <span className="tp-muted">{c.apoiadores} apoiador(es) · {c.status}</span>
                   </div>
-                  <span className="tp-money">{c.arrecadado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}</span>
+                  <span className="tp-money">{formatCurrency(c.arrecadado, 'BRL').replace(/,\d{2}/, '')}</span>
                 </li>
               ))}
             </ul>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
+import { useI18n } from '@/lib/i18n/i18n-context';
 
 interface Plano {
   id: string;
@@ -18,6 +19,7 @@ interface Plano {
 }
 
 export default function PlanosPage() {
+  const { formatCurrency } = useI18n();
   const [planos, setPlanos] = useState<Plano[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [ciclo, setCiclo] = useState<'MENSAL' | 'ANUAL'>('MENSAL');
@@ -30,8 +32,7 @@ export default function PlanosPage() {
       .finally(() => setCarregando(false));
   }, []);
 
-  const fmt = (v: number) =>
-    v === 0 ? 'Grátis' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const fmt = (v: number) => (v === 0 ? 'Grátis' : formatCurrency(v, 'BRL'));
 
   const preco = (p: Plano) => (ciclo === 'ANUAL' ? (p.precoAnual ?? p.precoMensal * 12) : p.precoMensal);
 

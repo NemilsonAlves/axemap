@@ -9,10 +9,14 @@ export class S3StorageService implements StorageProvider {
   readonly name: string;
   private client: S3Client;
   private defaultBucket: string;
+  private publicUrl?: string;
+  private endpointUrl?: string;
 
   constructor(@Inject(STORAGE_CONFIG) config: StorageConfig) {
     this.name = config.type;
     this.defaultBucket = config.bucket;
+    this.publicUrl = config.publicUrl?.replace(/\/+$/, '');
+    this.endpointUrl = config.endpoint?.replace(/\/+$/, '');
 
     const endpoint = config.endpoint
       ? { endpoint: config.endpoint, forcePathStyle: config.forcePathStyle ?? true }
@@ -103,11 +107,8 @@ export class S3StorageService implements StorageProvider {
   }
 
   async getUrl(bucket: string, key: string): Promise<string> {
-    const config = this.getConfig();
-    if (config.publicUrl) {
-      return `${config.publicUrl}/${bucket}/${key}`;
-    }
-    return `http://localhost:9000/${bucket}/${key}`;
+    const base = this.publicUrl ?? this.endpointHost();
+    return `${base}/${bucket}/${key}`;
   }
 
   async getSignedUrl(bucket: string, key: string, expiresIn = 3600): Promise<string> {
@@ -157,7 +158,7 @@ export class S3StorageService implements StorageProvider {
     );
   }
 
-  private getConfig(): StorageConfig {
-    return { type: 's3', accessKeyId: '', secretAccessKey: '', bucket: this.defaultBucket };
+  private endpointHost(): string {
+    return this.endpointUrl || `http://localhost:9000`;
   }
 }

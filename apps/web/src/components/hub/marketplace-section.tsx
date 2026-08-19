@@ -3,14 +3,6 @@ import { Store, Zap } from 'lucide-react';
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-const CATEGORIA_POR_TIPO: Record<string, string> = {
-  LIVRO: 'Livros',
-  ARTESANATO: 'Artesanato',
-  VESTUARIO: 'Vestimentas',
-  SERVICO: 'Serviços',
-  OUTROS: 'Outros',
-};
-
 export function MarketplaceSection({ terreiro }: { terreiro: TerreiroPerfil }) {
   if (!terreiro.produtos.length) return null;
 

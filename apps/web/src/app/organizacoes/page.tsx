@@ -12,6 +12,8 @@ import {
   TIPOS_ORGANIZACAO,
 } from '@/lib/organizacoes';
 import { MapPin, Globe2, Building2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/i18n-context';
+import { regionalRank } from '@/lib/geo';
 
 interface Organizacao {
   id: string;
@@ -44,6 +46,8 @@ interface RedeAxemapProps {
   filtroInicial?: string;
   titulo?: ReactNode;
   subtitulo?: string;
+  /** Base dos links dos cards (ex.: "/organizacoes" ou "/federacoes"). */
+  linkBase?: string;
 }
 
 export function RedeAxemapIndex({
@@ -51,7 +55,9 @@ export function RedeAxemapIndex({
   filtroInicial = 'TODAS',
   titulo,
   subtitulo,
+  linkBase = '/organizacoes',
 }: RedeAxemapProps) {
+  const { country } = useI18n();
   const [todas, setTodas] = useState<Organizacao[]>([]);
   const [filtro, setFiltro] = useState(filtroInicial);
   const [loading, setLoading] = useState(true);
@@ -70,10 +76,11 @@ export function RedeAxemapIndex({
     })();
   }, [endpoint]);
 
-  const itens = useMemo(
-    () => (filtro === 'TODAS' ? todas : todas.filter((o) => o.tipo === filtro)),
-    [todas, filtro],
-  );
+  const itens = useMemo(() => {
+    const list = filtro === 'TODAS' ? todas : todas.filter((o) => o.tipo === filtro);
+    // Prioriza a região do visitante (nunca exclui o mundo)
+    return [...list].sort((a, b) => regionalRank(country, a) - regionalRank(country, b));
+  }, [todas, filtro, country]);
 
   const contagens = useMemo(() => {
     const m: Record<string, number> = {};
@@ -151,7 +158,7 @@ export function RedeAxemapIndex({
             return (
               <Link
                 key={o.id}
-                href={`/organizacoes/${o.slug}`}
+                href={`${linkBase}/${o.slug}`}
                 className="group flex h-full flex-col rounded-3xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-copper/50 hover:shadow-lg hover:shadow-copper/10"
               >
                 <div className="flex items-start justify-between gap-3">

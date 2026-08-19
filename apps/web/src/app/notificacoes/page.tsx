@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { BellOff } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { useAuth } from '@/lib/auth/auth-context';
 import './notificacoes.css';
 
 interface Notificacao {
@@ -69,13 +71,22 @@ function formatarData(iso: string): string {
 }
 
 export default function NotificacoesPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
   const [categoria, setCategoria] = useState<Categoria>('todas');
   const [prefs, setPrefs] = useState(PREFS_INICIAIS);
 
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth/login');
+    }
+  }, [user, authLoading, router]);
+
   const load = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const res = await api.get<{ data: Notificacao[]; total: number }>('/notificacoes?limit=100');
@@ -85,7 +96,7 @@ export default function NotificacoesPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     load();

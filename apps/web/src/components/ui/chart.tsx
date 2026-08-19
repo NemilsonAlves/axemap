@@ -79,7 +79,7 @@ export function LineChart({
   ...props
 }: LineChartProps) {
   const h = VIEWBOX.h;
-  const points = React.useMemo(() => buildPoints(data, h), [data]);
+  const points = React.useMemo(() => buildPoints(data, h), [data, h]);
   const line = React.useMemo(() => smoothPath(points), [points]);
   const area = React.useMemo(
     () => `${line} L ${points[points.length - 1]?.x ?? 0} ${h - VIEWBOX.padY} L ${points[0]?.x ?? 0} ${h - VIEWBOX.padY} Z`,

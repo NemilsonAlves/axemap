@@ -299,6 +299,48 @@ export const TRADICOES_CATALOGO: TradicaoCatalogo[] = [
     categoria: 'Tradição afro-cubana (banta)',
     tags: ['diaspora', 'caribe', 'america-latina', 'europa', 'afro-caribenhas', 'bantu'],
   },
+  {
+    nome: 'REGLA_DE_OCHA',
+    label: 'Regla de Ocha / Santería',
+    descricao:
+      'Expressão cubana da religiosidade iorubá, também chamada Santería, com culto aos Orichas e à orixá regente (Regla de Ocha). Desenvolveu identidade e organização próprias em Cuba e na diáspora — não é uma simples cópia da tradição yorùbá africana.',
+    tipo: 'religiao',
+    familia: 'Diáspora Caribenha',
+    regiao: 'Caribe (Cuba)',
+    continente: 'Caribe',
+    paises: ['Cuba'],
+    diaspora: ['Estados Unidos', 'México', 'Venezuela', 'Europa'],
+    categoria: 'Tradição afro-cubana (iorubá)',
+    tags: ['diaspora', 'caribe', 'america-latina', 'america-norte', 'europa', 'afro-caribenhas', 'yoruba'],
+  },
+  {
+    nome: 'ABAKUA',
+    label: 'Abakuá',
+    descricao:
+      'Sociedade secreta afro-cubana originada de associações Ekpe/Efik da região de Calabar (Nigéria/Camarões), adaptada a Cuba no século XIX. Culto ao Leopardo e às divindades ancestrais com rituais iniciáticos fechados — no AxéMap, apenas informações públicas autorizadas.',
+    tipo: 'expressao-cultural',
+    familia: 'Diáspora Caribenha',
+    regiao: 'Caribe (Cuba)',
+    continente: 'Caribe',
+    paises: ['Cuba'],
+    diaspora: ['Estados Unidos', 'Europa'],
+    categoria: 'Expressão cultural afro-cubana (Efik/Ekpe)',
+    tags: ['diaspora', 'caribe', 'america-latina', 'europa', 'afro-caribenhas', 'outras'],
+  },
+  {
+    nome: 'TERECO',
+    label: 'Terecô',
+    descricao:
+      'Tradição afro-brasileira do Maranhão com forte presença de encantados e influências da Encantaria, do Tambor de Mina e do catolicismo popular. Também chamada de "Tambor da Mata" ou "Linha da Mata", possui terminologia e rituais próprios.',
+    tipo: 'religiao',
+    familia: 'Afro-indígena do Nordeste',
+    regiao: 'Brasil (Maranhão)',
+    continente: 'América do Sul',
+    paises: ['Brasil'],
+    diaspora: [],
+    categoria: 'Tradição afro-brasileira (nordeste)',
+    tags: ['diaspora', 'brasil', 'afro-brasileiras', 'outras'],
+  },
 
   // ── TRADIÇÕES AFRICANAS CONTINENTAIS ─────────────────────────────
   {
@@ -405,15 +447,11 @@ export const FILTROS_TRADICOES: Array<{ id: string; label: string; descricao?: s
   { id: 'america-latina', label: 'América Latina' },
   { id: 'america-norte', label: 'América do Norte' },
   { id: 'europa', label: 'Europa' },
-  { id: 'ifa', label: 'Ifá' },
   { id: 'yoruba', label: 'Yorùbá' },
   { id: 'akan', label: 'Akan' },
   { id: 'fon-ewe', label: 'Fon-Ewé' },
   { id: 'igbo', label: 'Igbo' },
   { id: 'bantu', label: 'Bantu / Kongo' },
-  { id: 'afro-brasileiras', label: 'Afro-brasileiras' },
-  { id: 'afro-caribenhas', label: 'Afro-caribenhas' },
-  { id: 'afro-americanas', label: 'Afro-americanas' },
   { id: 'outras', label: 'Outras' },
 ];
 

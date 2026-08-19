@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+**/dist/
+.next/
+**/.next/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# Environments — NUNCA copiar secrets para a imagem
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+*.pem
+*.key
+docker/nginx/certs/
+
+# Git
+.git/
+.gitignore
+
+# Local data & databases
+.pgdata/
+.pgportable/
+PGDATA~1/
+backups/
+docker/data/
+*.sql
+*.sql.gz
+
+# Logs & temp
+*.log
+npm-debug.log*
+devoutput.txt
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~

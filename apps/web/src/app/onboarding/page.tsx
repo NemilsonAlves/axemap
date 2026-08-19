@@ -48,7 +48,7 @@ export default function OnboardingPage() {
     setSubmitting(true);
     setError('');
     try {
-      const res = await api.post<{ id: string; slug: string }>('/onboarding/criar', {
+      await api.post<{ id: string; slug: string }>('/onboarding/criar', {
         nome: form.nome, cidade: form.cidade, estado: form.estado,
         latitude: form.latitude, longitude: form.longitude, whatsapp: form.whatsapp,
       }, token || undefined);

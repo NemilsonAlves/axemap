@@ -14,16 +14,30 @@ import { S3StorageService } from './s3-storage.service';
     },
     {
       provide: STORAGE_CONFIG,
-      useFactory: (): StorageConfig => ({
-        type: (process.env.STORAGE_TYPE as StorageConfig['type']) || 'minio',
-        region: process.env.STORAGE_REGION || 'auto',
-        endpoint: process.env.STORAGE_ENDPOINT || 'http://localhost:9000',
-        accessKeyId: process.env.STORAGE_ACCESS_KEY || 'axemap',
-        secretAccessKey: process.env.STORAGE_SECRET_KEY || 'axemap_minio_dev',
-        bucket: process.env.STORAGE_BUCKET || 'axemap',
-        publicUrl: process.env.STORAGE_PUBLIC_URL,
-        forcePathStyle: process.env.STORAGE_FORCE_PATH_STYLE !== 'false',
-      }),
+      useFactory: (): StorageConfig => {
+        const isProduction = process.env.NODE_ENV === 'production';
+        const accessKeyId = process.env.STORAGE_ACCESS_KEY;
+        const secretAccessKey = process.env.STORAGE_SECRET_KEY;
+
+        // Em produção, credenciais de storage são OBRIGATÓRIAS — falhe explicitamente
+        // em vez de usar fallback inseguro de desenvolvimento.
+        if (isProduction && (!accessKeyId || !secretAccessKey)) {
+          throw new Error(
+            '[config] STORAGE_ACCESS_KEY e STORAGE_SECRET_KEY são obrigatórias em produção.',
+          );
+        }
+
+        return {
+          type: (process.env.STORAGE_TYPE as StorageConfig['type']) || 'minio',
+          region: process.env.STORAGE_REGION || 'auto',
+          endpoint: process.env.STORAGE_ENDPOINT || 'http://localhost:9000',
+          accessKeyId: accessKeyId || 'axemap',
+          secretAccessKey: secretAccessKey || 'axemap_minio_dev',
+          bucket: process.env.STORAGE_BUCKET || 'axemap',
+          publicUrl: process.env.STORAGE_PUBLIC_URL,
+          forcePathStyle: process.env.STORAGE_FORCE_PATH_STYLE !== 'false',
+        };
+      },
     },
   ],
   exports: [STORAGE_PROVIDER],

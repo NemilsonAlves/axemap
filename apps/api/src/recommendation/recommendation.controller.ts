@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { RecommendationService } from './recommendation.service';
 import { PesoRecomendacao, ContextoRecomendacao } from './recommendation.types';
 

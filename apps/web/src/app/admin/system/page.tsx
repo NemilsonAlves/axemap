@@ -40,12 +40,6 @@ interface SystemVersion {
   environment: string;
 }
 
-interface LatencyMetrics {
-  min: string;
-  max: string;
-  avg: string;
-}
-
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 function StatusBadge({ status }: { status: string }) {

@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { EventType } from '@axemap/shared';
+import { EventType, TaxonomyCategory } from '@axemap/shared';
 import { PrismaService } from '../database/prisma.service';
 
 const EVENT_TYPES = new Set(Object.values(EventType));
+const TAXONOMY_CATEGORIES = new Set(Object.values(TaxonomyCategory));
 
 @Injectable()
 export class EventosService {
@@ -30,6 +31,7 @@ export class EventosService {
       dataFim?: string;
       capacidade?: number;
       isPublico?: boolean;
+      taxonomyCategory?: string;
     },
   ) {
     if (!dto.terreiroId || !dto.titulo || !dto.tipo || !dto.dataInicio) {
@@ -37,6 +39,9 @@ export class EventosService {
     }
     if (!EVENT_TYPES.has(dto.tipo as EventType)) {
       throw new BadRequestException(`Tipo de evento inválido. Use um de: ${Object.values(EventType).join(', ')}`);
+    }
+    if (dto.taxonomyCategory && !TAXONOMY_CATEGORIES.has(dto.taxonomyCategory as TaxonomyCategory)) {
+      throw new BadRequestException(`Categoria de taxonomia inválida. Use um de: ${Array.from(TAXONOMY_CATEGORIES).join(', ')}`);
     }
     const dataInicio = new Date(dto.dataInicio);
     if (Number.isNaN(dataInicio.getTime())) throw new BadRequestException('dataInicio inválida');
@@ -50,6 +55,7 @@ export class EventosService {
         titulo: dto.titulo,
         descricao: dto.descricao ?? null,
         tipo: dto.tipo as EventType,
+        taxonomyCategory: dto.taxonomyCategory ? (dto.taxonomyCategory as TaxonomyCategory) : 'EVENTO',
         dataInicio,
         dataFim: dto.dataFim ? new Date(dto.dataFim) : null,
         capacidade: dto.capacidade ?? null,
@@ -107,6 +113,7 @@ export class EventosService {
       dataFim?: string;
       capacidade?: number;
       isPublico?: boolean;
+      taxonomyCategory?: string;
     },
   ) {
     const evento = await this.buscar(id);
@@ -114,6 +121,10 @@ export class EventosService {
 
     if (dto.tipo && !EVENT_TYPES.has(dto.tipo as EventType)) {
       throw new BadRequestException('Tipo de evento inválido');
+    }
+
+    if (dto.taxonomyCategory && !TAXONOMY_CATEGORIES.has(dto.taxonomyCategory as TaxonomyCategory)) {
+      throw new BadRequestException('Categoria de taxonomia inválida');
     }
 
     return this.prisma.eventos.update({
@@ -126,6 +137,7 @@ export class EventosService {
         ...(dto.dataFim !== undefined ? { dataFim: dto.dataFim ? new Date(dto.dataFim) : null } : {}),
         ...(dto.capacidade !== undefined ? { capacidade: dto.capacidade } : {}),
         ...(dto.isPublico !== undefined ? { isPublico: dto.isPublico } : {}),
+        ...(dto.taxonomyCategory !== undefined ? { taxonomyCategory: dto.taxonomyCategory as TaxonomyCategory } : {}),
       },
     });
   }

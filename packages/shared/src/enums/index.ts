@@ -276,6 +276,92 @@ export enum PlanoSlug {
 }
 
 // ============================================================
+// SUSTENTABILIDADE — PROMPT 14 (Círculo de Apoiadores)
+// ============================================================
+
+/**
+ * Níveis de apoio à plataforma (seção 04 do Prompt 14).
+ * Valores fixos — nunca alteram Trust/verificação/autoridade/posição.
+ */
+export enum ApoioNivel {
+  SEMENTE = 'SEMENTE',
+  GUARDIAO = 'GUARDIAO',
+  AXE = 'AXE',
+  MEMORIA = 'MEMORIA',
+  ANCESTRALIDADE = 'ANCESTRALIDADE',
+  MANTENEDOR = 'MANTENEDOR',
+}
+
+/** Periodicidade do apoio à plataforma. */
+export enum ApoioPeriodicidade {
+  AVULSO = 'AVULSO',
+  MENSAL = 'MENSAL',
+}
+
+/** Status de um apoio à plataforma. */
+export enum ApoioPlataformaStatus {
+  PENDENTE = 'PENDENTE',
+  CONFIRMADO = 'CONFIRMADO',
+  FALHADO = 'FALHADO',
+  REEMBOLSADO = 'REEMBOLSADO',
+  CANCELADO = 'CANCELADO',
+}
+
+/**
+ * Visibilidade da localização de um terreiro (seção 11–12 do Prompt 14).
+ * PUBLICO: coordenadas exatas; APROXIMADA: cidade/estado + coords arredondadas;
+ * PRIVADA: sem coordenadas públicas (apenas cidade/estado quando aplicável).
+ */
+export enum LocalizacaoVisibilidade {
+  PUBLICO = 'PUBLICO',
+  APROXIMADA = 'APROXIMADA',
+  PRIVADA = 'PRIVADA',
+}
+
+// ============================================================
+// TRUST & SAFETY — PROMPT 14 (Central de Segurança)
+// ============================================================
+
+/**
+ * Motivos estruturados de denúncia (seção 25 do Prompt 14).
+ * Substitui os sets livres do moderation service por enum centralizado.
+ */
+export enum DenunciaMotivo {
+  PERFIL_FALSO = 'PERFIL_FALSO',
+  FRAUDE = 'FRAUDE',
+  IMPERSONIFICACAO = 'IMPERSONIFICACAO',
+  INTOLERANCIA_RELIGIOSA = 'INTOLERANCIA_RELIGIOSA',
+  ASSEDIO = 'ASSEDIO',
+  INFORMACAO_FALSA = 'INFORMACAO_FALSA',
+  VIOLACAO_PRIVACIDADE = 'VIOLACAO_PRIVACIDADE',
+  USO_INDEVIDO_IDENTIDADE = 'USO_INDEVIDO_IDENTIDADE',
+  CONTEUDO_INADEQUADO = 'CONTEUDO_INADEQUADO',
+  SPAM = 'SPAM',
+  OUTRO = 'OUTRO',
+}
+
+/** Tipos de entidade denunciável. */
+export enum DenunciaTipo {
+  TERREIRO = 'TERREIRO',
+  EVENTO = 'EVENTO',
+  CURSO = 'CURSO',
+  CONTEUDO = 'CONTEUDO',
+  USUARIO = 'USUARIO',
+  ORGANIZACAO = 'ORGANIZACAO',
+  PERFIL = 'PERFIL',
+  CAMPANHA = 'CAMPANHA',
+}
+
+/** Status do ciclo de uma denúncia. */
+export enum DenunciaStatus {
+  PENDENTE = 'PENDENTE',
+  EM_TRIAGEM = 'EM_TRIAGEM',
+  EM_ANALISE = 'EM_ANALISE',
+  RESOLVIDA = 'RESOLVIDA',
+  ARQUIVADA = 'ARQUIVADA',
+}
+
+// ============================================================
 // AXÉ GRAPH — PROMPT 07 (Knowledge Graph)
 // ============================================================
 
@@ -362,9 +448,69 @@ export enum ConteudoStatus {
   OFICIAL = 'OFICIAL',
 }
 
+export enum NivelPrivacidade {
+  PUBLICO = 'PUBLICO',
+  COMUNITARIO = 'COMUNITARIO',
+  RESTRITO = 'RESTRITO',
+  PRIVADO = 'PRIVADO',
+  SENSIVEL = 'SENSIVEL',
+}
+
+/**
+ * Níveis de verificação de Organizações (seção 15).
+ * Refletem o que foi verificado — nunca legitimidade espiritual/religiosa.
+ */
+export enum OrganizationVerificationLevel {
+  NAO_VERIFICADA = 'NAO_VERIFICADA',
+  REIVINDICADA = 'REIVINDICADA',
+  VERIFICADA = 'VERIFICADA',
+  ORGANIZACAO_VERIFICADA = 'ORGANIZACAO_VERIFICADA',
+  PARCEIRO_INSTITUCIONAL = 'PARCEIRO_INSTITUCIONAL',
+}
+
 export enum DuplicidadeStatus {
   ABERTO = 'ABERTO',
   CONFIRMADO = 'CONFIRMADO',
   REJEITADO = 'REJEITADO',
   IGNORADO = 'IGNORADO',
+}
+
+/**
+ * Níveis de categoria da taxonomia multidimensional (prompt 03)
+ * POVO: grupos étnicos, nações africanas e diásporas
+ * TRADICAO: práticas, rituais e saberes transmitidos
+ * RELIGIAO: sistemas de crenças e culto
+ * ESPALTALIDADE: graus de iniciação e autoridade espiritual
+ * SISTEMA_CONHECIMENTO: estruturas epistemológicas
+ * SISTEMA_ADIVINHACAO: métodos de adivinhação e adivinhos
+ * EXPRESSAO_CULTURAL: artes, música, dança, literatura
+ * LINGUA: línguas africanas e afro-brasileiras
+ * TERRITORIO: terras sagradas, quilombos, terreiros
+ * REGIAO: sub-divisões geográficas (estados, províncias)
+ * PAIS: países africanos e de diáspora
+ * DIASPORA: comunidades africanas fora do continente
+ * COMUNIDADE: grupos locais de prática
+ * INSTITUICAO: templos, centros, instituições formais
+ * PATRIMONIO: bens culturais, imóveis, objetos
+ * EVENTO: rituais, festas, cerimônias
+ * CONTEUDO: artigos, vídeos, podcasts, materiais didáticos
+ */
+export enum TaxonomyCategory {
+  POVO = 'POVO',
+  TRADICAO = 'TRADICAO',
+  RELIGIAO = 'RELIGIAO',
+  ESPALTALIDADE = 'ESPALTALIDADE',
+  SISTEMA_CONHECIMENTO = 'SISTEMA_CONHECIMENTO',
+  SISTEMA_ADIVINHACAO = 'SISTEMA_ADIVINHACAO',
+  EXPRESSAO_CULTURAL = 'EXPRESSAO_CULTURAL',
+  LINGUA = 'LINGUA',
+  TERRITORIO = 'TERRITORIO',
+  REGIAO = 'REGIAO',
+  PAIS = 'PAIS',
+  DIASPORA = 'DIASPORA',
+  COMUNIDADE = 'COMUNIDADE',
+  INSTITUICAO = 'INSTITUICAO',
+  PATRIMONIO = 'PATRIMONIO',
+  EVENTO = 'EVENTO',
+  CONTEUDO = 'CONTEUDO',
 }

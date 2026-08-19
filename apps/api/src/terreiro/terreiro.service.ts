@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { UserRole } from '@axemap/shared';
+import { isAdminRole } from '../common/utils/roles';
+import { mascararLocalizacao } from '../common/utils/location-visibility';
 
 const perfilInclude = {
   dirigente: { select: { id: true, nome: true, avatarUrl: true } },
@@ -51,8 +52,9 @@ const perfilInclude = {
     orderBy: { createdAt: 'desc' as const },
     take: 6,
   },
+  // arquivoUrl é OMITIDO da resposta pública — documentos de verificação são privados
   documentosVerificacao: {
-    select: { id: true, tipo: true, status: true, arquivoUrl: true },
+    select: { id: true, tipo: true, status: true },
   },
   _count: {
     select: {
@@ -83,6 +85,7 @@ export class TerreiroService {
         nome: dto.nome,
         slug,
         tradicao: dto.tradicao,
+        taxonomyCategory: dto.taxonomyCategory || 'POVO',
         descricaoCurta: dto.descricaoCurta,
         descricaoLonga: dto.descricaoLonga,
         cidade: dto.cidade,
@@ -106,6 +109,8 @@ export class TerreiroService {
   }
 
   async listar(filters: {
+    pais?: string;
+    continente?: string;
     cidade?: string;
     estado?: string;
     tradicao?: string;
@@ -118,6 +123,8 @@ export class TerreiroService {
       isPublished: true,
     };
 
+    if (filters.pais) where.pais = filters.pais;
+    if (filters.continente) where.continente = filters.continente;
     if (filters.cidade) where.cidade = filters.cidade;
     if (filters.estado) where.estado = filters.estado;
     if (filters.tradicao) where.tradicao = filters.tradicao;
@@ -138,7 +145,7 @@ export class TerreiroService {
       this.prisma.terreiros.count({ where }),
     ]);
 
-    return { data, total, limit: filters.limit, offset: filters.offset };
+    return { data: data.map(mascararLocalizacao), total, limit: filters.limit, offset: filters.offset };
   }
 
   async listarMeus(usuarioId: string) {
@@ -192,9 +199,11 @@ export class TerreiroService {
     const completeness = this.calcularCompletude(terreiro);
     const meses = this.mesesNaPlataforma(terreiro.createdAt);
     const respostaMedia = this.calcularTempoResposta(terreiro.avaliacoes);
+    const terreiroMascarado = mascararLocalizacao(terreiro);
+    const visibilidade = terreiro.visibilidadeLocalizacao ?? 'PUBLICO';
 
     return {
-      ...terreiro,
+      ...terreiroMascarado,
       stats: {
         totalAvaliacoes: avgs.total,
         mediaNota: avgs.media,
@@ -234,9 +243,10 @@ export class TerreiroService {
         items: completeness.items,
       },
       trustScoreInfo: this.getTrustScoreInfo(terreiro.trustScore),
-      geoJSON: terreiro.latitude && terreiro.longitude ? {
+      visibilidadeLocalizacao: visibilidade,
+      geoJSON: terreiroMascarado.latitude && terreiroMascarado.longitude ? {
         type: 'Point',
-        coordinates: [terreiro.longitude, terreiro.latitude],
+        coordinates: [terreiroMascarado.longitude, terreiroMascarado.latitude],
       } : null,
     };
   }
@@ -313,9 +323,16 @@ export class TerreiroService {
     const terreiro = await this.prisma.terreiros.findUnique({ where: { id } });
     if (!terreiro) throw new NotFoundException('Terreiro não encontrado');
 
-    const isAdmin = usuario.role === UserRole.ADMIN || usuario.role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(usuario.role);
     if (terreiro.dirigenteId !== usuario.id && !isAdmin) {
       throw new ForbiddenException('Apenas o dirigente do terreiro pode editar este perfil');
+    }
+
+    if (dto.visibilidadeLocalizacao !== undefined) {
+      const valoresValidos = ['PUBLICO', 'APROXIMADA', 'PRIVADA'];
+      if (!valoresValidos.includes(dto.visibilidadeLocalizacao)) {
+        throw new BadRequestException(`visibilidadeLocalizacao inválida. Use uma de: ${valoresValidos.join(', ')}`);
+      }
     }
 
     return this.prisma.terreiros.update({
@@ -384,7 +401,7 @@ export class TerreiroService {
     return { removido: true };
   }
 
-  async deletar(id: string, usuarioId: string) {
+  async deletar(id: string, _usuarioId: string) {
     const terreiro = await this.prisma.terreiros.findUnique({ where: { id } });
     if (!terreiro) throw new NotFoundException('Terreiro não encontrado');
 

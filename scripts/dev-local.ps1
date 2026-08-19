@@ -26,7 +26,7 @@ function Warn([string]$m) { Write-Host "  $m" -ForegroundColor Yellow }
 function Fail([string]$m)  { Write-Host "  $m" -ForegroundColor Red; exit 1 }
 
 function Test-TcpPort([int]$port) {
-    try { $c = Get-NetConnection -State Listen -LocalPort $port -ErrorAction Stop; return ($null -ne $c) }
+    try { $c = Get-NetTCPConnection -State Listen -LocalPort $port -ErrorAction Stop; return ($null -ne $c) }
     catch { return $false }
 }
 
@@ -60,12 +60,13 @@ if (-not (Test-TcpPort $pgPort) -and -not (Test-Path (Join-Path $pgData 'postmas
 }
 
 # Garantir senha do usuario e database
-$env:PGPASSWORD = ''
+$env:PGPASSWORD = $dbPass
 $env:PGHOST = '127.0.0.1'
 $env:PGPORT = "$pgPort"
+$env:PGCONNECT_TIMEOUT = '5'
 
-& (pg-exe 'psql') -h 127.0.0.1 -p $pgPort -U $dbUser -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$dbName'" | Out-Null
-$exists = & (pg-exe 'psql') -h 127.0.0.1 -p $pgPort -U $dbUser -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$dbName'"
+& (pg-exe 'psql') -w -h 127.0.0.1 -p $pgPort -U $dbUser -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$dbName'" | Out-Null
+$exists = & (pg-exe 'psql') -w -h 127.0.0.1 -p $pgPort -U $dbUser -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$dbName'"
 if ("$exists".Trim() -ne '1') {
     Info "Criando database $dbName ..."
     & (pg-exe 'createdb') -h 127.0.0.1 -p $pgPort -U $dbUser $dbName

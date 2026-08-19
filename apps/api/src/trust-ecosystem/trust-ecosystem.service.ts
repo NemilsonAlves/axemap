@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { UserRole, CertificadoStatus, AntifraudeStatus } from '@axemap/shared';
+import { CertificadoStatus, AntifraudeStatus } from '@axemap/shared';
+import { isAdminRole } from '../common/utils/roles';
 
 const CERTIFICADO_DESCRICOES: Record<string, string> = {
   CASA_VERIFICADA: 'Identidade institucional e responsável legal confirmados por documentação validada.',
@@ -184,7 +185,7 @@ export class TrustEcosystemService {
     });
     if (!mediacao) throw new NotFoundException('Mediação não encontrada');
 
-    const isAdmin = role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(role);
     const podeVer = isAdmin || mediacao.reclamanteId === usuarioId || mediacao.moderadorId === usuarioId;
     if (!podeVer) throw new ForbiddenException('Você não participa desta mediação');
     return mediacao;
@@ -196,7 +197,7 @@ export class TrustEcosystemService {
     if (['ENCERRADA', 'PUBLICADA', 'ARQUIVADA'].includes(mediacao.status)) {
       throw new ForbiddenException('Mediação encerrada não aceita novas mensagens');
     }
-    const isAdmin = role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(role);
     const pode = isAdmin || mediacao.reclamanteId === usuarioId || mediacao.moderadorId === usuarioId;
     if (!pode) throw new ForbiddenException('Você não participa desta mediação');
 

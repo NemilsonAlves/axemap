@@ -24,8 +24,9 @@ export interface Recomendacao {
   isVerified: boolean;
   cidade: string;
   estado: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
+  localizacaoAproximada?: boolean;
   descricaoCurta: string | null;
   fotoUrl: string | null;
   score: number;

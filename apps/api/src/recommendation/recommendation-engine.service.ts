@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { WeightConfig } from './recommendation-weights';
+import { mascararLocalizacao } from '../common/utils/location-visibility';
 import {
-  Recomendacao, FatorRecomendacao, ContextoRecomendacao,
-  EventoSimples, CursoSimples, BlocoHome,
+  Recomendacao, FatorRecomendacao, ContextoRecomendacao, BlocoHome,
 } from './recommendation.types';
 
 interface TerreiroParaScore {
@@ -182,14 +182,15 @@ export class RecommendationEngine {
     return recomendacoes.filter(r => r.terreiroId !== terreiroId).slice(0, limite);
   }
 
-  private async carregarTerreiros(contexto: ContextoRecomendacao): Promise<TerreiroParaScore[]> {
+  private async carregarTerreiros(_contexto: ContextoRecomendacao): Promise<TerreiroParaScore[]> {
     const baseWhere = Prisma.sql`WHERE t.deleted_at IS NULL AND t.is_published = true`;
 
     const rows = await this.prisma.$queryRaw<TerreiroParaScore[]>`
       SELECT
         t.id, t.nome, t.slug, t.tradicao, t.trust_score as "trustScore",
         t.is_verified as "isVerified", t.cidade, t.estado,
-        t.latitude, t.longitude, t.descricao_curta as "descricaoCurta",
+        t.latitude, t.longitude, t.visibilidade_localizacao as "visibilidadeLocalizacao",
+        t.descricao_curta as "descricaoCurta",
         t.foto_url as "fotoUrl", t.updated_at as "updatedAt",
         COUNT(DISTINCT f.usuario_id) as "totalFavoritos",
         COUNT(DISTINCT a.id) as "totalAvaliacoes",
@@ -273,6 +274,7 @@ export class RecommendationEngine {
 
       const scoreFinal = Number((scoreTotal * 100).toFixed(2));
       const explicacao = this.gerarExplicacao(fatores, t, contexto);
+      const mascarado = mascararLocalizacao(t);
 
       return {
         terreiroId: t.id,
@@ -283,8 +285,9 @@ export class RecommendationEngine {
         isVerified: t.isVerified,
         cidade: t.cidade,
         estado: t.estado,
-        latitude: t.latitude,
-        longitude: t.longitude,
+        latitude: mascarado.latitude ?? null,
+        longitude: mascarado.longitude ?? null,
+        localizacaoAproximada: mascarado.localizacaoAproximada ?? false,
         descricaoCurta: t.descricaoCurta,
         fotoUrl: t.fotoUrl,
         score: scoreFinal,
@@ -344,6 +347,7 @@ export class RecommendationEngine {
 
     return rows.map((r: any) => {
       const distKm = Number(r.distancia) / 1000;
+      const mascarado = mascararLocalizacao(r);
       return {
         terreiroId: r.id,
         nome: r.nome,
@@ -353,8 +357,9 @@ export class RecommendationEngine {
         isVerified: r.isVerified,
         cidade: r.cidade,
         estado: r.estado,
-        latitude: Number(r.latitude),
-        longitude: Number(r.longitude),
+        latitude: mascarado.latitude != null ? Number(mascarado.latitude) : null,
+        longitude: mascarado.longitude != null ? Number(mascarado.longitude) : null,
+        localizacaoAproximada: mascarado.localizacaoAproximada ?? false,
         descricaoCurta: r.descricaoCurta,
         fotoUrl: r.fotoUrl,
         score: 100 - distKm,
@@ -367,24 +372,28 @@ export class RecommendationEngine {
   }
 
   private paraRecomendacoes(terreiros: TerreiroParaScore[]): Recomendacao[] {
-    return terreiros.map(t => ({
-      terreiroId: t.id,
-      nome: t.nome,
-      slug: t.slug,
-      tradicao: t.tradicao,
-      trustScore: t.trustScore,
-      isVerified: t.isVerified,
-      cidade: t.cidade,
-      estado: t.estado,
-      latitude: t.latitude,
-      longitude: t.longitude,
-      descricaoCurta: t.descricaoCurta,
-      fotoUrl: t.fotoUrl,
-      score: t.trustScore * 10,
-      fatores: [],
-      explicacao: '',
-      calculadoEm: new Date().toISOString(),
-    }));
+    return terreiros.map(t => {
+      const mascarado = mascararLocalizacao(t);
+      return {
+        terreiroId: t.id,
+        nome: t.nome,
+        slug: t.slug,
+        tradicao: t.tradicao,
+        trustScore: t.trustScore,
+        isVerified: t.isVerified,
+        cidade: t.cidade,
+        estado: t.estado,
+        latitude: mascarado.latitude ?? null,
+        longitude: mascarado.longitude ?? null,
+        localizacaoAproximada: mascarado.localizacaoAproximada ?? false,
+        descricaoCurta: t.descricaoCurta,
+        fotoUrl: t.fotoUrl,
+        score: t.trustScore * 10,
+        fatores: [],
+        explicacao: '',
+        calculadoEm: new Date().toISOString(),
+      };
+    });
   }
 
   private calcularDistanciaKm(lat1: number, lng1: number, lat2: number, lng2: number): number {

@@ -117,6 +117,7 @@ export class OrganizacoesService {
         descricao: dto.descricao ?? null,
         historia: dto.historia ?? null,
         tradicoes: dto.tradicoes ?? [],
+        taxonomyCategory: dto.taxonomyCategory || 'INSTITUICAO',
         anoFundacao: dto.anoFundacao ?? null,
         areaAtuacao: dto.areaAtuacao ?? null,
         contatos: dto.contatos ?? null,
@@ -134,7 +135,7 @@ export class OrganizacoesService {
     const data: any = {};
     const campos = [
       'nome', 'nomePublico', 'tipo', 'pais', 'estado', 'cidade', 'website',
-      'descricao', 'historia', 'tradicoes', 'anoFundacao', 'areaAtuacao', 'contatos',
+      'descricao', 'historia', 'tradicoes', 'anoFundacao', 'areaAtuacao', 'contatos', 'taxonomyCategory',
     ];
     for (const campo of campos) {
       if (campo in dto) data[campo] = dto[campo];
@@ -210,7 +211,6 @@ export class OrganizacoesService {
     });
     if (!rel || rel.organizacaoId !== id) throw new NotFoundException('Vínculo não encontrado');
 
-    const dirigenteOuAdmin = false;
     if (rel.terreiro.dirigenteId !== userId) {
       throw new ForbiddenException('Somente o dirigente do terreiro pode aceitar vínculos');
     }

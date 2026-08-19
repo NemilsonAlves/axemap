@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 export default function FederacoesPage() {
   return (
     <RedeAxemapIndex
-      endpoint="/organizacoes?tipo=FEDERACAO&limit=120"
+      endpoint="/federacoes?limit=120"
       filtroInicial="FEDERACAO"
+      linkBase="/federacoes"
       titulo={
         <>
           Federações e confederações da{' '}

@@ -12,6 +12,7 @@ import {
   GraphFonte,
   ConteudoStatus,
   DuplicidadeStatus,
+  NivelPrivacidade,
 } from '@axemap/shared';
 
 const RAIO_PADRAO_KM = 50;
@@ -335,22 +336,41 @@ export class AxegraphService {
     comGeo.sort((a, b) => b.score - a.score);
     const top = comGeo.slice(0, limit);
 
-    // Enriquecer com relacionamentos de 1º grau para contexto (compacto)
-    const resultados = [];
-    for (const item of top) {
-      const rels = await this.prisma.graphRelacionamento.findMany({
-        where: {
-          status: GraphStatus.VERIFICADO,
-          deletedAt: null,
-          OR: [{ origemEntidadeId: item.entidade.id }, { alvoEntidadeId: item.entidade.id }],
-        },
-        include: {
-          origemEntidade: { select: { id: true, entidadeTipo: true, nome: true } },
-          alvoEntidade: { select: { id: true, entidadeTipo: true, nome: true } },
-        },
-        take: 6,
-      });
-      resultados.push({
+    // Enriquecer com relacionamentos de 1º grau para contexto (compacto).
+    // BATCH: uma única query para todos os IDs do top, sem loop N+1.
+    const topIds = top.map((item) => item.entidade.id);
+
+    const todosRels = topIds.length > 0
+      ? await this.prisma.graphRelacionamento.findMany({
+          where: {
+            status: GraphStatus.VERIFICADO,
+            deletedAt: null,
+            OR: [
+              { origemEntidadeId: { in: topIds } },
+              { alvoEntidadeId: { in: topIds } },
+            ],
+          },
+          include: {
+            origemEntidade: { select: { id: true, entidadeTipo: true, nome: true } },
+            alvoEntidade: { select: { id: true, entidadeTipo: true, nome: true } },
+          },
+        })
+      : [];
+
+    // Group by entity id, cap at 6 connections per entity
+    const relsPorEntidade = new Map<string, typeof todosRels>();
+    for (const r of todosRels) {
+      for (const eId of [r.origemEntidadeId, r.alvoEntidadeId]) {
+        if (!topIds.includes(eId)) continue;
+        const arr = relsPorEntidade.get(eId) ?? [];
+        if (arr.length < 6) arr.push(r);
+        relsPorEntidade.set(eId, arr);
+      }
+    }
+
+    const resultados = top.map((item) => {
+      const rels = relsPorEntidade.get(item.entidade.id) ?? [];
+      return {
         entidade: {
           id: item.entidade.id,
           entidadeTipo: item.entidade.entidadeTipo,
@@ -374,8 +394,8 @@ export class AxegraphService {
               ? { nome: r.alvoEntidade.nome, tipo: r.alvoEntidade.entidadeTipo }
               : { nome: r.origemEntidade.nome, tipo: r.origemEntidade.entidadeTipo },
         })),
-      });
-    }
+      };
+    });
 
     return {
       consulta: q,
@@ -917,7 +937,12 @@ export class AxegraphService {
 
   async listarConteudosCulturais(params: { tipo?: string; status?: ConteudoStatus; q?: string; limit?: number; offset?: number }) {
     const soPublico = !params.status;
-    const where: any = { deletedAt: null, ...(soPublico ? { status: { in: [ConteudoStatus.VERIFICADA, ConteudoStatus.OFICIAL] } } : { status: params.status }) };
+    const where: any = {
+      deletedAt: null,
+      ...(soPublico
+        ? { status: { in: [ConteudoStatus.VERIFICADA, ConteudoStatus.OFICIAL] }, nivelPrivacidade: NivelPrivacidade.PUBLICO }
+        : { status: params.status }),
+    };
     if (params.tipo) where.tipo = params.tipo;
     if (params.q) {
       where.OR = [
@@ -952,7 +977,7 @@ export class AxegraphService {
   }
 
   async listarPatrimonios(params: { estado?: string; cidade?: string; q?: string; limit?: number }) {
-    const where: any = { deletedAt: null };
+    const where: any = { deletedAt: null, nivelPrivacidade: NivelPrivacidade.PUBLICO };
     if (params.estado) where.estado = params.estado;
     if (params.cidade) where.cidade = { contains: params.cidade, mode: 'insensitive' };
     if (params.q) where.nome = { contains: params.q, mode: 'insensitive' };
@@ -1020,7 +1045,7 @@ export class AxegraphService {
       .slice(0, Math.max(2, dias));
 
     const patrimonio = await this.prisma.patrimonioCultural.findMany({
-      where: params.estado ? { estado: params.estado } : {},
+      where: { ...(params.estado ? { estado: params.estado } : {}), nivelPrivacidade: NivelPrivacidade.PUBLICO },
       take: 8,
     });
 
@@ -1028,7 +1053,7 @@ export class AxegraphService {
     const cidadesRoteiro = [...new Set(terreirosDoRoteiro.map((t) => t.cidade).filter(Boolean))];
     if (cidadesRoteiro.length) {
       const conteudos = await this.prisma.conteudoCultural.findMany({
-        where: { deletedAt: null, cidade: { in: cidadesRoteiro } },
+        where: { deletedAt: null, cidade: { in: cidadesRoteiro }, nivelPrivacidade: NivelPrivacidade.PUBLICO },
         take: 8,
       });
       conteudosRoteiro.push(...conteudos.map((c) => ({ nome: c.titulo, cidade: c.cidade, estado: c.estado })));

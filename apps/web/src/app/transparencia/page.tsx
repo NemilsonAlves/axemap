@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
 import { ShieldCheck, Scale, HeartHandshake, ClipboardCheck, Search } from 'lucide-react';
 import '../institucional/legal.css';
@@ -22,6 +23,7 @@ interface RankingItem {
 }
 
 export default function TransparenciaIndexPage() {
+  const router = useRouter();
   const [totalTerreiros, setTotalTerreiros] = useState<number | null>(null);
   const [conselho, setConselho] = useState<Membro[]>([]);
   const [ranking, setRanking] = useState<RankingItem[]>([]);
@@ -54,7 +56,7 @@ export default function TransparenciaIndexPage() {
       setErroSlug('Informe o endereço do terreiro (slug).');
       return;
     }
-    window.location.href = `/transparencia/${encodeURIComponent(slug.trim())}`;
+    router.push(`/transparencia/${encodeURIComponent(slug.trim())}`);
   };
 
   return (

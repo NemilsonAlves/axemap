@@ -7,10 +7,12 @@ import {
   Param,
   Body,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { OrganizacoesService } from './organizacoes.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { isAdminRole } from '../common/utils/roles';
 
 @Controller()
 export class OrganizacoesController {
@@ -69,13 +71,13 @@ export class OrganizacoesController {
     @Body() dto: any,
     @CurrentUser() user: any,
   ) {
-    return this.organizacoesService.atualizar(user.id, id, dto, user.role === 'ADMIN');
+    return this.organizacoesService.atualizar(user.id, id, dto, isAdminRole(user.role));
   }
 
   @Post('organizacoes/:id/publicar')
   @UseGuards(AuthGuard('jwt'))
   async publicar(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.organizacoesService.publicar(user.id, id, user.role === 'ADMIN');
+    return this.organizacoesService.publicar(user.id, id, isAdminRole(user.role));
   }
 
   @Post('organizacoes/:id/relacionamentos')
@@ -117,5 +119,14 @@ export class OrganizacoesController {
   @Get('organizacoes/:slug')
   async detalhe(@Param('slug') slug: string) {
     return this.organizacoesService.detalhe(slug);
+  }
+
+  @Get('federacoes/:slug')
+  async federacaoDetalhe(@Param('slug') slug: string) {
+    const org = await this.organizacoesService.detalhe(slug);
+    if (org?.tipo !== 'FEDERACAO') {
+      throw new NotFoundException('Federação não encontrada');
+    }
+    return org;
   }
 }

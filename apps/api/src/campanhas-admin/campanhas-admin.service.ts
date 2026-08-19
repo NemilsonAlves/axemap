@@ -184,7 +184,7 @@ export class CampanhasAdminService {
     });
   }
 
-  async recusar(id: string, usuarioId: string, motivo?: string) {
+  async recusar(id: string, usuarioId: string, _motivo?: string) {
     await this.obter(id);
     return this.prisma.campanhas.update({
       where: { id },
@@ -204,7 +204,7 @@ export class CampanhasAdminService {
     await this.obter(id);
     return this.prisma.campanhas.update({
       where: { id },
-      data: { status: 'PUBLICADA', publicadoEm: new Date() },
+      data: { status: 'PUBLICADA', publicadoEm: new Date(), revisadoPorId: usuarioId },
     });
   }
 

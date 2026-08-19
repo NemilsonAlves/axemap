@@ -83,6 +83,28 @@ export class ModerationAdminService {
     });
   }
 
+  async definirVerificacaoOrganizacao(id: string, nivel: string) {
+    const org = await this.prisma.organizacoes.findUnique({ where: { id } });
+    if (!org) throw new NotFoundException('Organização não encontrada');
+    if (org.deletedAt) throw new BadRequestException('Organização arquivada');
+
+    const validos = [
+      'NAO_VERIFICADA',
+      'REIVINDICADA',
+      'VERIFICADA',
+      'ORGANIZACAO_VERIFICADA',
+      'PARCEIRO_INSTITUCIONAL',
+    ];
+    if (!validos.includes(nivel)) {
+      throw new BadRequestException('Nível de verificação inválido');
+    }
+
+    return this.prisma.organizacoes.update({
+      where: { id },
+      data: { verificacao: nivel as any },
+    });
+  }
+
   async listarAvaliacoes(q?: string, minNota?: string, ocultas?: string, limite = 50, offset = 0) {
     const where: any = {};
     if (ocultas === 'true') {

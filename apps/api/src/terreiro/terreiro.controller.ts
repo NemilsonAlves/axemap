@@ -22,6 +22,8 @@ export class TerreiroController {
 
   @Get()
   async listar(
+    @Query('pais') pais?: string,
+    @Query('continente') continente?: string,
     @Query('cidade') cidade?: string,
     @Query('estado') estado?: string,
     @Query('tradicao') tradicao?: string,
@@ -30,7 +32,7 @@ export class TerreiroController {
     @Query('offset') offset = '0',
   ) {
     return this.terreiroService.listar({
-      cidade, estado, tradicao, q,
+      pais, continente, cidade, estado, tradicao, q,
       limit: parseInt(limit),
       offset: parseInt(offset),
     });

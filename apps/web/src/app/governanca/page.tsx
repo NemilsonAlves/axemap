@@ -70,7 +70,9 @@ export default function GovernancaPage() {
             <li>Denúncia falsa ou abusiva pode resultar em sanções ao autor.</li>
           </ul>
           <div className="legal-note">
-            Achou algo errado? Use o botão &quot;Denunciar&quot; presente nos perfis e conteúdos.
+            Achou algo errado? Acesse a{' '}
+            <Link href="/protecao" style={{ textDecoration: 'underline' }}>Central de Proteção AxéMap</Link> para
+            registrar uma denúncia com protocolo — também disponível nos perfis e conteúdos.
           </div>
         </section>
       </div>

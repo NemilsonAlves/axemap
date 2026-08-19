@@ -67,6 +67,22 @@ export class ModerationAdminController {
     return result;
   }
 
+  @Post('organizacoes/:id/verificacao')
+  async definirVerificacaoOrganizacao(
+    @Param('id') id: string,
+    @Body() dto: { nivel: string; justificativa?: string },
+    @CurrentUser() user: any,
+    @Req() req: any,
+  ) {
+    const result = await this.moderationAdminService.definirVerificacaoOrganizacao(id, dto.nivel);
+    await this.auditLogsService.registrar(user.id, 'ORGANIZACAO_VERIFICACAO', 'ORGANIZACAO', id, {
+      depois: { nivel: dto.nivel, justificativa: dto.justificativa },
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+    return result;
+  }
+
   @Post('organizacoes/:id/arquivar')
   async arquivarOrganizacao(@Param('id') id: string, @CurrentUser() user: any, @Req() req: any) {
     const result = await this.moderationAdminService.arquivarOrganizacao(id);

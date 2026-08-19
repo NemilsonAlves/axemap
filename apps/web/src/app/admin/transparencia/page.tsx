@@ -87,7 +87,7 @@ export default function AdminTransparenciaPage() {
           complianceConformes: dash?.complianceConformes ?? 0,
         },
       });
-    } catch (e) {
+    } catch {
       setError('Não foi possível montar o relatório de transparência.');
     }
     setLoading(false);

@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import './busca/page.css';
 import { I18nProvider } from '@/lib/i18n/i18n-context';
+import { HtmlLang } from '@/components/i18n/html-lang';
 import { AuthProvider } from '@/lib/auth/auth-context';
 import { AnalyticsProvider } from '@/lib/analytics/analytics-context';
 import { FeatureFlagsProvider } from '@/lib/feature-flags/feature-flags-context';
@@ -14,6 +15,7 @@ import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { FeedbackWidget } from '@/components/feedback-widget';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { CookieConsent } from '@/components/cookies/cookie-consent';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -40,13 +42,49 @@ export const metadata: Metadata = {
     template: '%s | AxéMap',
   },
   description:
-    'Infraestrutura digital global para tradições africanas e afro-diaspóricas. Mapa vivo, memória cultural, comunidades, conhecimento e conexão — da África para o mundo.',
+    'O mapa vivo das tradições de matriz africana no Brasil. Candomblé, Umbanda, Batuque, Tambor de Mina, Xangô, Jurema e muito mais — acesso gratuito para a comunidade.',
   metadataBase: new URL('https://axemap.com.br'),
+  alternates: {
+    canonical: '/',
+    languages: {
+      'pt-BR': '/',
+      'pt-PT': '/',
+      'en': '/',
+      'es': '/',
+      'fr': '/',
+      'yo': '/',
+    },
+  },
+  icons: {
+    icon: [
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-48.png', sizes: '48x48', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  openGraph: {
+    title: 'AxéMap — Mapa · Memória · Ancestralidade · Conexão',
+    description:
+      'O mapa vivo das tradições de matriz africana no Brasil. Descubra terreiros, comunidades, eventos e cultura afro-brasileira — acesso gratuito.',
+    url: 'https://axemap.com.br',
+    siteName: 'AxéMap',
+    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'AxéMap — O mapa vivo das tradições de matriz africana no Brasil' }],
+    locale: 'pt_BR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AxéMap — Mapa · Memória · Ancestralidade · Conexão',
+    description:
+      'O mapa vivo das tradições de matriz africana no Brasil. Acesso gratuito para a comunidade.',
+    images: ['/og-default.png'],
+  },
+  manifest: '/manifest.webmanifest',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <ThemeScript />
       </head>
@@ -56,17 +94,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <ThemeProvider>
           <I18nProvider>
+            <HtmlLang />
           <AuthProvider>
             <AnalyticsProvider>
               <FeatureFlagsProvider>
                 <TooltipProvider delayDuration={300}>
+                  <a
+                    href="#conteudo"
+                    className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
+                  >
+                    Pular para o conteúdo principal
+                  </a>
                   <div className="flex min-h-dvh flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
                     <AppHeader />
-                    <main className="flex-1">{children}</main>
+                    <main id="conteudo" className="flex-1">{children}</main>
                     <AppFooter />
                   </div>
                   <MobileBottomNav />
                   <FeedbackWidget />
+                  <CookieConsent />
                   <Toaster />
                 </TooltipProvider>
               </FeatureFlagsProvider>

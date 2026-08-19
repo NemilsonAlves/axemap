@@ -88,17 +88,17 @@ export function HomeIfa() {
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                href={`/tradicao/${slugTradicao('IFA')}`}
+                href="/ifa"
                 className="inline-flex items-center gap-2 rounded-2xl bg-dourado-sol px-6 py-3.5 text-sm font-bold text-ancestral-deep shadow-lg shadow-dourado-sol/25 transition hover:brightness-110"
               >
-                Explorar Ifá
+                Conhecer Ifá
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
               <Link
-                href="/tradicao"
+                href={`/tradicao/${slugTradicao('IFA')}`}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-nevoa/90 underline-offset-4 transition hover:text-white hover:underline"
               >
-                Ver todas as tradições
+                Ver comunidades de Ifá
                 <span aria-hidden="true">→</span>
               </Link>
             </div>

@@ -28,6 +28,9 @@ const NOME_TRADICOES: Record<string, string> = {
   SANTERIA: 'Santería / Regla de Ocha',
   VODOU: 'Vodou Haitiano',
   PALO: 'Palo Monte',
+  REGLA_DE_OCHA: 'Regla de Ocha / Santería',
+  ABAKUA: 'Abakuá',
+  TERECO: 'Terecô',
 };
 
 const DESCRICOES_TRADICOES: Record<string, string> = {
@@ -48,6 +51,9 @@ const DESCRICOES_TRADICOES: Record<string, string> = {
   SANTERIA: 'Tradição afro-cubana de culto aos Orixás (Orishas), nascida no encontro entre o povo yorùbá e o catolicismo em Cuba, com forte presença na diáspora cubana.',
   VODOU: 'Tradição do Haiti formada na síntese entre cultos fon, ewé, iorubá e bantos e o catolicismo, presente na diáspora haitiana em vários territórios.',
   PALO: 'Tradição afro-cubana de raiz banta (Kongo), centrada no culto aos espíritos da natureza (Nkisi), presente na diáspora cubana.',
+  REGLA_DE_OCHA: 'Expressão cubana da religiosidade iorubá com culto aos Orichas, também chamada Santería, com identidade e organização próprias em Cuba e na diáspora.',
+  ABAKUA: 'Sociedade secreta afro-cubana originada das associações Ekpe/Efik de Calabar, adaptada a Cuba desde o século XIX. No AxéMap, apenas informações públicas autorizadas.',
+  TERECO: 'Tradição afro-brasileira do Maranhão, também chamada Tambor da Mata, com forte presença de encantados e influências do Tambor de Mina e do catolicismo popular.',
 };
 
 const ESTADOS_BR: Record<string, string> = {

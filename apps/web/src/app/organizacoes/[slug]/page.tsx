@@ -252,12 +252,20 @@ export default async function OrganizacaoPage({ params }: { params: Promise<{ sl
             Explore as conexões desta organização com comunidades, territórios, eventos e conteúdos no grafo de conhecimento.
           </p>
         </div>
-        <Link
-          href={`/grafo?q=${encodeURIComponent(nome)}`}
-          className="inline-flex items-center gap-2 rounded-2xl bg-brand-gradient px-5 py-3 text-sm font-bold text-white shadow-md shadow-copper/25 transition hover:brightness-105"
-        >
-          Abrir no grafo <ArrowRight className="size-4" aria-hidden="true" />
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href={`/protecao?tipo=ORGANIZACAO&entidadeId=${encodeURIComponent(slug)}`}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground underline-offset-2 hover:text-destructive hover:underline"
+          >
+            Denunciar esta página
+          </Link>
+          <Link
+            href={`/grafo?q=${encodeURIComponent(nome)}`}
+            className="inline-flex items-center gap-2 rounded-2xl bg-brand-gradient px-5 py-3 text-sm font-bold text-white shadow-md shadow-copper/25 transition hover:brightness-105"
+          >
+            Abrir no grafo <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+        </div>
       </section>
     </main>
   );

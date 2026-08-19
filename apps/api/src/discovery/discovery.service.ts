@@ -24,6 +24,7 @@ export class DiscoveryService {
         AND a.created_at >= NOW() - INTERVAL '30 days'
         AND a.deleted_at IS NULL
       WHERE t.deleted_at IS NULL AND t.is_published = true
+        AND t.nivel_privacidade = 'PUBLICO'
       GROUP BY t.id
       ORDER BY total_favoritos DESC, total_avaliacoes DESC
       LIMIT ${limite}
@@ -77,17 +78,17 @@ export class DiscoveryService {
     const [tradicoes, cidades, stats] = await Promise.all([
       this.prisma.$queryRaw<Array<{ tradicao: string; count: bigint }>>`
         SELECT tradicao, COUNT(*) as count FROM terreiros
-        WHERE deleted_at IS NULL AND is_published = true
+        WHERE deleted_at IS NULL AND is_published = true AND nivel_privacidade = 'PUBLICO'
         GROUP BY tradicao ORDER BY count DESC
       `,
       this.prisma.$queryRaw<Array<{ cidade: string; estado: string; count: bigint }>>`
         SELECT cidade, estado, COUNT(*) as count FROM terreiros
-        WHERE deleted_at IS NULL AND is_published = true
+        WHERE deleted_at IS NULL AND is_published = true AND nivel_privacidade = 'PUBLICO'
         GROUP BY cidade, estado ORDER BY count DESC LIMIT 20
       `,
       {
-        totalTerreiro: await this.prisma.terreiros.count({ where: { deletedAt: null, isPublished: true } }),
-        totalVerificados: await this.prisma.terreiros.count({ where: { isVerified: true, deletedAt: null, isPublished: true } }),
+        totalTerreiro: await this.prisma.terreiros.count({ where: { deletedAt: null, isPublished: true, nivelPrivacidade: 'PUBLICO' } }),
+        totalVerificados: await this.prisma.terreiros.count({ where: { isVerified: true, deletedAt: null, isPublished: true, nivelPrivacidade: 'PUBLICO' } }),
         totalEventos: await this.prisma.eventos.count({ where: { deletedAt: null, dataInicio: { gte: new Date() } } }),
       },
     ]);

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import type { TerreiroPerfil } from '@/types/terreiro';
 
@@ -23,10 +24,12 @@ export function GaleriaSection({ terreiro }: { terreiro: TerreiroPerfil }) {
               onClick={() => setSelectedPhoto(foto.url)}
               aria-label={foto.alt || 'Foto do terreiro'}
             >
-              <img
+              <Image
                 src={foto.thumbUrl || foto.url}
                 alt={foto.alt || ''}
-                loading="lazy"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 33vw, 20vw"
               />
             </button>
           ))}
@@ -64,6 +67,7 @@ export function GaleriaSection({ terreiro }: { terreiro: TerreiroPerfil }) {
         <div className="modal-overlay" onClick={() => setSelectedPhoto(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelectedPhoto(null)}>×</button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={selectedPhoto} alt="Foto ampliada" className="modal-image" />
           </div>
         </div>

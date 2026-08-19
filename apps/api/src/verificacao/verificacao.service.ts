@@ -3,7 +3,7 @@ import { PrismaService } from '../database/prisma.service';
 import { UploadService } from '../upload/upload.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { NotificacoesService } from '../notificacoes/notificacoes.service';
-import { UserRole } from '@axemap/shared';
+import { isAdminRole } from '../common/utils/roles';
 
 const TIPOS_VALIDOS = new Set(['CNPJ', 'REGISTRO', 'RESPONSAVEL', 'ENDERECO', 'OUTROS']);
 
@@ -19,7 +19,7 @@ export class VerificacaoService {
   private async validarAcesso(usuario: { id: string; role?: string }, terreiroId: string) {
     const terreiro = await this.prisma.terreiros.findUnique({ where: { id: terreiroId } });
     if (!terreiro) throw new NotFoundException('Terreiro não encontrado');
-    const isAdmin = usuario.role === UserRole.ADMIN || usuario.role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(usuario.role);
     if (terreiro.dirigenteId !== usuario.id && !isAdmin) {
       throw new ForbiddenException('Apenas o dirigente do terreiro pode gerenciar a verificação');
     }
@@ -52,7 +52,7 @@ export class VerificacaoService {
   }
 
   async listar(usuario: { id: string; role?: string }, terreiroId?: string) {
-    const isAdmin = usuario.role === UserRole.ADMIN || usuario.role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(usuario.role);
     if (terreiroId) {
       await this.validarAcesso(usuario, terreiroId);
       return this.prisma.documentosVerificacao.findMany({
@@ -68,7 +68,7 @@ export class VerificacaoService {
   }
 
   async listarPendentes(usuario: { id: string; role?: string }, limite = 50, offset = 0) {
-    const isAdmin = usuario.role === UserRole.ADMIN || usuario.role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(usuario.role);
     if (!isAdmin) throw new ForbiddenException('Apenas administradores podem listar documentos pendentes');
     return this.prisma.documentosVerificacao.findMany({
       where: { status: 'PENDENTE' },
@@ -85,7 +85,7 @@ export class VerificacaoService {
     status: string,
     motivo?: string,
   ) {
-    const isAdmin = usuario.role === UserRole.ADMIN || usuario.role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(usuario.role);
     if (!isAdmin) throw new ForbiddenException('Apenas administradores podem revisar documentos');
 
     const doc = await this.prisma.documentosVerificacao.findUnique({

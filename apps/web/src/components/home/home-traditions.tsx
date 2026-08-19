@@ -15,12 +15,14 @@ import {
 } from 'lucide-react';
 import { SectionHeading } from './section-heading';
 import type { ExploreData } from './data';
+import { useI18n } from '@/lib/i18n/i18n-context';
 import {
   FILTROS_TRADICOES,
   GRADIENTE_POR_FAMILIA,
   slugTradicao,
   tradicoesPorFiltro,
 } from '@/lib/tradicoes';
+import { tradicaoRelevance } from '@/lib/geo';
 
 const GAP = 20;
 
@@ -37,6 +39,7 @@ interface HomeTraditionsProps {
 }
 
 export function HomeTraditions({ explore }: HomeTraditionsProps) {
+  const { country } = useI18n();
   const [filtro, setFiltro] = React.useState('todas');
   const [perView, setPerView] = React.useState(3);
   const [active, setActive] = React.useState(0);
@@ -52,7 +55,16 @@ export function HomeTraditions({ explore }: HomeTraditionsProps) {
     return m;
   }, [explore]);
 
-  const itens = React.useMemo(() => tradicoesPorFiltro(filtro), [filtro]);
+  // The sort by geo relevance must happen ONLY on the client after mount
+  // to avoid SSR/client hydration mismatch (server has no locale context).
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => { setMounted(true); }, []);
+
+  const itens = React.useMemo(() => {
+    const base = tradicoesPorFiltro(filtro);
+    if (!mounted) return base; // server: stable order, no geo sort
+    return [...base].sort((a, b) => tradicaoRelevance(country, a) - tradicaoRelevance(country, b));
+  }, [filtro, country, mounted]);
   const totalPages = Math.max(1, Math.ceil(itens.length / perView));
 
   React.useEffect(() => {
@@ -139,10 +151,10 @@ export function HomeTraditions({ explore }: HomeTraditionsProps) {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <SectionHeading
-              eyebrow="África · Diáspora · Conhecimento · Memória"
+              eyebrow="Brasil · Memória · Ancestralidade"
               id="tradicoes-titulo"
-              title="Explore as tradições africanas e suas diásporas"
-              description="Tradições, sistemas de conhecimento, povos e expressões culturais que atravessaram gerações e territórios — cada um com identidade, origem, língua e história próprias. União sem unificação."
+              title="Tradições vivas"
+              description="Candomblé, Umbanda, Batuque, Tambor de Mina, Xangô, Jurema — e todas as expressões que resistiram, se transformaram e permanecem vivas nas casas, terreiros e comunidades de todo o Brasil."
             />
           </div>
           <div className="flex items-center gap-2">
@@ -197,7 +209,7 @@ export function HomeTraditions({ explore }: HomeTraditionsProps) {
           ref={viewportRef}
           role="region"
           aria-roledescription="carrossel"
-          aria-label="Tradições africanas e suas diásporas"
+          aria-label="Tradições afro-brasileiras e seus territórios"
           className="flex snap-x snap-mandatory overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ gap: GAP }}
         >

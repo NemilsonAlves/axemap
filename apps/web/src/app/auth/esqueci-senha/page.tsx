@@ -2,15 +2,28 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { api } from '@/lib/api-client';
 import '../auth.css';
 
 export default function EsqueciSenhaPage() {
   const [email, setEmail] = useState('');
   const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [carregando, setCarregando] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setEnviado(true);
+    if (!email) return;
+    setCarregando(true);
+    setErro(null);
+    try {
+      await api.post<{ message: string }>('/auth/forgot-password', { email });
+      setEnviado(true);
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : 'Não foi possível enviar as instruções.');
+    } finally {
+      setCarregando(false);
+    }
   }
 
   return (
@@ -38,8 +51,9 @@ export default function EsqueciSenhaPage() {
                 color: 'var(--color-foreground)',
               }}
             >
-              <strong>Instruções enviadas.</strong> Verifique sua caixa de entrada (e o spam) em <strong>{email}</strong>.
-              Ainda não recebeu? Escreva para{' '}
+              <strong>Instruções enviadas.</strong> Se o e-mail <strong>{email}</strong> estiver cadastrado, você
+              receberá um link para redefinir sua senha. Verifique também a caixa de spam. Ainda não recebeu? Escreva
+              para{' '}
               <a href={`mailto:contato@axemap.com.br?subject=Recuperação de senha&body=Meu e-mail de conta: ${encodeURIComponent(email)}`}>
                 contato@axemap.com.br
               </a>{' '}
@@ -60,8 +74,20 @@ export default function EsqueciSenhaPage() {
                   className="input"
                 />
               </div>
-              <button type="submit" className="btn btn-primary">
-                Enviar instruções
+              {erro && (
+                <p
+                  role="alert"
+                  style={{
+                    margin: 0,
+                    fontSize: '0.8rem',
+                    color: 'hsl(var(--destructive))',
+                  }}
+                >
+                  {erro}
+                </p>
+              )}
+              <button type="submit" className="btn btn-primary" disabled={carregando}>
+                {carregando ? 'Enviando…' : 'Enviar instruções'}
               </button>
             </form>
           )}

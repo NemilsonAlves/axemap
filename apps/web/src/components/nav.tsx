@@ -16,7 +16,7 @@ export function Nav() {
         <a href="/busca">Buscar</a>
         <a href="/mapa">Mapa</a>
         <a href="/central-evolucao">Evolução</a>
-        <a href="/onboarding" className="nav-cta">Cadastrar Casa de Axé</a>
+        <a href="/auth/cadastro" className="nav-cta">Cadastrar Casa de Axé</a>
         {loading ? null : user ? (
           <>
             {isAdmin && <a href="/admin">Admin</a>}

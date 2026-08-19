@@ -83,8 +83,22 @@ Contagens agregadas reais: usuários (por papel, verificados, bloqueados, novos 
 
 ## Segurança corrigida
 
-- **Feature Flags**: endpoints de escrita (`POST /feature-flags`, `PATCH /feature-flags/:id`, `POST /feature-flags/overrides`) agora exigem `ADMIN`/`SUPER_ADMIN` — antes apenas autenticado.
-- **`/admin/system`**: passa a ser protegido pelo layout admin (antes sem guard).
+- **Feature Flags**: endpoints de escrita (`POST /feature-flags`, `PATCH /feature-flags/:id`, `POST /feature-flags/overrides`) exigem `ADMIN`/`SUPER_ADMIN` e geram `FEATURE_FLAG_CRIAR`, `FEATURE_FLAG_ATUALIZAR`, `FEATURE_FLAG_OVERRIDE` na auditoria.
+- **`/admin/system` backend**: `GET /system/status`, `/system/version`, `/system/metrics` agora protegidos por `RolesGuard` + `@Roles(ADMIN, SUPER_ADMIN)` — antes expostos publicamente. Health/liveness/readiness mantidos públicos (infra).
+- **Rate Limiting**: `ThrottlerGuard` aplicado globalmente (100 req/min por IP). Auth routes protegidas contra brute-force.
+- **Security Headers (Helmet)**: `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `X-Powered-By` removido.
+- **Upload sanitization**: parâmetro `kind` sanitizado (apenas `[a-zA-Z0-9_-]`, máx 30 chars) — previne path traversal.
+
+## Testes de segurança (66/66 PASS)
+
+Script `audit-security.mjs` valida:
+- **RBAC matrix**: 9 endpoints admin × 4 roles (ADMIN, SUPER_ADMIN, MODERATOR, USER) + anonimo
+- **Privilege escalation**: ADMIN não promove para SUPER_ADMIN (403), SUPER_ADMIN não altera própria role/bloqueia a si mesmo (403)
+- **IDOR**: user não acessa admin/usuarios de outro (403), user não edita terreiro de outro (403)
+- **Bloqueio completo**: signup → login → bloquear → login 401 "Usuário bloqueado" → refresh 401 → auth/me 401 → desbloquear → login 200
+- **Auditoria**: USUARIO_BLOQUEAR, USUARIO_DESBLOQUEAR, USUARIO_ROLE presentes; sem senhaHash/refreshToken nos logs
+- **Feature flags**: USER/MODERATOR não criam flags (403), ADMIN cria (201)
+- **System endpoints**: status/metrics/version protegidos (401/403 para anonimo)
 
 ## Testes
 

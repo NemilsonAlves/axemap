@@ -57,6 +57,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages (always included, added after dynamic so priority order is maintained)
   entries.unshift(
     { url: 'https://axemap.com.br', lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
+    { url: 'https://axemap.com.br/ifa', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: 'https://axemap.com.br/tradicao', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: 'https://axemap.com.br/organizacoes', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: 'https://axemap.com.br/federacoes', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
     { url: 'https://axemap.com.br/eventos', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
     { url: 'https://axemap.com.br/cursos', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
     { url: 'https://axemap.com.br/acoes-sociais', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },

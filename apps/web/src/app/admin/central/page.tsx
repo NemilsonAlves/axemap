@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { api } from '@/lib/api-client';
 import { useAnalytics } from '@/lib/analytics/analytics-context';
 import { SaasAdminPanel } from './saas-panel';
+import { OrganizacoesVerificacaoPanel } from './organizacoes-verificacao-panel';
 import '../admin.css';
 
 type Tab = 'overview' | 'terreiros' | 'moderacao' | 'verificacao' | 'feature-flags' | 'feedback' | 'trust' | 'saas';
@@ -99,13 +100,13 @@ interface DocumentoVerificacao {
 }
 
 export default function AdminPage() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const { track } = useAnalytics();
   const [tab, setTab] = useState<Tab>('overview');
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [flags, setFlags] = useState<FeatureFlag[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(true);
   const [error, setError] = useState('');
   const [flagForm, setFlagForm] = useState({ chave: '', titulo: '', descricao: '', ativo: false });
 
@@ -129,7 +130,7 @@ export default function AdminPage() {
     loadOverview();
     loadFlags();
     loadFeedbacks();
-  }, [user]);
+  }, [user, isAdmin, track]);
 
   useEffect(() => {
     if (tab === 'terreiros' && isAdmin) {
@@ -143,7 +144,7 @@ export default function AdminPage() {
     if (tab === 'verificacao' && isAdmin) {
       loadDocumentos();
     }
-  }, [tab, user, filtroStatus]);
+  }, [tab, isAdmin, filtroStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadOverview = async () => {
     try {
@@ -155,7 +156,7 @@ export default function AdminPage() {
         api.get<any>('/analytics/funnel'),
       ]);
       setOverview({ acquisition, activation, engagement, retention, funnel });
-    } catch (e) {
+    } catch {
       setError('Erro ao carregar métricas');
     }
   };
@@ -502,6 +503,10 @@ export default function AdminPage() {
       {tab === 'moderacao' && (
         <div className="admin-moderacao">
           <div className="admin-card" style={{ marginBottom: '1.5rem' }}>
+            <OrganizacoesVerificacaoPanel />
+          </div>
+
+          <div className="admin-card" style={{ marginBottom: '1.5rem' }}>
             <h2 className="admin-card-title">Denúncias</h2>
             {loadingModeracao ? (
               <p className="admin-empty">Carregando denúncias...</p>
@@ -798,8 +803,6 @@ function TrustDataPanel() {
   const [terreiros, setTerreiros] = useState<{ id: string; nome: string }[]>([]);
 
   const [certificados, setCertificados] = useState<TrustCertificado[]>([]);
-  const [certTerreiroId, setCertTerreiroId] = useState('');
-  const [certTipo, setCertTipo] = useState('CASA_VERIFICADA');
 
   const [mediacoes, setMediacoes] = useState<TrustMediacao[]>([]);
   const [compliance, setCompliance] = useState<TrustCompliance[]>([]);
@@ -835,7 +838,7 @@ function TrustDataPanel() {
       setAntifraude(Array.isArray(afraude) ? afraude : []);
       setEvidencias(Array.isArray(evid) ? evid : []);
       setTerreiros((terreirosList?.data || []).map((t: any) => ({ id: t.id, nome: t.nome })));
-    } catch (e) {
+    } catch {
       setError('Erro ao carregar ecossistema de confiança');
     }
     setLoading(false);

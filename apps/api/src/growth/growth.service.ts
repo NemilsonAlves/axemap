@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { UserRole } from '@axemap/shared';
+import { isAdminRole } from '../common/utils/roles';
 
 @Injectable()
 export class GrowthService {
@@ -9,7 +9,7 @@ export class GrowthService {
   async verificarDirigente(usuarioId: string, role: string | undefined, terreiroId: string) {
     const terreiro = await this.prisma.terreiros.findUnique({ where: { id: terreiroId } });
     if (!terreiro) throw new NotFoundException('Terreiro não encontrado');
-    const isAdmin = role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(role);
     if (terreiro.dirigenteId !== usuarioId && !isAdmin) {
       throw new ForbiddenException('Apenas o dirigente do terreiro pode gerenciar membros e estatísticas');
     }

@@ -11,6 +11,8 @@ export default function SobrePage() {
   return (
     <div className="legal-page">
       <div className="legal-hero">
+        <div className="legal-hero-stripe" aria-hidden="true" />
+        <span className="legal-hero-eyebrow">🌍 Plataforma Digital</span>
         <h1>Sobre o AxéMap</h1>
         <p>
           Uma infraestrutura digital a serviço da tradição: mapa, identidade, confiança, governança, cultura,

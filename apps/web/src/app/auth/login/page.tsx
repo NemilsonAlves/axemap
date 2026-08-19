@@ -268,7 +268,7 @@ export default function LoginPage() {
               {t('auth.esqueceu_senha')}
             </a>
             <a href="/auth/cadastro" className="auth-link">
-              {t('auth.ja_tem_conta')}
+              {t('auth.nao_tem_conta')}
             </a>
           </div>
         </div>

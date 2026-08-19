@@ -1,8 +1,16 @@
+'use client';
+
 import Link from 'next/link';
 import { SectionHeading } from './section-heading';
 import { Reveal } from './reveal';
 import { CalendarDays, Users, ArrowRight } from 'lucide-react';
 import { tradicaoLabel, type HomeData } from './data';
+import { useI18n } from '@/lib/i18n/i18n-context';
+
+// Static lookup avoids toLocaleString() which can differ between
+// Node.js (server) and browser ICU data — causing hydration mismatches.
+const MESES_PT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+                   'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
 function isHoje(iso: string) {
   const d = new Date(iso);
@@ -18,6 +26,7 @@ function isAmanha(iso: string) {
 }
 
 export function HomeEvents({ data }: { data: HomeData }) {
+  const { formatNumber } = useI18n();
   const eventos = data.eventosAlta.slice(0, 6);
 
   if (!eventos.length) return null;
@@ -37,7 +46,8 @@ export function HomeEvents({ data }: { data: HomeData }) {
         {eventos.map((ev, i) => {
           const data = new Date(ev.dataInicio);
           const dia = data.getDate();
-          const mes = data.toLocaleString('pt-BR', { month: 'short' }).replace('.', '');
+          // Static array lookup — guaranteed identical on server and client.
+          const mes = MESES_PT[data.getMonth()];
           const hoje = isHoje(ev.dataInicio);
           const amanha = isAmanha(ev.dataInicio);
           return (
@@ -71,7 +81,7 @@ export function HomeEvents({ data }: { data: HomeData }) {
                 <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1.5">
                     <Users className="size-3.5" aria-hidden="true" />
-                    {ev.totalPresencas} {ev.totalPresencas === 1 ? 'presença' : 'presenças'}
+                    {formatNumber(ev.totalPresencas)} {ev.totalPresencas === 1 ? 'presença' : 'presenças'}
                   </span>
                   <span className="inline-flex items-center gap-1 text-copper">
                     <CalendarDays className="size-3.5" aria-hidden="true" />

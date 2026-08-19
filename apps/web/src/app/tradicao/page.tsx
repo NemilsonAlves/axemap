@@ -76,13 +76,22 @@ export default async function TradicaoIndexPage() {
                 <Globe2 className="size-4 text-copper" aria-hidden="true" /> Origem: {destaque.regiao} · {destaque.paises.join(', ')}
               </p>
             </div>
-            <div className="flex flex-col items-start gap-4 lg:items-end">
+<div className="flex flex-col items-start gap-4 lg:items-end">
               <div className="text-3xl font-extrabold text-brand-gradient">{counts[destaque.nome] ?? 0}</div>
               <div className="text-sm font-medium text-muted-foreground">comunidades cadastradas</div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-copper/30 bg-copper-soft/40 px-4 py-2 text-sm font-semibold text-copper-strong transition group-hover:bg-copper-soft/70">
                 Explorar {destaque.label}
                 <ArrowRight className="size-4 transition group-hover:translate-x-1" aria-hidden="true" />
               </span>
+              {destaque.nome === 'IFA' && (
+                <Link
+                  href="/ifa"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-dourado-sol/40 bg-dourado-sol/10 px-4 py-2 text-sm font-semibold text-copper-strong transition hover:bg-dourado-sol/20"
+                >
+                  Conhecer Ifá em profundidade
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              )}
             </div>
           </div>
         </Link>

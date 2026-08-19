@@ -101,7 +101,7 @@ export default function TerreiroPainelPage() {
   );
 }
 
-function VisaoGeral({ terreiroId, nome }: { terreiroId: string; nome: string }) {
+function VisaoGeral({ terreiroId: _terreiroId, nome }: { terreiroId: string; nome: string }) {
   return (
     <div>
       <div className="painel-form-card">

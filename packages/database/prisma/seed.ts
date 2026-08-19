@@ -566,7 +566,7 @@ async function createCampaigns() {
     const { categoria, modelo, status, ...rest } = c;
     const ativa = !status || ['PUBLICADA', 'PRESTACAO_CONTAS'].includes(status);
     const tv = terreiros.find((t) => t.cidade === c.cidade && t.estado === c.estado);
-    const campanha = await prisma.campanhas.create({
+    await prisma.campanhas.create({
       data: {
         ...rest,
         slug: rest.slug ?? `campanha-${Math.random().toString(36).slice(2, 8)}`,

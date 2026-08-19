@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useCallback, type ReactNode } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { api } from '@/lib/api-client';
 
@@ -26,13 +26,13 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
   const sessaoId = useRef(generateSessionId());
 
-  const track = (evento: string, metadata?: Record<string, unknown>) => {
+  const track = useCallback((evento: string, metadata?: Record<string, unknown>) => {
     api.post('/analytics/track', {
       evento,
       sessaoId: sessaoId.current,
       metadata: metadata || {},
     }, token || undefined).catch(() => {});
-  };
+  }, [token]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -50,7 +50,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     observer.observe(document.querySelector('main') || document.body, { childList: true, subtree: true });
 
     return () => observer.disconnect();
-  }, []);
+  }, [track]);
 
   return (
     <AnalyticsContext.Provider value={{ track }}>

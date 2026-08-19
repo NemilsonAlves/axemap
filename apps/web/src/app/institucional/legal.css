@@ -132,34 +132,108 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, hsl(var(--bronze) / 0.9), hsl(var(--copper-strong)));
   color: hsl(35 60% 98%);
-  padding: 2.5rem 2rem;
-  margin-bottom: 2rem;
+  padding: 3.5rem 2.5rem;
+  margin-bottom: 2.5rem;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: hsl(var(--obsidiana-deep));
 }
 
+/* Imagem de fundo — ilustração cultural afro-brasileira */
+.legal-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/banner-cultura.png');
+  background-size: cover;
+  background-position: center 30%;
+  opacity: 0.22;
+  filter: brightness(0.9) contrast(1.1);
+  z-index: 0;
+}
+
+/* Overlay gradiente sobre a ilustração */
 .legal-hero::after {
   content: '';
   position: absolute;
-  right: -60px;
-  top: -60px;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: hsl(35 60% 98% / 0.12);
+  inset: 0;
+  background:
+    linear-gradient(
+      105deg,
+      hsl(var(--obsidiana-deep) / 0.92) 0%,
+      hsl(var(--obsidiana-deep) / 0.70) 40%,
+      hsl(var(--bronze) / 0.45) 75%,
+      hsl(var(--copper) / 0.35) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      hsl(var(--obsidiana-deep) / 0.50) 0%,
+      transparent 40%,
+      hsl(var(--obsidiana-deep) / 0.75) 100%
+    );
+  z-index: 0;
+}
+
+/* Conteúdo acima dos pseudo-elementos */
+.legal-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Faixa cromática topo (identidade visual AxéMap) */
+.legal-hero-stripe {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--verde-floresta)),
+    hsl(var(--acafrao)),
+    hsl(var(--copper)),
+    hsl(var(--terracota)),
+    hsl(var(--roxo-ancestral)),
+    hsl(var(--azul-atlantico)),
+    hsl(var(--verde-floresta))
+  );
+  z-index: 2;
 }
 
 .legal-hero h1 {
   margin: 0;
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
   font-weight: 800;
   letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-shadow: 0 2px 24px hsl(var(--obsidiana-deep) / 0.7);
 }
 
 .legal-hero p {
-  margin: 0.6rem 0 0;
-  font-size: 1rem;
-  color: hsl(35 60% 98% / 0.88);
-  max-width: 540px;
-  line-height: 1.6;
+  margin: 0.7rem 0 0;
+  font-size: 1.05rem;
+  color: hsl(35 60% 98% / 0.85);
+  max-width: 560px;
+  line-height: 1.65;
+  text-shadow: 0 1px 12px hsl(var(--obsidiana-deep) / 0.6);
+}
+
+/* Eyebrow label acima do título */
+.legal-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--acafrao));
+  background: hsl(var(--acafrao) / 0.14);
+  border: 1px solid hsl(var(--acafrao) / 0.30);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  margin-bottom: 1rem;
+  width: fit-content;
 }

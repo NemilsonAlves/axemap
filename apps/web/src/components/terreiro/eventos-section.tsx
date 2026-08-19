@@ -1,12 +1,6 @@
 import type { Evento } from '@/types/terreiro';
 import { PresencaButton } from './presenca-button';
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('pt-BR', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  });
-}
-
 const tipoLabels: Record<string, string> = {
   GIRA: 'Gira',
   TOQUE: 'Toque',

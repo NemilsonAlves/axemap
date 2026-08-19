@@ -65,23 +65,29 @@ export class MonitorAdminService {
       redis: health.checks.redis,
       storage: health.checks.storage,
       email: {
+        status: env.RESEND_API_KEY || env.SMTP_HOST ? 'configurado' : 'not_configured',
         configurado: Boolean(env.RESEND_API_KEY || env.SMTP_HOST),
         provedor: env.RESEND_API_KEY ? 'Resend' : env.SMTP_HOST ? 'SMTP' : null,
       },
       whatsapp: {
+        status: env.WHATSAPP_API_URL || env.TWILIO_ACCOUNT_SID ? 'configurado' : 'not_configured',
         configurado: Boolean(env.WHATSAPP_API_URL || env.TWILIO_ACCOUNT_SID),
       },
       maps: {
+        status: env.GOOGLE_MAPS_API_KEY || env.MAPBOX_TOKEN ? 'configurado' : 'not_configured',
         configurado: Boolean(env.GOOGLE_MAPS_API_KEY || env.MAPBOX_TOKEN),
       },
       ia: {
+        status: env.OPENAI_API_KEY || env.ANTHROPIC_API_KEY || env.GEMINI_API_KEY ? 'configurado' : 'not_configured',
         configurado: Boolean(env.OPENAI_API_KEY || env.ANTHROPIC_API_KEY || env.GEMINI_API_KEY),
       },
       oauth: {
+        status: env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET ? 'configurado' : 'not_configured',
         configurado: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
         provedor: env.GOOGLE_CLIENT_ID ? 'Google' : null,
       },
       pagamentos: {
+        status: env.ASAAS_API_KEY || env.MERCADO_PAGO_TOKEN || env.STRIPE_SECRET_KEY ? 'configurado' : 'not_configured',
         configurado: Boolean(env.ASAAS_API_KEY || env.MERCADO_PAGO_TOKEN || env.STRIPE_SECRET_KEY),
         provedor: env.ASAAS_API_KEY ? 'Asaas' : env.MERCADO_PAGO_TOKEN ? 'Mercado Pago' : env.STRIPE_SECRET_KEY ? 'Stripe' : null,
       },

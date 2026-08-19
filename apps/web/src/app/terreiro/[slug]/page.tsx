@@ -12,6 +12,7 @@ import { ProfileCompleteness } from '@/components/terreiro/profile-completeness'
 import { QRCodeSection } from '@/components/terreiro/qr-code-section';
 import { ClaimButton } from '@/components/terreiro/claim-button';
 import { RecommendationCard } from '@/components/home/discovery-cards';
+import { ProvenienciaSection } from '@/components/terreiro/proveniencia-section';
 import { HistoriaSection } from '@/components/hub/historia-section';
 import { LiderancaSection } from '@/components/hub/lideranca-section';
 import { TrustPanel } from '@/components/hub/trust-panel';
@@ -121,8 +122,14 @@ export default async function TerreiroPage({ params }: { params: Promise<{ slug:
       />
       <div className="profile-page">
         <HeroSection terreiro={terreiro} />
-        <div style={{ padding: '0.75rem 1.5rem' }}>
+        <div style={{ padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
           <ClaimButton terreiroId={terreiro.id} hasDirigente={!!terreiro.dirigente} />
+          <Link
+            href={`/protecao?tipo=TERREIRO&entidadeId=${encodeURIComponent(slug)}`}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground underline-offset-2 hover:text-destructive hover:underline"
+          >
+            Denunciar esta página
+          </Link>
         </div>
 
         <HubSubnav terreiro={terreiro} />
@@ -147,6 +154,7 @@ export default async function TerreiroPage({ params }: { params: Promise<{ slug:
             />
             <ComunidadeSection terreiro={terreiro} />
             <GovernancaSection terreiro={terreiro} />
+            <ProvenienciaSection terreiro={terreiro} />
             <ComunidadeAI terreiro={terreiro} />
             <ContatoSection terreiro={terreiro} />
           </div>

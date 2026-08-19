@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { DatabaseModule } from './database/database.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { SystemModule } from './system/system.module';
@@ -15,6 +16,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { FeatureFlagsModule } from './feature-flags/feature-flags.module';
 import { StorageModule } from './common/storage/storage.module';
+import { MailModule } from './common/mail/mail.module';
 import { LandingModule } from './landing/landing.module';
 import { RecommendationModule } from './recommendation/recommendation.module';
 import { DiscoveryModule } from './discovery/discovery.module';
@@ -34,8 +36,14 @@ import { CampanhasModule } from './campanhas/campanhas.module';
 import { CampanhasAdminModule } from './campanhas-admin/campanhas-admin.module';
 import { TrustEcosystemModule } from './trust-ecosystem/trust-ecosystem.module';
 import { SaasModule } from './saas/saas.module';
+import { ApoieModule } from './apoie/apoie.module';
 import { AxegraphModule } from './axegraph/axegraph.module';
 import { OrganizacoesModule } from './organizacoes/organizacoes.module';
+import { TaxonomyModule } from './taxonomy/taxonomy.module';
+import { AdsModule } from './ads/ads.module';
+import { PaymentsModule } from './payments/payments.module';
+import { TvModule } from './tv/tv.module';
+import { ConsentModule } from './consent/consent.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -56,6 +64,7 @@ import { AppController } from './app.controller';
     FeedbackModule,
     FeatureFlagsModule,
     StorageModule,
+    MailModule,
     LandingModule,
     RecommendationModule,
     DiscoveryModule,
@@ -75,9 +84,18 @@ import { AppController } from './app.controller';
     CampanhasAdminModule,
     TrustEcosystemModule,
     SaasModule,
+    ApoieModule,
     AxegraphModule,
     OrganizacoesModule,
+    TaxonomyModule,
+    AdsModule,
+    PaymentsModule,
+    TvModule,
+    ConsentModule,
   ],
   controllers: [AppController],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

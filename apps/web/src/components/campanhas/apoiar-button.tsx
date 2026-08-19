@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth/auth-context';
-import { Heart, Loader2, Lock } from 'lucide-react';
+import { Heart, Lock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import Link from 'next/link';
 

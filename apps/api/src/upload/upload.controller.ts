@@ -17,6 +17,7 @@ export class UploadController {
     @CurrentUser() user?: any,
   ) {
     if (!file) throw new BadRequestException('Envie o campo multipart "file"');
-    return this.uploadService.uploadArquivo(user?.id ?? 'anonimo', file, kind || 'geral');
+    const safeKind = (kind || 'geral').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30) || 'geral';
+    return this.uploadService.uploadArquivo(user?.id ?? 'anonimo', file, safeKind);
   }
 }

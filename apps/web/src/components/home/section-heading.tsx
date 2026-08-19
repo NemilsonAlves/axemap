@@ -1,8 +1,9 @@
+import * as React from 'react';
 import { cn } from '@/lib/cn';
 
 interface SectionHeadingProps {
   eyebrow?: string;
-  title: string;
+  title: React.ReactNode;
   description?: string;
   id?: string;
   align?: 'left' | 'center';
@@ -27,7 +28,11 @@ export function SectionHeading({
       )}
     >
       {eyebrow && (
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-copper/25 bg-copper-soft/50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-copper-strong">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-copper/25 bg-copper-soft/40 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-copper-strong">
+          <span
+            className="size-1.5 shrink-0 rounded-full bg-copper"
+            aria-hidden="true"
+          />
           {eyebrow}
         </span>
       )}

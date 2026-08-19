@@ -1,7 +1,7 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "name": "axemap-colors",
-  "description": "Paleta AxéMap — barro, cobre, bronze, areia, fern, ocre, turquesa. HSL triplets consumidos via hsl(var(--...)).",
+  "description": "Paleta AxéMap — cores inspiradas em terra, cobre, bronze e elementos naturais. HSL triplets consumidos via hsl(var(--...)).",
   "tokens": {
     "background": { "$type": "color", "$value": { "light": "34 42% 97%", "dark": "24 28% 6%" } },
     "foreground": { "$type": "color", "$value": { "light": "20 40% 8%", "dark": "35 40% 92%" } },
@@ -27,27 +27,43 @@
     "warning": { "$type": "color", "$value": { "light": "38 90% 40%", "dark": "38 92% 56%" } },
     "warningForeground": { "$type": "color", "$value": { "light": "40 60% 98%", "dark": "40 50% 10%" } },
     "danger": { "$type": "color", "$value": { "light": "8 62% 46%", "dark": "8 66% 58%" } },
-    "dangerForeground": { "$type": "color", "$value": { "light": "30 60% 98%", "dark": "30 60% 10%" } },
+    "dangerForeground": { "$type": "color", "$value": { "light": "30 60% 98%", "dark": "30 60% 98%" } },
     "info": { "$type": "color", "$value": { "light": "214 72% 46%", "dark": "214 78% 64%" } },
     "infoForeground": { "$type": "color", "$value": { "light": "214 70% 98%", "dark": "214 60% 10%" } },
-    "copper": { "$type": "color", "$value": { "light": "18 66% 47%", "dark": "18 78% 60%" } },
-    "copperStrong": { "$type": "color", "$value": { "light": "16 68% 38%", "dark": "18 80% 66%" } },
-    "copperSoft": { "$type": "color", "$value": { "light": "20 70% 88%", "dark": "18 42% 22%" } },
-    "bronze": { "$type": "color", "$value": { "light": "30 40% 48%", "dark": "30 42% 62%" } },
-    "clay": { "$type": "color", "$value": { "light": "12 55% 50%", "dark": "12 60% 60%" } },
-    "soil": { "$type": "color", "$value": { "light": "22 40% 14%", "dark": "24 40% 12%" } },
-    "soilSoft": { "$type": "color", "$value": { "light": "24 24% 28%", "dark": "24 20% 22%" } },
-    "ivory": { "$type": "color", "$value": { "light": "35 55% 94%", "dark": "35 40% 88%" } },
-    "oat": { "$type": "color", "$value": { "light": "32 35% 93%", "dark": "30 25% 16%" } },
-    "fern": { "$type": "color", "$value": { "light": "150 42% 36%", "dark": "150 46% 54%" } },
-    "ochre": { "$type": "color", "$value": { "light": "36 85% 44%", "dark": "38 88% 60%" } },
-    "sand": { "$type": "color", "$value": { "light": "32 18% 66%", "dark": "30 15% 50%" } },
-    "turquoise": { "$type": "color", "$value": { "light": "176 78% 34%", "dark": "176 80% 58%" } },
-    "turquoiseStrong": { "$type": "color", "$value": { "light": "177 82% 28%", "dark": "178 86% 64%" } },
-    "turquoiseSoft": { "$type": "color", "$value": { "light": "172 55% 88%", "dark": "174 45% 20%" } },
-    "surface1": { "$type": "color", "$value": { "light": "0 0% 100%", "dark": "22 22% 10%" } },
-    "surface2": { "$type": "color", "$value": { "light": "32 35% 96%", "dark": "24 20% 12%" } },
-    "surface3": { "$type": "color", "$value": { "light": "28 30% 90%", "dark": "24 18% 16%" } },
-    "overlay": { "$type": "color", "$value": { "light": "24 35% 8%", "dark": "24 35% 4%" } }
+
+    // Paleta AxéMap 2.1 — prompt 34
+    "azulNoiteAncestral": { "$type": "color", "$value": { "light": "214 25% 15%", "dark": "214 30% 10%" } },
+    "terra": { "$type": "color", "$value": { "light": "30 35% 52%", "dark": "30 40% 20%" } },
+    "argila": { "$type": "color", "$value": { "light": "12 55% 50%", "dark": "12 60% 60%" } },
+    "terracota": { "$type": "color", "$value": { "light": "30 40% 48%", "dark": "30 42% 62%" } },
+    "verdeFloresta": { "$type": "color", "$value": { "light": "150 42% 36%", "dark": "150 46% 54%" } },
+    "verdeAncestral": { "$type": "color", "$value": { "light": "150 40% 40%", "dark": "150 48% 50%" } },
+    "douradoSol": { "$type": "color", "$value": { "light": "45 90% 58%", "dark": "45 85% 45%" } },
+    "areia": { "$type": "color", "$value": { "light": "32 18% 66%", "dark": "30 15% 50%" } },
+    "turquesa": { "$type": "color", "$value": { "light": "176 78% 34%", "dark": "176 80% 58%" } },
+    "brancoNevada": { "$type": "color", "$value": { "light": "35 55% 94%", "dark": "35 40% 88%" } },
+
+    // Paleta Contemporânea (Prompt 11 — redesign global)
+    "obsidiana": { "$type": "color", "$value": { "light": "24 40% 6%", "dark": "24 35% 5%" } },
+    "obsidianaDeep": { "$type": "color", "$value": { "light": "24 45% 4%", "dark": "24 40% 3%" } },
+    "marfim": { "$type": "color", "$value": { "light": "40 30% 96%", "dark": "40 26% 92%" } },
+    "grafite": { "$type": "color", "$value": { "light": "25 12% 22%", "dark": "25 14% 34%" } },
+    "areiaClara": { "$type": "color", "$value": { "light": "33 25% 88%", "dark": "33 20% 82%" } },
+    "acafrao": { "$type": "color", "$value": { "light": "38 95% 55%", "dark": "40 95% 60%" } },
+    "coral": { "$type": "color", "$value": { "light": "12 90% 62%", "dark": "12 92% 66%" } },
+    "magenta": { "$type": "color", "$value": { "light": "320 70% 52%", "dark": "320 74% 60%" } },
+    "azulAtlantico": { "$type": "color", "$value": { "light": "206 72% 42%", "dark": "206 78% 56%" } },
+    "roxoAncestral": { "$type": "color", "$value": { "light": "268 45% 52%", "dark": "268 52% 64%" } },
+    "ambar": { "$type": "color", "$value": { "light": "40 92% 55%", "dark": "40 90% 60%" } },
+
+    // Sistema semântico de cores (os 6 universos)
+    "universoMapa": { "$type": "color", "$value": { "light": "206 72% 42%", "dark": "206 78% 56%" } },
+    "universoTradicoes": { "$type": "color", "$value": { "light": "38 95% 55%", "dark": "40 95% 60%" } },
+    "universoRede": { "$type": "color", "$value": { "light": "268 45% 52%", "dark": "268 52% 64%" } },
+    "universoCultura": { "$type": "color", "$value": { "light": "12 90% 62%", "dark": "12 92% 66%" } },
+    "universoConfianca": { "$type": "color", "$value": { "light": "150 42% 36%", "dark": "150 46% 54%" } },
+    "universoImpacto": { "$type": "color", "$value": { "light": "40 92% 55%", "dark": "40 90% 60%" } },
+    "universoAds": { "$type": "color", "$value": { "light": "38 92% 50%", "dark": "40 90% 58%" } }
   }
+}
 }
