@@ -198,7 +198,7 @@ CREATE INDEX "conteudos_culturais_titulo_idx" ON "conteudos_culturais"("titulo")
 CREATE INDEX "patrimonio_cultural_cidade_estado_idx" ON "patrimonio_cultural"("cidade", "estado");
 
 -- AddForeignKey
-ALTER TABLE "graph_entidades" ADD CONSTRAINT "graph_entidades_criadoPorId_fkey" FOREIGN KEY ("criadoPorId") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "graph_entidades" ADD CONSTRAINT "graph_entidades_criadoPorId_fkey" FOREIGN KEY ("criadoPorId") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_origem_entidade_id_fkey" FOREIGN KEY ("origem_entidade_id") REFERENCES "graph_entidades"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -207,28 +207,28 @@ ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_origem
 ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_alvo_entidade_id_fkey" FOREIGN KEY ("alvo_entidade_id") REFERENCES "graph_entidades"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_criadoPorId_fkey" FOREIGN KEY ("criadoPorId") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_criadoPorId_fkey" FOREIGN KEY ("criadoPorId") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_verificadoPorId_fkey" FOREIGN KEY ("verificadoPorId") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_verificadoPorId_fkey" FOREIGN KEY ("verificadoPorId") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_rejeitadoPorId_fkey" FOREIGN KEY ("rejeitadoPorId") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "graph_relacionamentos" ADD CONSTRAINT "graph_relacionamentos_rejeitadoPorId_fkey" FOREIGN KEY ("rejeitadoPorId") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "graph_relacionamentos_historico" ADD CONSTRAINT "graph_relacionamentos_historico_por_id_fkey" FOREIGN KEY ("por_id") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "graph_relacionamentos_historico" ADD CONSTRAINT "graph_relacionamentos_historico_por_id_fkey" FOREIGN KEY ("por_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "graph_relacionamentos_historico" ADD CONSTRAINT "graph_relacionamentos_historico_relacionamento_id_fkey" FOREIGN KEY ("relacionamento_id") REFERENCES "graph_relacionamentos"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "graph_duplicidades" ADD CONSTRAINT "graph_duplicidades_criadoPorId_fkey" FOREIGN KEY ("criadoPorId") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "graph_duplicidades" ADD CONSTRAINT "graph_duplicidades_criadoPorId_fkey" FOREIGN KEY ("criadoPorId") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "graph_duplicidades" ADD CONSTRAINT "graph_duplicidades_resolvidoPorId_fkey" FOREIGN KEY ("resolvidoPorId") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "graph_duplicidades" ADD CONSTRAINT "graph_duplicidades_resolvidoPorId_fkey" FOREIGN KEY ("resolvidoPorId") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "conteudos_culturais" ADD CONSTRAINT "conteudos_culturais_criadoPorId_fkey" FOREIGN KEY ("criadoPorId") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "conteudos_culturais" ADD CONSTRAINT "conteudos_culturais_criadoPorId_fkey" FOREIGN KEY ("criadoPorId") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "conteudos_culturais" ADD CONSTRAINT "conteudos_culturais_verificadoPorId_fkey" FOREIGN KEY ("verificadoPorId") REFERENCES "Usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "conteudos_culturais" ADD CONSTRAINT "conteudos_culturais_verificadoPorId_fkey" FOREIGN KEY ("verificadoPorId") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
