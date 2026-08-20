@@ -9,6 +9,7 @@
     "migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
+    "seed:taxonomy": "tsx prisma/seed-taxonomy.ts",
     "studio": "prisma studio",
     "build": "prisma generate",
     "lint": "eslint prisma src --config ../../eslint.config.mjs",
