@@ -127,8 +127,12 @@ else
   step "[2/7] Backup pré-migração — PULADO (--no-backup)"
 fi
 
+# Migrations pendentes NÃO são erro do status — o deploy (4/7) irá aplicá-las.
+# A função decide por saída/exit code e aborta apenas em erro real.
+source "$PROJECT_DIR/scripts/lib-migrate-status.sh"
+
 step "[3/7] Migration status"
-prisma_cmd migrate status
+migrate_status
 
 step "[4/7] Migration deploy"
 prisma_cmd migrate deploy
