@@ -17,10 +17,15 @@ set -euo pipefail
 # NUNCA use `prisma migrate reset` ou `prisma db push` em produção.
 #
 # Leitura de ambiente: .env.production (se existir) senão .env.
-# Em produção o prisma roda no HOST usando MIGRATION_DATABASE_URL
-# (127.0.0.1:5432) — o DATABASE_URL do container aponta para o hostname
-# "postgres", que não resolve no host. Se pnpm não estiver instalado no host,
-# o script usa `docker compose run api npx prisma ...`.
+# O prisma pode rodar em DOIS contextos distintos:
+#   - HOST (pnpm instalado): usa MIGRATION_DATABASE_URL (127.0.0.1:5432) —
+#     o postgres é publicado pelo compose no 127.0.0.1 do host.
+#   - CONTAINER (sem pnpm; `docker compose run api`): o container temporário
+#     entra na rede axemap_internal, onde o PostgreSQL é alcançável pelo
+#     hostname do serviço "postgres". Dentro do container, 127.0.0.1/localhost
+#     apontam para o PRÓPRIO container e NÃO alcançam o banco.
+# Por isso o script reescreve o host de DATABASE_URL (e SHADOW_DATABASE_URL)
+# para "postgres" somente quando executa pelo fallback de container.
 #
 # Uso:
 #   bash scripts/migrate-deploy.sh            # executa pipeline completa
@@ -68,15 +73,46 @@ if [ -n "${MIGRATION_DATABASE_URL:-}" ]; then
   echo -e "${GREEN}  ✓${NC} DATABASE_URL apontada para MIGRATION_DATABASE_URL (host)"
 fi
 
+# Reescreve o host de uma URL de banco para o hostname do serviço "postgres"
+# da rede Docker do compose (axemap_internal). Necessário quando o prisma roda
+# DENTRO de um container `docker compose run`: ali 127.0.0.1/localhost é o
+# PRÓPRIO container, não o host. Idempotente — se o host já for "postgres",
+# a URL é devolvida como está.
+container_db_url() {
+  local url="$1"
+  if [[ "$url" =~ ^(postgres(ql)?://[^@]*@)([^/:]+)(:[0-9]+)?(/.*)?$ ]]; then
+    printf '%spostgres:5432%s\n' "${BASH_REMATCH[1]}" "${BASH_REMATCH[5]:-}"
+  else
+    printf '%s\n' "$url"
+  fi
+}
+
 # Executa um comando prisma. Prefere pnpm no host; caso contrário usa o
-# prisma do container api (docker compose run).
+# prisma do container api (docker compose run). O contexto decide o hostname
+# correto do PostgreSQL (ver comentário no cabeçalho).
 prisma_cmd() {
   if command -v pnpm &>/dev/null; then
+    # CONTEXTO HOST — a URL do host (127.0.0.1 via MIGRATION_DATABASE_URL)
+    # já está correta para o prisma rodando no host.
     pnpm --filter @axemap/database exec prisma "$@"
   else
+    # CONTEXTO CONTAINER — `docker compose run` herda o env do host por
+    # padrão, então a URL deve ser reescrita e injetada via --env. O --env
+    # tem precedência sobre o bloco `environment:` do serviço no compose.
+    local db_url
+    db_url="$(container_db_url "${DATABASE_URL:-}")"
+    local -a run_env=("--env" "DATABASE_URL=$db_url")
+    if [ -n "${SHADOW_DATABASE_URL:-}" ]; then
+      run_env+=("--env" "SHADOW_DATABASE_URL=$(container_db_url "$SHADOW_DATABASE_URL")")
+    fi
+    if [ "$db_url" != "${DATABASE_URL:-}" ]; then
+      echo -e "${CYAN}  ↪ DATABASE_URL reescrita para o hostname Docker 'postgres'${NC}"
+    fi
     # A imagem runtime da API materializa @axemap/database em node_modules
     # (cp -rL no Dockerfile.api); o schema não fica em /app/prisma.
-    docker compose -f docker/docker-compose.prod.yml run --rm api \
+    docker compose -f docker/docker-compose.prod.yml run --rm \
+      "${run_env[@]}" \
+      api \
       npx prisma "$@" --schema /app/node_modules/@axemap/database/prisma/schema.prisma
   fi
 }
