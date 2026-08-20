@@ -74,7 +74,10 @@ prisma_cmd() {
   if command -v pnpm &>/dev/null; then
     pnpm --filter @axemap/database exec prisma "$@"
   else
-    docker compose -f docker/docker-compose.prod.yml run --rm api npx prisma "$@"
+    # A imagem runtime da API materializa @axemap/database em node_modules
+    # (cp -rL no Dockerfile.api); o schema não fica em /app/prisma.
+    docker compose -f docker/docker-compose.prod.yml run --rm api \
+      npx prisma "$@" --schema /app/node_modules/@axemap/database/prisma/schema.prisma
   fi
 }
 
