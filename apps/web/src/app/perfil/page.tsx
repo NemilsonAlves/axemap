@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -23,6 +23,28 @@ interface Favorito {
   descricaoCurta: string | null;
 }
 
+interface MeuTerreiro {
+  id: string;
+  nome: string;
+  slug: string;
+  tradicao: string;
+  cidade: string;
+  estado: string;
+  status: string;
+  trustScore: number;
+  isPublished: boolean;
+  isVerified: boolean;
+  verificationLevel: string;
+  fotoUrl: string | null;
+  _count?: {
+    eventos: number;
+    cursos: number;
+    acoesSociais: number;
+    avaliacoes: number;
+    fotos: number;
+  };
+}
+
 interface MeuCurso {
   id: string;
   status: string;
@@ -42,11 +64,32 @@ const perfilSchema = z.object({
 
 type PerfilFormData = z.infer<typeof perfilSchema>;
 
+function trustBadgeColor(score: number): { bg: string; fg: string; label: string } {
+  if (score >= 80) return { bg: 'hsl(150,42%,36%)', fg: 'white', label: 'Lendário' };
+  if (score >= 60) return { bg: 'hsl(150,46%,44%)', fg: 'white', label: 'Autoridade' };
+  if (score >= 40) return { bg: 'hsl(36,85%,44%)', fg: 'white', label: 'Estabelecido' };
+  if (score >= 20) return { bg: 'hsl(38,90%,40%)', fg: 'white', label: 'Emergente' };
+  return { bg: 'hsl(18,66%,47%)', fg: 'white', label: 'Iniciante' };
+}
+
+function verificationBadge(level: string): { label: string; color: string } | null {
+  switch (level) {
+    case 'VERIFIED': return { label: 'Verificado', color: 'hsl(150,42%,36%)' };
+    case 'TRUSTED': return { label: 'Confiável', color: 'hsl(150,46%,44%)' };
+    case 'DOCUMENTED': return { label: 'Documentado', color: 'hsl(36,85%,44%)' };
+    case 'BASIC': return { label: 'Básico', color: 'hsl(28,14%,50%)' };
+    default: return null;
+  }
+}
+
 export default function PerfilPage() {
   const { user, loading, logout, updateUser } = useAuth();
   const router = useRouter();
   const [favoritos, setFavoritos] = useState<Favorito[]>([]);
   const [carregandoFavs, setCarregandoFavs] = useState(true);
+  const [terreiros, setTerreiros] = useState<MeuTerreiro[]>([]);
+  const [carregandoTerreiros, setCarregandoTerreiros] = useState(true);
+  const [erroTerreiros, setErroTerreiros] = useState('');
   const [cursos, setCursos] = useState<MeuCurso[]>([]);
   const [carregandoCursos, setCarregandoCursos] = useState(true);
   const [editando, setEditando] = useState(false);
@@ -67,6 +110,17 @@ export default function PerfilPage() {
     if (user) reset({ nome: user.nome });
   }, [user, reset]);
 
+  const carregarTerreiros = useCallback(() => {
+    if (!user) return;
+    setCarregandoTerreiros(true);
+    setErroTerreiros('');
+    api
+      .get<{ data: MeuTerreiro[] }>('/terreiros/meus')
+      .then((res) => setTerreiros(res.data || []))
+      .catch(() => setErroTerreiros('Não foi possível carregar suas casas de axé.'))
+      .finally(() => setCarregandoTerreiros(false));
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
     api
@@ -74,12 +128,13 @@ export default function PerfilPage() {
       .then((res) => setFavoritos(res.data || []))
       .catch(() => setFavoritos([]))
       .finally(() => setCarregandoFavs(false));
+    carregarTerreiros();
     api
       .get<MeuCurso[]>('/cursos/meus')
       .then((res) => setCursos(Array.isArray(res) ? res : []))
       .catch(() => setCursos([]))
       .finally(() => setCarregandoCursos(false));
-  }, [user]);
+  }, [user, carregarTerreiros]);
 
   const onEditSubmit = async (data: PerfilFormData) => {
     setErroEdit('');
@@ -238,6 +293,47 @@ export default function PerfilPage() {
       </div>
 
       <div className="feature-card" style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ marginBottom: '0.25rem' }}>Minhas Casas de Axé</h2>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-muted-foreground)', marginBottom: '1rem' }}>
+          Casas de axé vinculadas à sua conta. Gerencie perfil, eventos, cursos e fotos.
+        </p>
+        {carregandoTerreiros ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {[1, 2].map((i) => (
+              <div key={i} style={{ padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', opacity: 0.5 }}>
+                <div style={{ height: 14, width: '60%', background: 'var(--color-muted)', borderRadius: 4, marginBottom: 8 }} />
+                <div style={{ height: 12, width: '40%', background: 'var(--color-muted)', borderRadius: 4 }} />
+              </div>
+            ))}
+          </div>
+        ) : erroTerreiros ? (
+          <div style={{ padding: '1rem', background: 'var(--danger)', border: '1px solid color-mix(in srgb, var(--danger) 70%, transparent)', borderRadius: 8, fontSize: '0.85rem', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span>{erroTerreiros}</span>
+            <button onClick={carregarTerreiros} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '0.25rem 0.75rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.8rem' }}>
+              Tentar novamente
+            </button>
+          </div>
+        ) : terreiros.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>&#127961;</div>
+            <p style={{ fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+              Você ainda não cadastrou uma Casa de Axé.
+            </p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-muted-foreground)', marginBottom: '1rem' }}>
+              Cadastre seu terreiro para aparecer no mapa e começar a construir seu trust score.
+            </p>
+            <Link href="/onboarding" className="painel-btn" style={{ display: 'inline-block', textDecoration: 'none' }}>
+              Cadastrar minha Casa de Axé
+            </Link>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {terreiros.map((t) => <TerreiroCard key={t.id} terreiro={t} />)}
+          </div>
+        )}
+      </div>
+
+      <div className="feature-card" style={{ marginBottom: '1.5rem' }}>
         <h2 style={{ marginBottom: '0.75rem' }}>Meus Favoritos</h2>
         {carregandoFavs ? (
           <p style={{ color: 'var(--color-muted-foreground)' }}>Carregando...</p>
@@ -350,6 +446,74 @@ export default function PerfilPage() {
         >
           Sair
         </button>
+      </div>
+    </div>
+  );
+}
+
+function TerreiroCard({ terreiro: t }: { terreiro: MeuTerreiro }) {
+  const trust = trustBadgeColor(t.trustScore ?? 0);
+  const vBadge = verificationBadge(t.verificationLevel);
+
+  return (
+    <div style={{
+      padding: '0.75rem',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--radius-sm)',
+      display: 'flex', flexDirection: 'column', gap: '0.5rem',
+    }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        {t.fotoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={t.fotoUrl} alt={t.nome} style={{ width: 56, height: 56, borderRadius: '0.5rem', objectFit: 'cover', flexShrink: 0 }} />
+        ) : (
+          <div style={{
+            width: 56, height: 56, borderRadius: 'var(--radius-sm)', overflow: 'hidden',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--color-primary)', color: 'var(--color-primary-foreground)',
+            fontSize: '1.5rem', flexShrink: 0,
+          }}>
+            {t.nome.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div style={{ minWidth: 0, overflow: 'hidden', flex: 1 }}>
+          <div style={{ fontWeight: 600, overflowWrap: 'break-word', wordBreak: 'break-word', lineHeight: 1.3 }}>{t.nome}</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--color-muted-foreground)' }}>
+            {labelTradicao(t.tradicao)} &middot; {t.cidade}, {t.estado}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.25rem' }}>
+            <span style={{ padding: '0.125rem 0.5rem', borderRadius: 'var(--radius-full)', fontSize: '0.7rem', fontWeight: 600, background: trust.bg, color: trust.fg }}>
+              Trust {t.trustScore?.toFixed(0)} &middot; {trust.label}
+            </span>
+            {vBadge && (
+              <span style={{ padding: '0.125rem 0.5rem', borderRadius: 'var(--radius-full)', fontSize: '0.7rem', fontWeight: 600, background: vBadge.color, color: 'white' }}>
+                {vBadge.label}
+              </span>
+            )}
+            <span style={{
+              padding: '0.125rem 0.5rem', borderRadius: 'var(--radius-full)', fontSize: '0.7rem', fontWeight: 600,
+              color: t.isPublished ? 'hsl(150,42%,36%)' : 'var(--color-muted-foreground)',
+              background: t.isPublished ? 'hsl(150,42%,36%,0.12)' : 'var(--color-muted)',
+            }}>
+              {t.isPublished ? 'Publicado' : 'Rascunho'}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', borderTop: '1px solid var(--color-border)', paddingTop: '0.5rem' }}>
+        <Link
+          href={`/t/${t.slug}`}
+          style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', color: 'inherit', textDecoration: 'none', fontWeight: 500 }}
+        >
+          Ver perfil
+        </Link>
+        <Link
+          href={`/painel/terreiros/${t.id}`}
+          className="painel-btn"
+          style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem', textDecoration: 'none' }}
+        >
+          Editar terreiro
+        </Link>
       </div>
     </div>
   );
