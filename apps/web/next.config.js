@@ -6,7 +6,7 @@ const isDev = process.env.NODE_ENV === 'development';
  * API URL — used to build the CSP connect-src directive dynamically.
  * In dev this is usually http://localhost:3001; in prod https://api.axemap.com.br.
  */
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (isDev ? 'http://localhost:3001' : 'https://axemap.com.br');
 
 /**
  * Parse origin (scheme + host) from a URL string for CSP use.

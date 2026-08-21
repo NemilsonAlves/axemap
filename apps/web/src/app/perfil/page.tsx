@@ -164,7 +164,7 @@ export default function PerfilPage() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/upload/avatar`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/upload/avatar`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${localStorage.getItem('axemap_auth') ? JSON.parse(localStorage.getItem('axemap_auth')!).accessToken : ''}` },
         body: formData,

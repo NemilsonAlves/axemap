@@ -40,7 +40,7 @@ interface SystemVersion {
   environment: string;
 }
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 function StatusBadge({ status }: { status: string }) {
   const color = status === 'healthy' || status === 'ok' || status === 'ready' || status === 'alive'

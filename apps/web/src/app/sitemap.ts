@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import type { DadosSitemap } from '@/lib/seo/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];

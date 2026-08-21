@@ -29,7 +29,7 @@ export function HomeMap() {
   const [error, setError] = React.useState(false);
 
   React.useEffect(() => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
     let active = true;
     (async () => {
       try {

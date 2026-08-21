@@ -27,7 +27,7 @@ import { ComunidadeAI } from '@/components/hub/comunidade-ai';
 import { MapaComoChegar } from '@/components/hub/mapa-como-chegar';
 import './profile.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 async function getPerfil(slug: string): Promise<TerreiroPerfil | null> {
   try {
