@@ -509,6 +509,8 @@ function TerreiroCard({ terreiro: t }: { terreiro: MeuTerreiro }) {
         </Link>
         <Link
           href={`/painel/terreiros/${t.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="painel-btn"
           style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem', textDecoration: 'none' }}
         >
