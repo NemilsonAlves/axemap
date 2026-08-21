@@ -26,15 +26,6 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
 # Build do monorepo: turbo resolve a ordem (compila @axemap/shared antes do web).
 RUN corepack enable && pnpm exec turbo run build --filter=@axemap/web...
 
-# Materializa os pacotes do workspace (symlinks do pnpm) em diretórios reais,
-# para que o runner não dependa de links quebrados para @axemap/*.
-RUN for pkg in node_modules/@axemap/*; do \
-      if [ -L "$pkg" ]; then \
-        rm "$pkg"; \
-        cp -rL "packages/$(basename "$pkg")" "$pkg"; \
-      fi; \
-    done
-
 # Production
 FROM base AS runner
 WORKDIR /app
@@ -45,6 +36,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/package.json ./
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/packages ./packages
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
