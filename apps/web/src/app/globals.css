@@ -114,6 +114,60 @@
   --shadow-lg: 0 4px 8px hsl(24 30% 30% / 0.07), 0 16px 40px hsl(24 30% 30% / 0.12);
   --shadow-xl: 0 8px 16px hsl(24 30% 30% / 0.1), 0 28px 64px hsl(24 30% 30% / 0.18);
   --shadow-copper: 0 6px 24px hsl(18 70% 40% / 0.28);
+
+  /* ── Living Map Tokens ─────────────────────────────────────── */
+  /* Camada 1 — Base */
+  --map-bg: 195 35% 88%;
+  --map-land: 40 30% 94%;
+  --map-border: 30 20% 82%;
+  --map-label: 28 14% 42%;
+  --map-water: 195 45% 78%;
+
+  /* Camada 2 — Axé (marcadores) */
+  --map-marker-default: 18 66% 47%;
+  --map-marker-verified: 150 42% 36%;
+  --map-marker-traditional: 37 79% 53%;
+  --map-marker-federation: 268 45% 52%;
+  --map-marker-event: 12 90% 62%;
+  --map-marker-business: 206 72% 42%;
+
+  /* Trust Score (escala 0-100) */
+  --trust-legendary: 150 42% 36%;
+  --trust-authority: 150 46% 44%;
+  --trust-established: 36 85% 44%;
+  --trust-emerging: 38 90% 40%;
+  --trust-initiate: 18 66% 47%;
+
+  /* Camada 3 — Conversão / Ação */
+  --cta-primary: 18 66% 47%;
+  --cta-primary-hover: 16 68% 38%;
+  --cta-primary-fg: 32 60% 98%;
+  --cta-secondary: 30 32% 93%;
+  --cta-secondary-hover: 30 28% 88%;
+  --cta-secondary-fg: 20 40% 14%;
+  --cta-ghost: transparent;
+  --cta-ghost-hover: 24 40% 90%;
+  --cta-ghost-fg: 18 50% 16%;
+  --cta-outline: 18 66% 47%;
+  --cta-outline-hover: 18 66% 47%;
+  --cta-outline-fg: 18 66% 47%;
+  --cta-map-action: 18 66% 47%;
+  --cta-map-action-hover: 16 68% 38%;
+
+  /* Cluster */
+  --cluster-bg: 18 66% 47%;
+  --cluster-text: 32 60% 98%;
+  --cluster-border: 0 0% 100%;
+
+  /* Popup */
+  --popup-bg: 0 0% 100%;
+  --popup-border: 30 30% 88%;
+  --popup-shadow: 0 4px 16px hsl(24 30% 30% / 0.15);
+
+  /* Empty State */
+  --empty-icon: 28 14% 60%;
+  --empty-text: 28 14% 42%;
+  --empty-cta: 18 66% 47%;
 }
 
 .dark {
@@ -209,6 +263,53 @@
   --shadow-lg: 0 4px 8px hsl(0 0% 0% / 0.45), 0 18px 44px hsl(0 0% 0% / 0.5);
   --shadow-xl: 0 8px 16px hsl(0 0% 0% / 0.5), 0 30px 72px hsl(0 0% 0% / 0.6);
   --shadow-copper: 0 6px 28px hsl(18 78% 50% / 0.35);
+
+  /* ── Living Map Tokens (dark) ──────────────────────────────── */
+  --map-bg: 210 25% 12%;
+  --map-land: 40 15% 16%;
+  --map-border: 30 12% 22%;
+  --map-label: 28 14% 55%;
+  --map-water: 210 30% 18%;
+
+  --map-marker-default: 18 78% 60%;
+  --map-marker-verified: 150 46% 54%;
+  --map-marker-traditional: 37 80% 60%;
+  --map-marker-federation: 268 52% 64%;
+  --map-marker-event: 12 92% 66%;
+  --map-marker-business: 206 78% 56%;
+
+  --trust-legendary: 150 46% 54%;
+  --trust-authority: 150 48% 50%;
+  --trust-established: 38 88% 60%;
+  --trust-emerging: 38 92% 56%;
+  --trust-initiate: 18 78% 60%;
+
+  --cta-primary: 18 78% 58%;
+  --cta-primary-hover: 18 80% 66%;
+  --cta-primary-fg: 20 50% 10%;
+  --cta-secondary: 24 18% 15%;
+  --cta-secondary-hover: 24 22% 20%;
+  --cta-secondary-fg: 35 40% 92%;
+  --cta-ghost: transparent;
+  --cta-ghost-hover: 22 20% 17%;
+  --cta-ghost-fg: 30 50% 86%;
+  --cta-outline: 18 78% 58%;
+  --cta-outline-hover: 18 78% 58%;
+  --cta-outline-fg: 18 78% 58%;
+  --cta-map-action: 18 78% 58%;
+  --cta-map-action-hover: 18 80% 66%;
+
+  --cluster-bg: 18 78% 58%;
+  --cluster-text: 20 50% 10%;
+  --cluster-border: 22 22% 15%;
+
+  --popup-bg: 22 22% 10%;
+  --popup-border: 24 15% 18%;
+  --popup-shadow: 0 4px 16px hsl(0 0% 0% / 0.4);
+
+  --empty-icon: 28 14% 50%;
+  --empty-text: 28 14% 60%;
+  --empty-cta: 18 78% 58%;
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -434,6 +535,52 @@
   --z-popover: 1150;
   --z-toast: 1200;
   --z-tooltip: 1250;
+
+  /* ── Living Map (Tailwind mappings) ─────────────────────────── */
+  --color-map-bg: hsl(var(--map-bg));
+  --color-map-land: hsl(var(--map-land));
+  --color-map-border: hsl(var(--map-border));
+  --color-map-label: hsl(var(--map-label));
+  --color-map-water: hsl(var(--map-water));
+
+  --color-map-marker: hsl(var(--map-marker-default));
+  --color-map-marker-verified: hsl(var(--map-marker-verified));
+  --color-map-marker-traditional: hsl(var(--map-marker-traditional));
+  --color-map-marker-federation: hsl(var(--map-marker-federation));
+  --color-map-marker-event: hsl(var(--map-marker-event));
+  --color-map-marker-business: hsl(var(--map-marker-business));
+
+  --color-trust-legendary: hsl(var(--trust-legendary));
+  --color-trust-authority: hsl(var(--trust-authority));
+  --color-trust-established: hsl(var(--trust-established));
+  --color-trust-emerging: hsl(var(--trust-emerging));
+  --color-trust-initiate: hsl(var(--trust-initiate));
+
+  --color-cta-primary: hsl(var(--cta-primary));
+  --color-cta-primary-hover: hsl(var(--cta-primary-hover));
+  --color-cta-primary-fg: hsl(var(--cta-primary-fg));
+  --color-cta-secondary: hsl(var(--cta-secondary));
+  --color-cta-secondary-hover: hsl(var(--cta-secondary-hover));
+  --color-cta-secondary-fg: hsl(var(--cta-secondary-fg));
+  --color-cta-ghost: var(--cta-ghost);
+  --color-cta-ghost-hover: hsl(var(--cta-ghost-hover));
+  --color-cta-ghost-fg: hsl(var(--cta-ghost-fg));
+  --color-cta-outline: hsl(var(--cta-outline));
+  --color-cta-outline-hover: hsl(var(--cta-outline-hover));
+  --color-cta-outline-fg: hsl(var(--cta-outline-fg));
+  --color-cta-map-action: hsl(var(--cta-map-action));
+  --color-cta-map-action-hover: hsl(var(--cta-map-action-hover));
+
+  --color-cluster: hsl(var(--cluster-bg));
+  --color-cluster-text: hsl(var(--cluster-text));
+  --color-cluster-border: hsl(var(--cluster-border));
+
+  --color-popup: hsl(var(--popup-bg));
+  --color-popup-border: hsl(var(--popup-border));
+
+  --color-empty-icon: hsl(var(--empty-icon));
+  --color-empty-text: hsl(var(--empty-text));
+  --color-empty-cta: hsl(var(--empty-cta));
 
   /* ── Grid / layout ──────────────────────────────────────────── */
   --container-page: 80rem;

@@ -31,3 +31,5 @@ backups/
 *.swp
 *.swo
 *~
+.env.production.backup*
+*.backup

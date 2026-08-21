@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Patch, Query, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Query, Param, Body, UseGuards, ForbiddenException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { NotificacoesService } from './notificacoes.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { PrismaService } from '../database/prisma.service';
 
 @Controller('notificacoes')
 @UseGuards(AuthGuard('jwt'))
 export class NotificacoesController {
-  constructor(private notificacoesService: NotificacoesService) {}
+  constructor(
+    private notificacoesService: NotificacoesService,
+    private prisma: PrismaService,
+  ) {}
 
   @Get()
   async listar(
@@ -25,6 +29,10 @@ export class NotificacoesController {
 
   @Post()
   async criar(@CurrentUser() user: any, @Body() dto: { tipo: string; titulo: string; mensagem?: string }) {
+    const usuario = await this.prisma.usuarios.findUnique({ where: { id: user.id }, select: { role: true } });
+    if (!usuario || !['ADMIN', 'SUPER_ADMIN'].includes(usuario.role)) {
+      throw new ForbiddenException('Apenas administradores podem criar notificações');
+    }
     return this.notificacoesService.criar(user.id, dto);
   }
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
 import { api } from '@/lib/api-client';
 import { labelTradicao, TRADICOES_CATALOGO } from '@/lib/tradicoes';
 
@@ -17,7 +18,7 @@ const DIAS = [
   { chave: 'domingo', label: 'Domingo' },
 ];
 
-interface FormState {
+interface FormData {
   nome: string;
   tradicao: string;
   descricaoCurta: string;
@@ -39,30 +40,34 @@ interface FormState {
 
 export function EditarTerreiro({ terreiroId, slug }: { terreiroId: string; slug: string }) {
   const [carregando, setCarregando] = useState(true);
-  const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
   const [salvo, setSalvo] = useState(false);
-  const [form, setForm] = useState<FormState>({
-    nome: '', tradicao: '', descricaoCurta: '', descricaoLonga: '',
-    cidade: '', estado: '', anoFundacao: '', linhagem: '', telefone: '',
-    whatsapp: '', instagram: '', facebook: '', website: '', email: '',
-    acessibilidade: false, estacionamento: '', horarios: {},
+
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting }, watch, setValue } = useForm<FormData>({
+    defaultValues: {
+      nome: '', tradicao: '', descricaoCurta: '', descricaoLonga: '',
+      cidade: '', estado: '', anoFundacao: '', linhagem: '', telefone: '',
+      whatsapp: '', instagram: '', facebook: '', website: '', email: '',
+      acessibilidade: false, estacionamento: '', horarios: {},
+    },
   });
+
+  const horarios = watch('horarios');
 
   useEffect(() => {
     api
       .get<any>(`/terreiros/${slug}/perfil`)
       .then((t) => {
-        let horarios: Record<string, string> = {};
+        let parsedHorarios: Record<string, string> = {};
         if (t.horarioFuncionamento) {
           try {
             const parsed = JSON.parse(t.horarioFuncionamento);
-            if (parsed && typeof parsed === 'object') horarios = parsed;
+            if (parsed && typeof parsed === 'object') parsedHorarios = parsed;
           } catch {
-            horarios = {};
+            parsedHorarios = {};
           }
         }
-        setForm({
+        reset({
           nome: t.nome || '',
           tradicao: t.tradicao || '',
           descricaoCurta: t.descricaoCurta || '',
@@ -79,56 +84,47 @@ export function EditarTerreiro({ terreiroId, slug }: { terreiroId: string; slug:
           email: t.email || '',
           acessibilidade: !!t.acessibilidade,
           estacionamento: t.estacionamento || '',
-          horarios,
+          horarios: parsedHorarios,
         });
       })
       .catch(() => setErro('Não foi possível carregar o perfil.'))
       .finally(() => setCarregando(false));
-  }, [slug]);
+  }, [slug, reset]);
 
-  const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
-    setForm((f) => ({ ...f, [k]: v }));
-    setSalvo(false);
-  };
-
-  const salvar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSalvando(true);
+  const onSubmit = async (data: FormData) => {
     setErro('');
     setSalvo(false);
     try {
-      const payload: Record<string, unknown> = {
-        nome: form.nome,
-        tradicao: form.tradicao,
-        descricaoCurta: form.descricaoCurta || null,
-        descricaoLonga: form.descricaoLonga || null,
-        cidade: form.cidade,
-        estado: form.estado,
-        acessibilidade: form.acessibilidade,
-        estacionamento: form.estacionamento || null,
-        anoFundacao: form.anoFundacao ? Number(form.anoFundacao) : null,
-        linhagem: form.linhagem || null,
-        telefone: form.telefone || null,
-        whatsapp: form.whatsapp || null,
-        instagram: form.instagram || null,
-        facebook: form.facebook || null,
-        website: form.website || null,
-        email: form.email || null,
-        horarioFuncionamento: JSON.stringify(form.horarios),
+      const payload = {
+        nome: data.nome,
+        tradicao: data.tradicao,
+        descricaoCurta: data.descricaoCurta || null,
+        descricaoLonga: data.descricaoLonga || null,
+        cidade: data.cidade,
+        estado: data.estado,
+        acessibilidade: data.acessibilidade,
+        estacionamento: data.estacionamento || null,
+        anoFundacao: data.anoFundacao ? Number(data.anoFundacao) : null,
+        linhagem: data.linhagem || null,
+        telefone: data.telefone || null,
+        whatsapp: data.whatsapp || null,
+        instagram: data.instagram || null,
+        facebook: data.facebook || null,
+        website: data.website || null,
+        email: data.email || null,
+        horarioFuncionamento: JSON.stringify(data.horarios),
       };
       await api.patch(`/terreiros/${terreiroId}`, payload);
       setSalvo(true);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao salvar');
-    } finally {
-      setSalvando(false);
     }
   };
 
   if (carregando) return <p className="painel-empty">Carregando perfil...</p>;
 
   return (
-    <form onSubmit={salvar}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       {erro && <div className="painel-error">{erro}</div>}
       {salvo && (
         <div style={{ marginBottom: '1rem', padding: '0.75rem', background: 'var(--success)', border: '1px solid color-mix(in srgb, var(--success) 70%, transparent)', borderRadius: 8, fontSize: '0.85rem', color: 'var(--success-foreground)' }}>
@@ -141,52 +137,56 @@ export function EditarTerreiro({ terreiroId, slug }: { terreiroId: string; slug:
         <div className="painel-form-grid">
           <div className="painel-field">
             <label>Nome da Casa de Axé *</label>
-            <input value={form.nome} onChange={(e) => set('nome', e.target.value)} required />
+            <input {...register('nome')} />
+            {errors.nome && <span className="painel-field-error">{errors.nome.message}</span>}
           </div>
           <div className="painel-field">
             <label>Tradição *</label>
-            <select value={form.tradicao} onChange={(e) => set('tradicao', e.target.value)} required>
+            <select {...register('tradicao')}>
               <option value="">Selecione...</option>
               {TRADICOES.map((t) => <option key={t} value={t}>{labelTradicao(t)}</option>)}
             </select>
+            {errors.tradicao && <span className="painel-field-error">{errors.tradicao.message}</span>}
           </div>
           <div className="painel-field">
             <label>Cidade *</label>
-            <input value={form.cidade} onChange={(e) => set('cidade', e.target.value)} required />
+            <input {...register('cidade')} />
+            {errors.cidade && <span className="painel-field-error">{errors.cidade.message}</span>}
           </div>
           <div className="painel-field">
             <label>Estado (UF) *</label>
-            <input value={form.estado} maxLength={2} onChange={(e) => set('estado', e.target.value.toUpperCase())} required />
+            <input {...register('estado')} maxLength={2} />
+            {errors.estado && <span className="painel-field-error">{errors.estado.message}</span>}
           </div>
           <div className="painel-field">
             <label>Ano de fundação</label>
-            <input type="number" min={1500} max={2100} value={form.anoFundacao} onChange={(e) => set('anoFundacao', e.target.value)} />
+            <input type="number" min={1500} max={2100} {...register('anoFundacao')} />
           </div>
           <div className="painel-field">
             <label>Linhagem</label>
-            <input value={form.linhagem} onChange={(e) => set('linhagem', e.target.value)} />
+            <input {...register('linhagem')} />
           </div>
         </div>
 
         <div className="painel-field">
           <label>Descrição curta (máx. 500 caracteres)</label>
-          <input maxLength={500} value={form.descricaoCurta} onChange={(e) => set('descricaoCurta', e.target.value)} />
+          <input maxLength={500} {...register('descricaoCurta')} />
         </div>
         <div className="painel-field">
           <label>Descrição completa</label>
-          <textarea rows={5} value={form.descricaoLonga} onChange={(e) => set('descricaoLonga', e.target.value)} />
+          <textarea rows={5} {...register('descricaoLonga')} />
         </div>
       </div>
 
       <div className="painel-form-card">
         <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem', color: 'var(--color-primary)' }}>Contato</h3>
         <div className="painel-form-grid">
-          <div className="painel-field"><label>Telefone</label><input value={form.telefone} onChange={(e) => set('telefone', e.target.value)} /></div>
-          <div className="painel-field"><label>WhatsApp</label><input value={form.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} /></div>
-          <div className="painel-field"><label>E-mail</label><input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} /></div>
-          <div className="painel-field"><label>Site</label><input value={form.website} onChange={(e) => set('website', e.target.value)} /></div>
-          <div className="painel-field"><label>Instagram</label><input value={form.instagram} onChange={(e) => set('instagram', e.target.value)} /></div>
-          <div className="painel-field"><label>Facebook</label><input value={form.facebook} onChange={(e) => set('facebook', e.target.value)} /></div>
+          <div className="painel-field"><label>Telefone</label><input {...register('telefone')} /></div>
+          <div className="painel-field"><label>WhatsApp</label><input {...register('whatsapp')} /></div>
+          <div className="painel-field"><label>E-mail</label><input type="email" {...register('email')} /></div>
+          <div className="painel-field"><label>Site</label><input {...register('website')} /></div>
+          <div className="painel-field"><label>Instagram</label><input {...register('instagram')} /></div>
+          <div className="painel-field"><label>Facebook</label><input {...register('facebook')} /></div>
         </div>
       </div>
 
@@ -198,14 +198,14 @@ export function EditarTerreiro({ terreiroId, slug }: { terreiroId: string; slug:
               <label>{d.label}</label>
               <input
                 placeholder="Ex: 08:00 - 18:00"
-                value={form.horarios[d.chave] || ''}
-                onChange={(e) => set('horarios', { ...form.horarios, [d.chave]: e.target.value })}
+                value={horarios[d.chave] || ''}
+                onChange={(e) => setValue('horarios', { ...horarios, [d.chave]: e.target.value }, { shouldValidate: true })}
               />
             </div>
           ))}
           <div className="painel-field">
             <label>Estacionamento</label>
-            <select value={form.estacionamento} onChange={(e) => set('estacionamento', e.target.value)}>
+            <select {...register('estacionamento')}>
               <option value="">Nenhum / não informado</option>
               <option value="PRIVADO">Privado</option>
               <option value="RUA">Na rua</option>
@@ -215,8 +215,7 @@ export function EditarTerreiro({ terreiroId, slug }: { terreiroId: string; slug:
             <input
               id="acessibilidade"
               type="checkbox"
-              checked={form.acessibilidade}
-              onChange={(e) => set('acessibilidade', e.target.checked)}
+              {...register('acessibilidade')}
               style={{ width: 'auto' }}
             />
             <label htmlFor="acessibilidade" style={{ marginBottom: 0 }}>Possui acessibilidade</label>
@@ -224,8 +223,8 @@ export function EditarTerreiro({ terreiroId, slug }: { terreiroId: string; slug:
         </div>
       </div>
 
-      <button type="submit" className="painel-btn" disabled={salvando}>
-        {salvando ? 'Salvando...' : 'Salvar alterações'}
+      <button type="submit" className="painel-btn" disabled={isSubmitting}>
+        {isSubmitting ? 'Salvando...' : 'Salvar alterações'}
       </button>
     </form>
   );

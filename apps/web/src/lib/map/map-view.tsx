@@ -4,6 +4,8 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useMapProvider } from './map-provider';
 import type { MapGeoPoint, MapBounds, MapMarker, MapConfig } from './types';
 import type { MapProviderInstance } from './map-provider.interface';
+import { cn } from '@/lib/cn';
+import './leaflet/leaflet-overrides.css';
 
 export interface MapViewHandle {
   flyTo(position: MapGeoPoint, zoom?: number): void;
@@ -80,8 +82,7 @@ onClick,
         zoom: zoomRef.current,
         minZoom: minZoomRef.current,
         maxZoom: maxZoomRef.current,
-        tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+        tileUrl: 'voyager',
       };
 
       const instance = provider.create(container, config);
@@ -168,7 +169,7 @@ onClick,
   return (
     <div
       ref={containerRef}
-      className={className}
+      className={cn('axemap-container', className)}
       style={{ width: '100%', height: '400px', ...style }}
     />
   );

@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { api } from '@/lib/api-client';
+import { TRADICOES_CATALOGO, labelTradicao } from '@/lib/tradicoes';
 import './onboarding.css';
 
 const ESTADOS = [
@@ -11,8 +12,11 @@ const ESTADOS = [
   'PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
 ];
 
+const TRADICOES = TRADICOES_CATALOGO.map((t) => t.nome);
+
 interface FormData {
   nome: string;
+  tradicao: string;
   cidade: string;
   estado: string;
   latitude: number | null;
@@ -25,7 +29,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>({
-    nome: '', cidade: '', estado: '', latitude: null, longitude: null, whatsapp: '',
+    nome: '', tradicao: '', cidade: '', estado: '', latitude: null, longitude: null, whatsapp: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -36,9 +40,10 @@ export default function OnboardingPage() {
   const valid = () => {
     switch (step) {
       case 0: return form.nome.trim().length >= 3;
-      case 1: return form.cidade.trim().length >= 2 && form.estado.length === 2;
-      case 2: return form.latitude !== null && form.longitude !== null;
-      case 3: return form.whatsapp.replace(/\D/g, '').length >= 10;
+      case 1: return form.tradicao.trim().length >= 1;
+      case 2: return form.cidade.trim().length >= 2 && form.estado.length === 2;
+      case 3: return form.latitude !== null && form.longitude !== null;
+      case 4: return form.whatsapp.replace(/\D/g, '').length >= 10;
       default: return true;
     }
   };
@@ -49,7 +54,7 @@ export default function OnboardingPage() {
     setError('');
     try {
       await api.post<{ id: string; slug: string }>('/onboarding/criar', {
-        nome: form.nome, cidade: form.cidade, estado: form.estado,
+        nome: form.nome, tradicao: form.tradicao, cidade: form.cidade, estado: form.estado,
         latitude: form.latitude, longitude: form.longitude, whatsapp: form.whatsapp,
       }, token || undefined);
       router.push('/central-evolucao');
@@ -85,6 +90,20 @@ export default function OnboardingPage() {
             maxLength={200}
             autoFocus
           />
+        </div>
+      ),
+    },
+    {
+      title: 'Qual a tradição?',
+      desc: 'Selecione a tradição principal da sua Casa de Axé.',
+      content: (
+        <div className="onb-field">
+          <label>Tradição</label>
+          <select value={form.tradicao} onChange={(e) => update('tradicao', e.target.value)}>
+            <option value="">Selecione...</option>
+            {TRADICOES.map((t) => <option key={t} value={t}>{labelTradicao(t)}</option>)}
+          </select>
+          <p className="onb-hint">Se não souber, escolha &quot;Não Informada&quot;. Você pode alterar depois.</p>
         </div>
       ),
     },
@@ -172,6 +191,7 @@ export default function OnboardingPage() {
       content: (
         <div className="onb-review">
           <div className="onb-review-item"><strong>Nome:</strong> {form.nome}</div>
+          <div className="onb-review-item"><strong>Tradição:</strong> {form.tradicao ? labelTradicao(form.tradicao) : 'Não informada'}</div>
           <div className="onb-review-item"><strong>Cidade:</strong> {form.cidade}/{form.estado}</div>
           <div className="onb-review-item"><strong>Coordenadas:</strong> {form.latitude?.toFixed(3)}, {form.longitude?.toFixed(3)}</div>
           <div className="onb-review-item"><strong>WhatsApp:</strong> {form.whatsapp}</div>

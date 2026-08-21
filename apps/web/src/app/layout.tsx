@@ -16,6 +16,7 @@ import { FeedbackWidget } from '@/components/feedback-widget';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { CookieConsent } from '@/components/cookies/cookie-consent';
+import { QueryProvider } from '@/lib/query-provider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <I18nProvider>
             <HtmlLang />
+          <QueryProvider>
           <AuthProvider>
             <AnalyticsProvider>
               <FeatureFlagsProvider>
@@ -105,9 +107,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   >
                     Pular para o conteúdo principal
                   </a>
-                  <div className="flex min-h-dvh flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+                  <div className="flex min-h-dvh flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0 overflow-x-hidden">
                     <AppHeader />
-                    <main id="conteudo" className="flex-1">{children}</main>
+                    <main id="conteudo" className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
                     <AppFooter />
                   </div>
                   <MobileBottomNav />
@@ -118,6 +120,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </FeatureFlagsProvider>
             </AnalyticsProvider>
           </AuthProvider>
+          </QueryProvider>
           </I18nProvider>
         </ThemeProvider>
       </body>

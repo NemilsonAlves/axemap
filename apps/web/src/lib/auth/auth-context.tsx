@@ -28,6 +28,7 @@ interface User {
   email: string;
   nome: string;
   role: string;
+  avatarUrl?: string | null;
 }
 
 interface AuthContextValue {
@@ -37,6 +38,7 @@ interface AuthContextValue {
   login: (email: string, senha: string) => Promise<void>;
   signup: (email: string, nome: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (data: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -130,8 +132,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSessionCookie(false);
   }, [token]);
 
+  const updateUser = useCallback((data: Partial<User>) => {
+    setUser((prev) => (prev ? { ...prev, ...data } : null));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, signup, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

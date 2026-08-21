@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { generateSlug } from '@axemap/shared';
 
 @Injectable()
 export class CampanhasAdminService {
@@ -236,14 +237,7 @@ export class CampanhasAdminService {
   }
 
   private gerarSlug(texto: string) {
-    const base =
-      texto
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 60) || 'campanha';
+    const base = generateSlug(texto, 'campanha').slice(0, 60);
     const rand = Math.random().toString(36).slice(2, 8);
     return `${base}-${rand}`;
   }

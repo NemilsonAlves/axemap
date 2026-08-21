@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { TaxonomyCategory } from '@axemap/shared';
+import { generateSlug } from '@axemap/shared';
 import { PrismaService } from '../database/prisma.service';
 import { NotificacoesService } from '../notificacoes/notificacoes.service';
 
@@ -65,11 +66,7 @@ export class OnboardingService {
     tradicao?: string;
     taxonomyCategory?: TaxonomyCategory;
   }, usuarioId: string) {
-    const slug = dto.nome
-      .toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    const slug = generateSlug(dto.nome);
 
     const codigoIndicacao = `AX${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 

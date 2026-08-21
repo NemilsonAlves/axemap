@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -52,6 +52,12 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   async me(@CurrentUser() user: any) {
     return this.authService.validateUser(user.id);
+  }
+
+  @Patch('me')
+  @UseGuards(AuthGuard('jwt'))
+  async updateMe(@CurrentUser() user: any, @Body() dto: { nome?: string; avatarUrl?: string }) {
+    return this.authService.updateProfile(user.id, dto);
   }
 
   // ─── LGPD — Direitos do titular (Art. 18 LGPD) ─────────────────────────────

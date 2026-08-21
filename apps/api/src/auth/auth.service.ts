@@ -39,7 +39,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.email);
 
     return {
-      user: { id: user.id, email: user.email, nome: user.nome, role: user.role },
+      user: { id: user.id, email: user.email, nome: user.nome, role: user.role, avatarUrl: user.avatarUrl },
       ...tokens,
     };
   }
@@ -59,7 +59,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.email);
 
     return {
-      user: { id: user.id, email: user.email, nome: user.nome, role: user.role },
+      user: { id: user.id, email: user.email, nome: user.nome, role: user.role, avatarUrl: user.avatarUrl },
       ...tokens,
     };
   }
@@ -99,7 +99,24 @@ export class AuthService {
   async validateUser(userId: string) {
     return this.prisma.usuarios.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, nome: true, role: true },
+      select: { id: true, email: true, nome: true, role: true, avatarUrl: true },
+    });
+  }
+
+  async updateProfile(userId: string, dto: { nome?: string; avatarUrl?: string }) {
+    const data: { nome?: string; avatarUrl?: string } = {};
+    if (dto.nome !== undefined) {
+      const trimmed = dto.nome.trim();
+      if (trimmed.length < 1) throw new BadRequestException('Nome é obrigatório');
+      if (trimmed.length > 200) throw new BadRequestException('Nome deve ter no máximo 200 caracteres');
+      data.nome = trimmed;
+    }
+    if (dto.avatarUrl !== undefined) data.avatarUrl = dto.avatarUrl;
+
+    return this.prisma.usuarios.update({
+      where: { id: userId },
+      data,
+      select: { id: true, email: true, nome: true, role: true, avatarUrl: true },
     });
   }
 

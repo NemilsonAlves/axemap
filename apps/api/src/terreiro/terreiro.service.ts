@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException, BadRequestException 
 import { PrismaService } from '../database/prisma.service';
 import { isAdminRole } from '../common/utils/roles';
 import { mascararLocalizacao } from '../common/utils/location-visibility';
+import { generateSlug } from '@axemap/shared';
 
 const perfilInclude = {
   dirigente: { select: { id: true, nome: true, avatarUrl: true } },
@@ -75,10 +76,7 @@ export class TerreiroService {
   constructor(private prisma: PrismaService) {}
 
   async criar(dto: any, usuarioId: string) {
-    const slug = dto.nome
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    const slug = generateSlug(dto.nome);
 
     return this.prisma.terreiros.create({
       data: {
@@ -335,9 +333,29 @@ export class TerreiroService {
       }
     }
 
+    const ALLOWED_FIELDS = [
+      'nome', 'slug', 'tradicao', 'taxonomyCategory', 'descricaoCurta', 'descricaoLonga',
+      'cidade', 'estado', 'pais', 'continente', 'latitude', 'longitude',
+      'telefone', 'email', 'website', 'whatsapp', 'instagram', 'facebook',
+      'anoFundacao', 'linhagem', 'acessibilidade', 'estacionamento',
+      'nivelPrivacidade', 'visibilidadeLocalizacao',
+      'fotoUrl', 'horarioFuncionamento',
+    ] as const;
+
+    const safeData: Record<string, any> = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (key in dto) {
+        safeData[key] = dto[key];
+      }
+    }
+
+    if (Object.keys(safeData).length === 0) {
+      throw new BadRequestException('Nenhum campo válido para atualização');
+    }
+
     return this.prisma.terreiros.update({
       where: { id },
-      data: dto,
+      data: safeData,
     });
   }
 
@@ -401,9 +419,16 @@ export class TerreiroService {
     return { removido: true };
   }
 
-  async deletar(id: string, _usuarioId: string) {
+  async deletar(id: string, usuarioId: string) {
     const terreiro = await this.prisma.terreiros.findUnique({ where: { id } });
     if (!terreiro) throw new NotFoundException('Terreiro não encontrado');
+
+    const usuario = await this.prisma.usuarios.findUnique({ where: { id: usuarioId }, select: { role: true } });
+    const isAdmin = usuario && isAdminRole(usuario.role);
+
+    if (terreiro.dirigenteId !== usuarioId && !isAdmin) {
+      throw new ForbiddenException('Apenas o dirigente ou administrador pode excluir este terreiro');
+    }
 
     await this.prisma.terreiros.update({
       where: { id },

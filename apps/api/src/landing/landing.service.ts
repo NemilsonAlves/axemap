@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { generateSlug } from '@axemap/shared';
 
 const terreiroBasico = {
   id: true, nome: true, slug: true, tradicao: true,
@@ -691,12 +692,6 @@ export class LandingService {
   }
 
   private toSlug(texto: string): string {
-    return texto
-      .toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+    return generateSlug(texto);
   }
 }

@@ -44,6 +44,7 @@ import { AdsModule } from './ads/ads.module';
 import { PaymentsModule } from './payments/payments.module';
 import { TvModule } from './tv/tv.module';
 import { ConsentModule } from './consent/consent.module';
+import { MarketplaceModule } from './marketplace/marketplace.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -92,6 +93,7 @@ import { AppController } from './app.controller';
     PaymentsModule,
     TvModule,
     ConsentModule,
+    MarketplaceModule,
   ],
   controllers: [AppController],
   providers: [

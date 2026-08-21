@@ -19,6 +19,18 @@ export interface MapMarker {
   trustScore?: number;
   icon?: string;
   color?: string;
+  /** AxéMap extended fields */
+  verificationLevel?: string | null;
+  tipo?: string | null;
+  isFederation?: boolean;
+  hasEvents?: boolean;
+  hasMarketplace?: boolean;
+  photoUrl?: string | null;
+  endereco?: {
+    cidade?: string | null;
+    estado?: string | null;
+  } | null;
+  tradicaoPrincipal?: string | null;
 }
 
 export interface MapCluster {
