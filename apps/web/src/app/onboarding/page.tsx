@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { api } from '@/lib/api-client';
 import { TRADICOES_CATALOGO, labelTradicao } from '@/lib/tradicoes';
+import { MapView, type MapViewHandle } from '@/lib/map/map-view';
+import type { MapGeoPoint } from '@/lib/map/types';
 import './onboarding.css';
 
 const ESTADOS = [
@@ -33,9 +35,15 @@ export default function OnboardingPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const mapRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<MapViewHandle>(null);
+  const [mapCenter] = useState<MapGeoPoint>({ lat: -14.235, lng: -51.925 });
 
   const update = (key: keyof FormData, value: any) => setForm((f) => ({ ...f, [key]: value }));
+
+  const handleMapClick = useCallback((pos: MapGeoPoint) => {
+    update('latitude', Math.round(pos.lat * 1000) / 1000);
+    update('longitude', Math.round(pos.lng * 1000) / 1000);
+  }, []);
 
   const valid = () => {
     switch (step) {
@@ -137,29 +145,18 @@ export default function OnboardingPage() {
       desc: 'Clique no mapa para marcar a posição do terreiro.',
       content: (
         <div className="onb-field">
-          <div
+          <MapView
             ref={mapRef}
-            className="onb-mapa"
-            onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = (e.clientX - rect.left) / rect.width;
-              const y = (e.clientY - rect.top) / rect.height;
-              const lat = -13 + (1 - y) * 34;
-              const lng = -74 + x * 38;
-              update('latitude', Math.round(lat * 1000) / 1000);
-              update('longitude', Math.round(lng * 1000) / 1000);
-            }}
-          >
-            <div className="onb-mapa-bg" />
-            <div className="onb-mapa-pin" style={{
-              display: form.latitude !== null ? 'flex' : 'none',
-              left: `${((form.longitude ?? 0) + 74) / 38 * 100}%`,
-              top: `${(1 - ((form.latitude ?? 0) + 13) / 34) * 100}%`,
-            }}>
-              📍
-            </div>
-            <div className="onb-mapa-hint">Clique no mapa para marcar</div>
-          </div>
+            center={mapCenter}
+            zoom={form.latitude !== null ? 15 : 4}
+            onClick={handleMapClick}
+            markers={form.latitude !== null && form.longitude !== null ? [{
+              id: 'selected',
+              position: { lat: form.latitude, lng: form.longitude },
+              title: form.nome || 'Localização selecionada',
+            }] : []}
+            style={{ height: '280px', borderRadius: 'var(--radius-md)' }}
+          />
           {form.latitude !== null && form.longitude !== null && (
             <p className="onb-coords">
               {form.latitude.toFixed(3)}, {form.longitude.toFixed(3)}

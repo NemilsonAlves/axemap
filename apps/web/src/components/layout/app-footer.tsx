@@ -76,7 +76,7 @@ export function AppFooter() {
           {/* ── Marca AxéMap ── */}
           <div className="flex max-w-sm flex-col gap-4 sm:col-span-2 lg:col-span-1 lg:max-w-xs">
             <div className="flex items-center gap-2.5">
-              <LogoMark />
+              <LogoMark className="size-8 rounded-xl" />
               <span className="font-display text-lg font-bold tracking-tight text-foreground">
                 Axé<span className="text-copper-strong">Map</span>
               </span>
