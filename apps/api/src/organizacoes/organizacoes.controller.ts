@@ -13,6 +13,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { OrganizacoesService } from './organizacoes.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { isAdminRole } from '../common/utils/roles';
+import { CreateOrganizacaoDto } from './dto/create-organizacao.dto';
+import { UpdateOrganizacaoDto } from './dto/update-organizacao.dto';
+import { SolicitarVinculoDto } from './dto/solicitar-vinculo.dto';
 
 @Controller()
 export class OrganizacoesController {
@@ -60,7 +63,7 @@ export class OrganizacoesController {
 
   @Post('organizacoes')
   @UseGuards(AuthGuard('jwt'))
-  async criar(@Body() dto: any, @CurrentUser() user: any) {
+  async criar(@Body() dto: CreateOrganizacaoDto, @CurrentUser() user: any) {
     return this.organizacoesService.criar(user.id, dto);
   }
 
@@ -68,7 +71,7 @@ export class OrganizacoesController {
   @UseGuards(AuthGuard('jwt'))
   async atualizar(
     @Param('id') id: string,
-    @Body() dto: any,
+    @Body() dto: UpdateOrganizacaoDto,
     @CurrentUser() user: any,
   ) {
     return this.organizacoesService.atualizar(user.id, id, dto, isAdminRole(user.role));
@@ -84,7 +87,7 @@ export class OrganizacoesController {
   @UseGuards(AuthGuard('jwt'))
   async solicitarVinculo(
     @Param('id') id: string,
-    @Body() dto: { terreiroId: string },
+    @Body() dto: SolicitarVinculoDto,
     @CurrentUser() user: any,
   ) {
     return this.organizacoesService.solicitarVinculo(user.id, id, dto.terreiroId);
