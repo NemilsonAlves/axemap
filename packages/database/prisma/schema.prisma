@@ -357,6 +357,7 @@ model Usuarios {
   adCampanhasAnunciante          AdCampanha[]                   @relation("ad_campanha_anunciante")
   adCampanhasRevisadas           AdCampanha[]                   @relation("ad_campanha_revisada_por")
   adPagamentosConfirmados        AdPagamento[]                  @relation("ad_pagamento_confirmado")
+  pedidosMarketplaceComprador    PedidosMarketplace[]           @relation("pedido_comprador")
   episodiosSubmetidos            EpisodioTV[]                   @relation("episodio_submetido_por")
   episodiosRevisados             EpisodioTV[]                   @relation("episodio_revisado_por")
   consentRecords                 ConsentRecord[]
@@ -414,6 +415,7 @@ model Terreiros {
   membros               MembrosTerreiro[]
   cursos                Cursos[]
   produtos              ProdutosMarketplace[]
+  pedidosMarketplace    PedidosMarketplace[]  @relation("pedido_terreiro")
   conteudos             Conteudos[]
   acoesSociais          AcoesSociais[]
   documentosVerificacao DocumentosVerificacao[]
@@ -558,11 +560,14 @@ model MatriculasCurso {
 model ProdutosMarketplace {
   id        String    @id @default(uuid())
   nome      String
+  slug      String    @unique
   descricao String?   @db.Text
   preco     Float
+  precoPromocional Float? @map("preco_promocional")
   categoria String?
   estoque   Int       @default(0)
   imagens   String[]
+  status    ProdutoStatus @default(ATIVO)
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
@@ -570,7 +575,51 @@ model ProdutosMarketplace {
   terreiroId String    @map("terreiro_id")
   terreiro   Terreiros @relation(fields: [terreiroId], references: [id])
 
+  pedidoItens PedidoItem[]
+
   @@map("produtos_marketplace")
+}
+
+model PedidosMarketplace {
+  id            String         @id @default(uuid())
+  status        PedidoStatus   @default(CRIADO)
+  subtotal      Float
+  comissaoPercent Float        @map("comissao_percent") @default(10)
+  comissaoValor Float          @map("comissao_valor")
+  total         Float
+  metodoPagamento String?      @map("metodo_pagamento")
+  gatewayRef    String?        @unique @map("gateway_ref")
+  observacoes   String?        @db.Text
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  compradorId   String         @map("comprador_id")
+  comprador     Usuarios       @relation("pedido_comprador", fields: [compradorId], references: [id])
+
+  terreiroId    String         @map("terreiro_id")
+  terreiro      Terreiros      @relation("pedido_terreiro", fields: [terreiroId], references: [id])
+
+  itens         PedidoItem[]
+
+  @@index([compradorId])
+  @@index([terreiroId])
+  @@index([status])
+  @@map("pedidos_marketplace")
+}
+
+model PedidoItem {
+  id            String         @id @default(uuid())
+  quantidade    Int            @default(1)
+  precoUnitario Float          @map("preco_unitario")
+  subtotal      Float
+
+  pedidoId      String         @map("pedido_id")
+  pedido        PedidosMarketplace @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+
+  produtoId     String         @map("produto_id")
+  produto       ProdutosMarketplace @relation(fields: [produtoId], references: [id])
+
+  @@map("pedido_itens")
 }
 
 model Conteudos {
@@ -1892,6 +1941,30 @@ enum AdCategory {
   EVENTO
   PRODUTO
   SERVICO
+}
+
+enum ProdutoStatus {
+  ATIVO
+  INATIVO
+  ESGOTADO
+  RASCUNHO
+}
+
+enum PedidoStatus {
+  CRIADO
+  PAGO
+  CONFIRMADO
+  ENVIADO
+  ENTREGUE
+  CANCELADO
+  REEMBOLSADO
+}
+
+enum ComissaoStatus {
+  PENDENTE
+  CALCULADA
+  PAGA
+  CANCELADA
 }
 
 /// Campanha publicitária do AxéMap ADS.

@@ -74,4 +74,29 @@ export class MarketplaceController {
   async remover(@CurrentUser() user: any, @Param('id') id: string) {
     return this.marketplaceService.remover(user.id, id);
   }
+
+  @Post('pedidos')
+  @UseGuards(AuthGuard('jwt'))
+  async criarPedido(
+    @CurrentUser() user: any,
+    @Body() dto: { itens: { produtoId: string; quantidade: number }[]; observacoes?: string },
+  ) {
+    return this.marketplaceService.criarPedido(user.id, dto);
+  }
+
+  @Get('pedidos/meus')
+  @UseGuards(AuthGuard('jwt'))
+  async meusPedidos(
+    @CurrentUser() user: any,
+    @Query('limit') limit = '20',
+    @Query('offset') offset = '0',
+  ) {
+    return this.marketplaceService.meusPedidos(user.id, parseInt(limit) || 20, parseInt(offset) || 0);
+  }
+
+  @Get('pedidos/:id')
+  @UseGuards(AuthGuard('jwt'))
+  async detalhePedido(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.marketplaceService.detalhePedido(id, user.id);
+  }
 }

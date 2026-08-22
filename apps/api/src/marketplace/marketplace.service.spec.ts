@@ -5,19 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 
 describe('MarketplaceService', () => {
   let service: MarketplaceService;
-  let prisma: {
-    produtosMarketplace: {
-      findMany: jest.Mock;
-      findFirst: jest.Mock;
-      count: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      groupBy: jest.Mock;
-    };
-    membrosTerreiro: {
-      findFirst: jest.Mock;
-    };
-  };
+  let prisma: any;
 
   const mockTerreiro = {
     id: 'ter-1',
@@ -48,6 +36,7 @@ describe('MarketplaceService', () => {
       produtosMarketplace: {
         findMany: jest.fn(),
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
         count: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
@@ -56,6 +45,14 @@ describe('MarketplaceService', () => {
       membrosTerreiro: {
         findFirst: jest.fn(),
       },
+      pedidosMarketplace: {
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+        count: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+      },
+      $transaction: jest.fn((fns: any[]) => Promise.all(fns)),
     };
 
     const moduleRef = await Test.createTestingModule({

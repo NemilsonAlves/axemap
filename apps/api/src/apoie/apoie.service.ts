@@ -118,6 +118,8 @@ export class ApoieService {
       throw new BadRequestException(`mensagem excede ${MAX_MENSAGEM_LEN} caracteres`);
     }
 
+    const gatewayRef = `apoio-${usuarioId.slice(0, 8)}-${Date.now().toString(36)}`;
+
     const apoio = await this.prisma.apoioPlataforma.create({
       data: {
         valor: cfg.valor,
@@ -127,6 +129,7 @@ export class ApoieService {
         anonimo,
         mensagem,
         apoiadorId: usuarioId,
+        gatewayRef,
       },
     });
 

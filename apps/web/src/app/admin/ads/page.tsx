@@ -36,7 +36,7 @@ export default function AdminAdsPage() {
     setLoading(true);
     try {
       const qs = status ? `?status=${status}` : '';
-      const res = await api.get<{ data: AdCampanha[]; total: number }>(`/admin/ads${qs}`);
+      const res = await api.get<{ data: AdCampanha[]; total: number }>(`/admin/ads/campanhas${qs}`);
       setCampanhas(res?.data ?? []);
     } catch {
       setError('Erro ao carregar campanhas.');
@@ -50,7 +50,7 @@ export default function AdminAdsPage() {
   const acao = async (id: string, endpoint: string) => {
     setActionLoading(id + endpoint);
     try {
-      await api.post(`/admin/ads/${id}/${endpoint}`, {});
+      await api.post(`/admin/ads/campanhas/${id}/${endpoint}`, {});
       await carregar(statusFilter || undefined);
     } catch {
       setError('Ação falhou. Tente novamente.');

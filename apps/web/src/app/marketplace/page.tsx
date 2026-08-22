@@ -135,7 +135,7 @@ export default function MarketplacePage() {
             {produtos.map((p) => (
               <Link
                 key={p.id}
-                href={`/t/${p.terreiro.slug}`}
+                href={`/marketplace/${p.id}`}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',

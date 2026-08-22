@@ -6,11 +6,13 @@ import {
   Param,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AdsService } from './ads.service';
 import { AdPlacement, CreateAdOrderDto } from './ads.types';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import type { Request } from 'express';
 
 /**
  * AdsController — endpoints públicos e de anunciante.
@@ -61,13 +63,15 @@ export class AdsController {
 
   /** Registrar impressão (chamado pelo frontend ao exibir o anúncio). */
   @Post(':id/impressao')
-  registrarImpressao(@Param('id') id: string) {
-    return this.adsService.registrarImpressao(id);
+  registrarImpressao(@Param('id') id: string, @Req() req: Request) {
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip;
+    return this.adsService.registrarImpressao(id, ip);
   }
 
   /** Registrar clique (chamado pelo frontend). */
   @Post(':id/clique')
-  registrarClique(@Param('id') id: string) {
-    return this.adsService.registrarClique(id);
+  registrarClique(@Param('id') id: string, @Req() req: Request) {
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip;
+    return this.adsService.registrarClique(id, ip);
   }
 }

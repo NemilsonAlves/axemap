@@ -48,8 +48,9 @@ export class WebhookService {
         await this.confirmarApoio(payload.gatewayRef);
       } else if (payload.origin === 'SUBSCRIPTION') {
         await this.confirmarAssinatura(payload.gatewayRef);
+      } else if (payload.origin === 'AD') {
+        await this.confirmarAdPagamento(payload.gatewayRef);
       }
-      // AD e CAMPAIGN seguem lógica própria nos módulos correspondentes
 
       await this.registrarLog('WEBHOOK_PAYMENT_PAID', payload);
       this.processedEvents.add(idempotencyKey);
@@ -112,6 +113,27 @@ export class WebhookService {
     await this.prisma.planoPagamento.update({
       where: { id: pagamento.id },
       data: { status: 'CONFIRMADO', pagoEm: new Date() },
+    });
+  }
+
+  private async confirmarAdPagamento(gatewayRef: string) {
+    const pagamento = await (this.prisma as any).adPagamento.findFirst({
+      where: { gatewayRef },
+    });
+    if (!pagamento) {
+      throw new NotFoundException(`AdPagamento não encontrado para gatewayRef=${gatewayRef}`);
+    }
+    if (pagamento.status === 'CONFIRMADO') return;
+
+    await (this.prisma as any).adPagamento.update({
+      where: { id: pagamento.id },
+      data: { status: 'CONFIRMADO', pagoEm: new Date() },
+    });
+
+    // Atualiza status da campanha para EM_REVISAO (aguardando moderação admin)
+    await (this.prisma as any).adCampanha.update({
+      where: { id: pagamento.campanhaId },
+      data: { status: 'EM_REVISAO' },
     });
   }
 

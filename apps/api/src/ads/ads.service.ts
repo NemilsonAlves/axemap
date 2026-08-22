@@ -3,12 +3,12 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { AdStatus, AdPlacement, AdCategory, CreateAdOrderDto } from './ads.types';
-// PrismaService terá adCampanha e adPagamento após `prisma generate`.
-// Usamos casts de tipo (as any) até a migration ser aplicada e o cliente regenerado.
+import { PAYMENT_PROVIDER, type IPaymentProvider } from '../payments/payment.types';
 
 
 /**
@@ -20,9 +20,16 @@ import { AdStatus, AdPlacement, AdCategory, CreateAdOrderDto } from './ads.types
  */
 @Injectable()
 export class AdsService {
+  /** Cache simples de IPs para anti-fraud (em prod usar Redis). */
+  private readonly impressaoCache = new Map<string, number>();
+  private readonly cliqueCache = new Map<string, number>();
+  private readonly IMPRESSAO_COOLDOWN_MS = 30_000; // 30s entre impressões do mesmo IP
+  private readonly CLIQUE_COOLDOWN_MS = 60_000;    // 60s entre cliques do mesmo IP
+
   constructor(
     private prisma: PrismaService,
     private auditLogs: AuditLogsService,
+    @Inject(PAYMENT_PROVIDER) private paymentProvider: IPaymentProvider,
   ) {}
 
   // ──────────────────────────────────────────────────────────────
@@ -94,11 +101,32 @@ export class AdsService {
       },
     });
 
-    await this.auditLogs.registrar(usuarioId, 'ADS_PEDIDO_CRIADO', 'AD_CAMPANHA', campanha.id, {
-      depois: { titulo: campanha.titulo, orcamento: campanha.orcamentoBRL },
+    // Criar registro de pagamento e iniciar cobrança
+    const gatewayRef = `ad-${campanha.id.slice(0, 8)}-${Date.now().toString(36)}`;
+    await (this.prisma as any).adPagamento.create({
+      data: {
+        campanhaId: campanha.id,
+        anuncianteId: usuarioId,
+        valor: dto.orcamentoBRL,
+        status: 'PENDENTE',
+        gatewayRef,
+      },
     });
 
-    return campanha;
+    // Criar pagamento no provider (mock por agora)
+    const paymentResult = await this.paymentProvider.createPayment({
+      amountBRL: dto.orcamentoBRL,
+      method: 'PIX',
+      internalRef: campanha.id,
+      origin: 'AD',
+      description: `AxéMap ADS: ${dto.titulo}`,
+    });
+
+    await this.auditLogs.registrar(usuarioId, 'ADS_PEDIDO_CRIADO', 'AD_CAMPANHA', campanha.id, {
+      depois: { titulo: campanha.titulo, orcamento: campanha.orcamentoBRL, gatewayRef: paymentResult.gatewayRef },
+    });
+
+    return { ...campanha, payment: paymentResult };
   }
 
   async meusPedidos(usuarioId: string, limit = 50, offset = 0) {
@@ -224,18 +252,64 @@ export class AdsService {
     return atualizado;
   }
 
-  async registrarImpressao(id: string) {
+  async registrarImpressao(id: string, ip?: string) {
+    // Anti-fraud: cooldown por IP
+    const key = `imp:${id}:${ip ?? 'anon'}`;
+    const last = this.impressaoCache.get(key);
+    if (last && Date.now() - last < this.IMPRESSAO_COOLDOWN_MS) {
+      return { recorded: false, reason: 'COOLDOWN' };
+    }
+    this.impressaoCache.set(key, Date.now());
+
+    // Limpar cache antigo (a cada 1000 entradas)
+    if (this.impressaoCache.size > 1000) {
+      const cutoff = Date.now() - this.IMPRESSAO_COOLDOWN_MS;
+      for (const [k, v] of this.impressaoCache) {
+        if (v < cutoff) this.impressaoCache.delete(k);
+      }
+    }
+
+    // Verificar se campanha está PUBLICADA antes de registrar
+    const campanha = await (this.prisma as any).adCampanha.findUnique({ where: { id }, select: { status: true } });
+    if (!campanha || campanha.status !== AdStatus.PUBLICADO) {
+      return { recorded: false, reason: 'NOT_PUBLISHED' };
+    }
+
     await (this.prisma as any).adCampanha.update({
       where: { id },
       data: { impressoes: { increment: 1 } },
     });
+    return { recorded: true };
   }
 
-  async registrarClique(id: string) {
+  async registrarClique(id: string, ip?: string) {
+    // Anti-fraud: cooldown maior para cliques
+    const key = `cli:${id}:${ip ?? 'anon'}`;
+    const last = this.cliqueCache.get(key);
+    if (last && Date.now() - last < this.CLIQUE_COOLDOWN_MS) {
+      return { recorded: false, reason: 'COOLDOWN' };
+    }
+    this.cliqueCache.set(key, Date.now());
+
+    // Limpar cache antigo
+    if (this.cliqueCache.size > 1000) {
+      const cutoff = Date.now() - this.CLIQUE_COOLDOWN_MS;
+      for (const [k, v] of this.cliqueCache) {
+        if (v < cutoff) this.cliqueCache.delete(k);
+      }
+    }
+
+    // Verificar se campanha está PUBLICADA
+    const campanha = await (this.prisma as any).adCampanha.findUnique({ where: { id }, select: { status: true } });
+    if (!campanha || campanha.status !== AdStatus.PUBLICADO) {
+      return { recorded: false, reason: 'NOT_PUBLISHED' };
+    }
+
     await (this.prisma as any).adCampanha.update({
       where: { id },
       data: { cliques: { increment: 1 } },
     });
+    return { recorded: true };
   }
 
   // ──────────────────────────────────────────────────────────────

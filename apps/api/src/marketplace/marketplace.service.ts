@@ -1,9 +1,21 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+
+/** Comissão padrão AxéMap Marketplace (configurável pelo admin no futuro). */
+const COMISSAO_PERCENT_DEFAULT = 10;
 
 @Injectable()
 export class MarketplaceService {
   constructor(private prisma: PrismaService) {}
+
+  private slugificar(texto: string): string {
+    return texto
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
 
   async listar(opts: {
     q?: string;
@@ -70,6 +82,7 @@ export class MarketplaceService {
     nome: string;
     descricao?: string;
     preco: number;
+    precoPromocional?: number;
     categoria?: string;
     estoque?: number;
     imagens?: string[];
@@ -80,12 +93,18 @@ export class MarketplaceService {
 
     if (!membro) throw new ForbiddenException('Você não tem permissão para criar produtos neste terreiro');
 
+    const slugBase = this.slugificar(dto.nome);
+    const exists = await this.prisma.produtosMarketplace.findUnique({ where: { slug: slugBase } });
+    const slug = exists ? `${slugBase}-${Date.now().toString(36)}` : slugBase;
+
     return this.prisma.produtosMarketplace.create({
       data: {
         terreiroId,
         nome: dto.nome,
+        slug,
         descricao: dto.descricao ?? null,
         preco: dto.preco,
+        precoPromocional: dto.precoPromocional ?? null,
         categoria: dto.categoria ?? null,
         estoque: dto.estoque ?? 0,
         imagens: dto.imagens ?? [],
@@ -150,5 +169,140 @@ export class MarketplaceService {
       orderBy: { _count: { id: 'desc' } },
     });
     return result.map((r) => ({ categoria: r.categoria, count: r._count.id }));
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // PEDIDOS
+  // ──────────────────────────────────────────────────────────────
+
+  async criarPedido(usuarioId: string, dto: {
+    itens: { produtoId: string; quantidade: number }[];
+    observacoes?: string;
+  }) {
+    if (!dto.itens || dto.itens.length === 0) {
+      throw new BadRequestException('Pedido deve conter pelo menos um item');
+    }
+
+    // Buscar produtos e validar
+    const produtoIds = dto.itens.map((i) => i.produtoId);
+    const produtos = await this.prisma.produtosMarketplace.findMany({
+      where: { id: { in: produtoIds }, deletedAt: null },
+      include: { terreiro: { select: { id: true } } },
+    });
+
+    if (produtos.length !== produtoIds.length) {
+      throw new BadRequestException('Um ou mais produtos não foram encontrados');
+    }
+
+    // Verificar estoque
+    for (const item of dto.itens) {
+      const produto = produtos.find((p) => p.id === item.produtoId);
+      if (!produto) throw new BadRequestException(`Produto ${item.produtoId} não encontrado`);
+      if (produto.estoque < item.quantidade) {
+        throw new BadRequestException(`Estoque insuficiente para ${produto.nome}`);
+      }
+    }
+
+    // Verificar que todos os produtos são do mesmo terreiro
+    const terreiroIds = [...new Set(produtos.map((p) => p.terreiroId))];
+    if (terreiroIds.length > 1) {
+      throw new BadRequestException('Todos os itens devem ser do mesmo terreiro');
+    }
+
+    const terreiroId = terreiroIds[0];
+
+    // Calcular valores
+    let subtotal = 0;
+    const itensData = dto.itens.map((item) => {
+      const produto = produtos.find((p) => p.id === item.produtoId)!;
+      const precoUnitario = produto.precoPromocional ?? produto.preco;
+      const itemSubtotal = precoUnitario * item.quantidade;
+      subtotal += itemSubtotal;
+      return {
+        produtoId: item.produtoId,
+        quantidade: item.quantidade,
+        precoUnitario,
+        subtotal: itemSubtotal,
+      };
+    });
+
+    const comissaoPercent = COMISSAO_PERCENT_DEFAULT;
+    const comissaoValor = Math.round(subtotal * comissaoPercent / 100 * 100) / 100;
+    const total = Math.round((subtotal + comissaoValor) * 100) / 100;
+
+    // Criar pedido com itens
+    const pedido = await this.prisma.$transaction(async (tx) => {
+      const p = await tx.pedidosMarketplace.create({
+        data: {
+          compradorId: usuarioId,
+          terreiroId,
+          subtotal,
+          comissaoPercent,
+          comissaoValor,
+          total,
+          observacoes: dto.observacoes ?? null,
+          itens: {
+            create: itensData,
+          },
+        },
+        include: {
+          itens: { include: { produto: { select: { id: true, nome: true } } } },
+          terreiro: { select: { id: true, nome: true, slug: true } },
+        },
+      });
+
+      // Decrementar estoque
+      for (const item of dto.itens) {
+        await tx.produtosMarketplace.update({
+          where: { id: item.produtoId },
+          data: { estoque: { decrement: item.quantidade } },
+        });
+      }
+
+      return p;
+    });
+
+    return pedido;
+  }
+
+  async detalhePedido(pedidoId: string, usuarioId: string) {
+    const pedido = await this.prisma.pedidosMarketplace.findUnique({
+      where: { id: pedidoId },
+      include: {
+        itens: { include: { produto: { select: { id: true, nome: true, imagens: true } } } },
+        terreiro: { select: { id: true, nome: true, slug: true } },
+      },
+    });
+    if (!pedido) throw new NotFoundException('Pedido não encontrado');
+    if (pedido.compradorId !== usuarioId) throw new ForbiddenException('Acesso negado');
+    return pedido;
+  }
+
+  async meusPedidos(usuarioId: string, limit = 20, offset = 0) {
+    const [data, total] = await Promise.all([
+      this.prisma.pedidosMarketplace.findMany({
+        where: { compradorId: usuarioId },
+        include: {
+          itens: { select: { quantidade: true, subtotal: true } },
+          terreiro: { select: { nome: true, slug: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: Math.min(limit, 50),
+        skip: offset,
+      }),
+      this.prisma.pedidosMarketplace.count({ where: { compradorId: usuarioId } }),
+    ]);
+    return { data, total };
+  }
+
+  async confirmarPagamento(pedidoId: string, gatewayRef: string) {
+    const pedido = await this.prisma.pedidosMarketplace.findUnique({ where: { id: pedidoId } });
+    if (!pedido) throw new NotFoundException('Pedido não encontrado');
+    if (pedido.status !== 'CRIADO') throw new BadRequestException('Pedido já processado');
+
+    return this.prisma.pedidosMarketplace.update({
+      where: { id: pedidoId },
+      data: { status: 'PAGO', gatewayRef },
+    });
   }
 }

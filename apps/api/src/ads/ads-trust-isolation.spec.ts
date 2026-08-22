@@ -41,7 +41,8 @@ describe('ADS Trust Isolation', () => {
 
     // Importação dinâmica para evitar acoplamento com NestJS DI nos testes unitários
     const { AdsService } = await import('./ads.service');
-    service = new AdsService(mockPrisma, mockAuditLogs);
+    const mockPaymentProvider = { createPayment: jest.fn().mockResolvedValue({ gatewayRef: 'mock', status: 'PENDING' }) } as any;
+    service = new AdsService(mockPrisma, mockAuditLogs, mockPaymentProvider);
   });
 
   // ─────────────────────────────────────────────────────────────────────────────

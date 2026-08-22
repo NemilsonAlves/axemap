@@ -12,6 +12,7 @@ import { AdsService } from '../../ads/ads.service';
 import { PrismaService } from '../../database/prisma.service';
 import { AuditLogsService } from '../../audit-logs/audit-logs.service';
 import { AdStatus, AdPlacement, AdCategory } from '../../ads/ads.types';
+import { PAYMENT_PROVIDER } from '../../payments/payment.types';
 
 describe('ADS TRUST SEPARATION — Publicidade não altera Trust', () => {
   let adsService: AdsService;
@@ -38,6 +39,11 @@ describe('ADS TRUST SEPARATION — Publicidade não altera Trust', () => {
         count: jest.fn().mockResolvedValue(0),
         update: jest.fn().mockResolvedValue({ ...mockCampanha, status: AdStatus.PUBLICADO }),
       },
+      adPagamento: {
+        create: jest.fn().mockResolvedValue({ id: 'pag1', status: 'PENDENTE', gatewayRef: 'mock' }),
+        findFirst: jest.fn().mockResolvedValue(null),
+        update: jest.fn().mockResolvedValue({}),
+      },
       terreiros: {
         update: jest.fn(),
         findUnique: jest.fn(),
@@ -50,11 +56,14 @@ describe('ADS TRUST SEPARATION — Publicidade não altera Trust', () => {
 
     auditLogs = { registrar: jest.fn().mockResolvedValue(undefined) };
 
+    const mockPaymentProvider = { createPayment: jest.fn().mockResolvedValue({ gatewayRef: 'mock', status: 'PENDING' }) } as any;
+
     const moduleRef = await Test.createTestingModule({
       providers: [
         AdsService,
         { provide: PrismaService, useValue: prisma },
         { provide: AuditLogsService, useValue: auditLogs },
+        { provide: PAYMENT_PROVIDER, useValue: mockPaymentProvider },
       ],
     }).compile();
 

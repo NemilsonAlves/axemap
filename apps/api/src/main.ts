@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import { json } from 'express';
 import { AppModule } from './app.module';
 import { PinoLoggerService } from './common/logger/pino-logger.service';
 
@@ -100,6 +101,14 @@ async function bootstrap() {
     },
     credentials: true,
   });
+
+  // Body parser com rawBody para validação HMAC de webhooks
+  app.use(json({
+    verify: (req: any, _res, buf) => {
+      req.rawBody = buf;
+    },
+    limit: '2mb',
+  }));
 
   app.useGlobalPipes(
     new ValidationPipe({
