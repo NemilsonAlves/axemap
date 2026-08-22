@@ -29,10 +29,16 @@ import './profile.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
+function hasValidApiUrl(): boolean {
+  return API_URL.startsWith('http://') || API_URL.startsWith('https://');
+}
+
 async function getPerfil(slug: string): Promise<TerreiroPerfil | null> {
+  if (!hasValidApiUrl()) return null;
   try {
     const res = await fetch(`${API_URL}/api/v1/terreiros/${slug}/perfil`, {
       next: { revalidate: 300 },
+      signal: AbortSignal.timeout(8_000),
     });
     if (!res.ok) return null;
     return res.json();
@@ -42,9 +48,11 @@ async function getPerfil(slug: string): Promise<TerreiroPerfil | null> {
 }
 
 async function getRecomendacoes(terreiroId: string) {
+  if (!hasValidApiUrl()) return [];
   try {
     const res = await fetch(`${API_URL}/api/v1/recommendation/terreiro/${terreiroId}`, {
       next: { revalidate: 600 },
+      signal: AbortSignal.timeout(8_000),
     });
     if (!res.ok) return [];
     return res.json();
