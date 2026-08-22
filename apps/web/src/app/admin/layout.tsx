@@ -15,6 +15,7 @@ import {
   Eye,
   Server,
   Menu,
+  Megaphone,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { Sidebar, MobileSidebar, type SidebarGroup } from '@/components/ui/sidebar';
@@ -54,7 +55,10 @@ function AdminSidebar({ pathname }: { pathname: string }) {
     },
     {
       label: 'Sistema',
-      items: [item('System', '/admin/system', Server)],
+      items: [
+        item('System', '/admin/system', Server),
+        item('Ads', '/admin/ads', Megaphone),
+      ],
     },
   ];
 
@@ -139,7 +143,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 },
                 {
                   label: 'Sistema',
-                  items: [{ label: 'System', href: '/admin/system', icon: Server, active: pathname.startsWith('/admin/system') }],
+                  items: [
+                    { label: 'System', href: '/admin/system', icon: Server, active: pathname.startsWith('/admin/system') },
+                    { label: 'Ads', href: '/admin/ads', icon: Megaphone, active: pathname.startsWith('/admin/ads') },
+                  ],
                 },
               ];
               return g;

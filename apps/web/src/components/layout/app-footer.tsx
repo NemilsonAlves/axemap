@@ -31,11 +31,11 @@ const footerColumns: FooterColumn[] = [
   {
     title: 'Rede',
     links: [
+      { labelKey: 'nav.rede', href: '/rede' },
       { labelKey: 'nav.federacoes', href: '/federacoes' },
       { labelKey: 'nav.organizacoes', href: '/organizacoes' },
       { labelKey: 'nav.comunidades', href: '/terreiros' },
       { labelKey: 'nav.tv_axemap', href: '/tv' },
-      { labelKey: 'nav.impacto', href: '/campanhas' },
     ],
   },
   {

@@ -78,11 +78,10 @@ export function AppHeader() {
 
   // Dropdown Rede AxéMap
   const redeItems = [
+    { labelKey: 'nav.rede' as const,        href: '/rede',         icon: Network,   desc: 'Visão geral da Rede AxéMap' },
     { labelKey: 'nav.federacoes' as const,   href: '/federacoes',   icon: Building2, desc: 'Estruturas de representação e articulação' },
     { labelKey: 'nav.associacoes' as const,  href: '/organizacoes', icon: Handshake, desc: 'Coletivos e entidades associativas' },
-    { labelKey: 'nav.organizacoes' as const, href: '/organizacoes', icon: Network,   desc: 'Instituições da Rede AxéMap' },
     { labelKey: 'nav.comunidades' as const,  href: '/terreiros',    icon: Users,     desc: 'Casas, templos e comunidades' },
-    { labelKey: 'nav.institutos' as const,   href: '/organizacoes', icon: Landmark,  desc: 'Centros de pesquisa e memória' },
   ];
 
   const redeLinks = [

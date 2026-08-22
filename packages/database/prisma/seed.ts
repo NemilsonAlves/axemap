@@ -12,6 +12,9 @@ import {
   TaxonomyCategory,
   ConteudoStatus,
   ConteudoCulturalTipo,
+  OrganizationType,
+  OrganizationVerificationLevel,
+  OrgRelationshipStatus,
 } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
@@ -33,6 +36,7 @@ async function main() {
   await createAchievements();
   await createAnalyticsEvents();
   await createInstituicoes();
+  await createOrganizacoes();
   await createCampaigns();
   await createHubContent();
   await createPlanos();
@@ -419,6 +423,160 @@ async function createInstituicoes() {
     });
   }
   console.log(`  ✓ ${data.length} instituições criadas`);
+}
+
+async function createOrganizacoes() {
+  console.log('🏛️  Criando federações e organizações...');
+  const admin = await prisma.usuarios.findFirst({ where: { role: UserRole.ADMIN } });
+  const terreiros = await prisma.terreiros.findMany({ select: { id: true, nome: true, slug: true, cidade: true, estado: true } });
+
+  const federacoes = [
+    {
+      nome: 'Federação de Casas de Umbanda do Brasil',
+      slug: 'fed-casas-umbanda-brasil',
+      tipo: OrganizationType.FEDERACAO,
+      descricao: 'Entidade que representa e fortalece as casas de Umbanda em todo o território brasileiro, promovendo preservação cultural e assistência comunitária.',
+      historia: 'Fundada por lideranças tradicionais de Umbanda, a federação nasceu da necessidade de unir forças na defesa dos direitos religiosos e na preservação da memória cultural umbandista.',
+      estado: 'RJ',
+      cidade: 'Rio de Janeiro',
+      pais: 'Brasil',
+      website: 'https://fedumbanda.example.org',
+      verificacao: OrganizationVerificationLevel.VERIFICADA,
+      trustScore: 4.8,
+      isPublished: true,
+      publicadoEm: new Date(),
+      taxonomyCategory: TaxonomyCategory.INSTITUICAO,
+      criadoPorId: admin.id,
+      tradicoes: ['UMBANDA'],
+    },
+    {
+      nome: 'Confederação das Tradições Afro-Brasileiras',
+      slug: 'conf-tradicoes-afro-brasileiras',
+      tipo: OrganizationType.CONFEDERACAO,
+      descricao: 'Confederação que articula federações e associações de tradições africanas e afro-brasileiras em todo o Brasil.',
+      historia: 'Surgiu da articulação entre federações regionais para criar uma voz única na defesa dos direitos das religiões de matriz africana.',
+      estado: 'BA',
+      cidade: 'Salvador',
+      pais: 'Brasil',
+      verificacao: OrganizationVerificationLevel.VERIFICADA,
+      trustScore: 4.6,
+      isPublished: true,
+      publicadoEm: new Date(),
+      taxonomyCategory: TaxonomyCategory.INSTITUICAO,
+      criadoPorId: admin.id,
+      tradicoes: ['CANDOMBLE_KETU', 'CANDOMBLE_ANGOLA', 'UMBANDA', 'IFA'],
+    },
+    {
+      nome: 'Instituto de Pesquisa e Preservação Cultural',
+      slug: 'inst-pesquisa-preservacao-cultural',
+      tipo: OrganizationType.INSTITUTO,
+      descricao: 'Instituto dedicado à pesquisa acadêmica e preservação do patrimônio imaterial das religiões de matriz africana.',
+      estado: 'SP',
+      cidade: 'São Paulo',
+      pais: 'Brasil',
+      website: 'https://preservacao-cultural.example.org',
+      verificacao: OrganizationVerificationLevel.ORGANIZACAO_VERIFICADA,
+      trustScore: 4.4,
+      isPublished: true,
+      publicadoEm: new Date(),
+      taxonomyCategory: TaxonomyCategory.INSTITUICAO,
+      criadoPorId: admin.id,
+      tradicoes: ['CANDOMBLE_KETU', 'IFA', 'UMBANDA'],
+    },
+    {
+      nome: 'Associação de Defesa da Liberdade Religiosa',
+      slug: 'assoc-defesa-liberdade-religiosa',
+      tipo: OrganizationType.DEFESA_LIBERDADE_RELIGIOSA,
+      descricao: 'Organização jurídica que atua na defesa da liberdade religiosa e combate à intolerância contra religiões de matriz africana.',
+      estado: 'DF',
+      cidade: 'Brasília',
+      pais: 'Brasil',
+      verificacao: OrganizationVerificationLevel.VERIFICADA,
+      trustScore: 4.9,
+      isPublished: true,
+      publicadoEm: new Date(),
+      taxonomyCategory: TaxonomyCategory.INSTITUICAO,
+      criadoPorId: admin.id,
+      tradicoes: [],
+    },
+    {
+      nome: 'Centro Cultural Afro-Brasileiro',
+      slug: 'centro-cultural-afro-brasileiro',
+      tipo: OrganizationType.CENTRO_CULTURAL,
+      descricao: 'Centro dedicado à promoção da cultura afro-brasileira através de eventos, exposições e programas educacionais.',
+      estado: 'PE',
+      cidade: 'Recife',
+      pais: 'Brasil',
+      website: 'https://centroculturalafro.example.org',
+      verificacao: OrganizationVerificationLevel.NAO_VERIFICADA,
+      trustScore: 3.8,
+      isPublished: true,
+      publicadoEm: new Date(),
+      taxonomyCategory: TaxonomyCategory.INSTITUICAO,
+      criadoPorId: admin.id,
+      tradicoes: ['JUREMA', 'CATIMBO', 'UMBANDA'],
+    },
+    {
+      nome: 'Projeto Social Raízes Negras',
+      slug: 'proj-social-raizes-negras',
+      tipo: OrganizationType.PROJETO_SOCIAL,
+      descricao: 'Projeto social que utiliza a cultura e espiritualidade afro-brasileira como ferramenta de transformação social em comunidades periféricas.',
+      estado: 'MG',
+      cidade: 'Belo Horizonte',
+      pais: 'Brasil',
+      verificacao: OrganizationVerificationLevel.REIVINDICADA,
+      trustScore: 3.5,
+      isPublished: true,
+      publicadoEm: new Date(),
+      taxonomyCategory: TaxonomyCategory.INSTITUICAO,
+      criadoPorId: admin.id,
+      tradicoes: ['CANDOMBLE_KETU', 'UMBANDA'],
+    },
+  ];
+
+  const createdOrgs = [];
+  for (const org of federacoes) {
+    const { tradicoes, ...data } = org;
+    const created = await prisma.organizacoes.create({
+      data: {
+        ...data,
+        redesSociais: {},
+      },
+    });
+    createdOrgs.push(created);
+  }
+
+  const vinculos = [
+    { orgIdx: 0, terreiroSlug: 'terreiro-ogum', status: OrgRelationshipStatus.ACEITA },
+    { orgIdx: 0, terreiroSlug: 'terreiro-iemanja', status: OrgRelationshipStatus.ACEITA },
+    { orgIdx: 0, terreiroSlug: 'terreiro-oxossi', status: OrgRelationshipStatus.ACEITA },
+    { orgIdx: 1, terreiroSlug: 'ile-axe-oxum', status: OrgRelationshipStatus.ACEITA },
+    { orgIdx: 1, terreiroSlug: 'ile-axe-oya', status: OrgRelationshipStatus.ACEITA },
+    { orgIdx: 1, terreiroSlug: 'casa-xango', status: OrgRelationshipStatus.PENDENTE },
+    { orgIdx: 2, terreiroSlug: 'ile-awo-ifa-orunmila', status: OrgRelationshipStatus.ACEITA },
+    { orgIdx: 3, terreiroSlug: 'terreiro-ogum', status: OrgRelationshipStatus.ACEITA },
+  ];
+
+  let vinculados = 0;
+  for (const v of vinculos) {
+    const org = createdOrgs[v.orgIdx];
+    const terreiro = terreiros.find((t) => t.slug === v.terreiroSlug);
+    if (!org || !terreiro) continue;
+    try {
+      await prisma.organizacaoRelacionamentos.create({
+        data: {
+          organizacaoId: org.id,
+          terreiroId: terreiro.id,
+          status: v.status,
+        },
+      });
+      vinculados++;
+    } catch {
+      // skip duplicates
+    }
+  }
+
+  console.log(`  ✓ ${createdOrgs.length} organizações criadas (${vinculados} vínculos)`);
 }
 
 async function createHubContent() {
