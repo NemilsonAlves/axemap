@@ -4,6 +4,7 @@ export async function fetchLanding<T>(path: string, revalidate = 3600): Promise<
   try {
     const res = await fetch(`${API_URL}/api/v1/landing${path}`, {
       next: { revalidate },
+      signal: AbortSignal.timeout(8_000),
     });
     if (!res.ok) return null;
     return res.json();
