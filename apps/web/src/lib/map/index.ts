@@ -1,4 +1,4 @@
-export { MapView } from './map-view';
+export { MapView, type MapViewHandle } from './map-view';
 export { MapProviderWrapper, useMapProvider } from './map-provider';
 export { leafletProvider } from './leaflet';
 export type * from './types';
